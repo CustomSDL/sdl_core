@@ -21,6 +21,10 @@ if (CMAKE_BUILD_TYPE)
   endif()
 endif()
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  find_package(PCAP REQUIRED)
+endif ()
+
 include_directories (
   ./include/
   ../include/
@@ -34,6 +38,7 @@ include_directories (
 
 set (SOURCES
     src/ivdcm.cc
+    src/pcap_wrapper.cc
     #src/request_controller.cc
     src/ivdcm_event.cc
 )
