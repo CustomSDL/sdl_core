@@ -37,7 +37,10 @@ set (SOURCES
 )
 
 set (LIBRARIES
+    jsoncpp
+    ApplicationManager
     FunctionalModule
+    Utils
 )
 
 add_library(${target} SHARED ${SOURCES})

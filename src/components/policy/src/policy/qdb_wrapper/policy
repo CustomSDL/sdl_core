@@ -1,0 +1,4 @@
+Filename::/root/db/policy
+SchemaFile::/root/sql/policy.sql
+DataSchemaFile::/root/sql/policy_data.sql
+BackupDir::/root/bkp

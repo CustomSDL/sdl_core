@@ -1596,6 +1596,7 @@ bool ApplicationManagerImpl::ManageHMICommand(
 
 bool ApplicationManagerImpl::Init() {
   LOG4CXX_TRACE(logger_, "Init application manager");
+  LOG4CXX_DEBUG(logger_, "Profile " << profile::Profile::instance());
   const std::string app_storage_folder =
       profile::Profile::instance()->app_storage_folder();
   if (!InitDirectory(app_storage_folder, TYPE_STORAGE) ||
