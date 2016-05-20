@@ -42,11 +42,17 @@ add_library(${target} ${SOURCES})
 target_link_libraries(${target} qdb Utils)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "QNX")
+  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/policy DESTINATION ${CMAKE_BINARY_DIR}/src/appMain)
+  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/policy.sql DESTINATION ${CMAKE_BINARY_DIR}/src/appMain)
+  file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/policy_data.sql DESTINATION ${CMAKE_BINARY_DIR}/src/appMain)
   file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/policy.ini DESTINATION ${CMAKE_BINARY_DIR}/src/appMain)
   file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/qdbserver.sh DESTINATION ${CMAKE_BINARY_DIR}/src/appMain)
 endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "QNX")
+  install(FILES policy DESTINATION bin)
+  install(FILES policy.sql DESTINATION bin)
+  install(FILES policy_data.sql DESTINATION bin)
   install(FILES policy.ini DESTINATION bin)
   install(FILES qdbserver.sh DESTINATION bin
     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ

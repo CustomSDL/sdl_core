@@ -72,6 +72,9 @@ PolicyManagerImpl::PolicyManagerImpl()
     retry_sequence_timeout_(60),
     retry_sequence_index_(0),
     ignition_check(true) {
+  // TODO(KKolodiy) workaround for reading profile,
+  // possible it is fixed in fresh version of OpenSDL
+  profile::Profile::instance()->config_file_name("smartDeviceLink.ini");
 }
 
 void PolicyManagerImpl::set_listener(PolicyListener* listener) {
@@ -941,6 +944,7 @@ bool PolicyManagerImpl::ResetPT(const std::string& file_name) {
 
 bool PolicyManagerImpl::CheckAppStorageFolder() const {
   LOG4CXX_AUTO_TRACE(logger_);
+  LOG4CXX_DEBUG(logger_, "Profile " << profile::Profile::instance());
   const std::string app_storage_folder =
       profile::Profile::instance()->app_storage_folder();
   LOG4CXX_DEBUG(logger_, "AppStorageFolder " << app_storage_folder);
