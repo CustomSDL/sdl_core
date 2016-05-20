@@ -43,18 +43,23 @@ file(MAKE_DIRECTORY
 set(COMMON_CONFIGURE_FLAGS
   "--with-apr=../apr-build"
   "--with-apr-util=../apr-util-build"
-  "LDFLAGS=-L${EXPAT_LIBS_DIRECTORY}"
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
   if (CMAKE_SYSTEM_PROCESSOR MATCHES arm*)
     set (ARCHITECTURE arm) # log4cxx doesn't recognize armv7
+    set (TARGET $ENV{QNX_TARGET}/armle-v7)
   else ()
     set (ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
+    set (TARGET $ENV{QNX_TARGET}/x86)
   endif ()
-  set(CONFIGURE_FLAGS "--host=${ARCHITECTURE}-nto-qnx" ${COMMON_CONFIGURE_FLAGS})
+  set(CONFIGURE_FLAGS
+    "--host=${ARCHITECTURE}-nto-qnx"
+    "LDFLAGS=-L${EXPAT_LIBS_DIRECTORY} -L${TARGET}/lib -L${TARGET}/usr/lib -L${TARGET}/lib/gcc/4.7.3"
+    ${COMMON_CONFIGURE_FLAGS}
+  )
 else()
-  set(CONFIGURE_FLAGS ${COMMON_CONFIGURE_FLAGS})
+  set(CONFIGURE_FLAGS "LDFLAGS=-L${EXPAT_LIBS_DIRECTORY}" ${COMMON_CONFIGURE_FLAGS})
 endif()
 
 add_custom_command(OUTPUT ${LOG4CXX_BUILD_DIRECTORY}/Makefile

@@ -49,6 +49,7 @@ option(ENABLE_GCOV "gcov code coverage feature" OFF)
 option(ENABLE_SANITIZE "Sanitize tool" OFF)
 option(ENABLE_SECURITY "Security Ford protocol protection" ON)
 option(REMOTE_CONTROL "Enable Reverse functionality" ON)
+option(ENABLE_IVDCM "Enable In Vehicle Distributed Connectivity Manager functionality" ON)
 
 set(OS_TYPE_OPTION 	"$ENV{OS_TYPE}")
 set(DEBUG_OPTION 	"$ENV{DEBUG}")
@@ -79,7 +80,7 @@ if (OS_TYPE_OPTION)
     message(STATUS "Jenkins integration: set build process for QNX")
     #do not use include after project() command.
     #Such usecase results in infinite cycle of reinitialization of compiler and other variables
-    INCLUDE("./qnx_6.5.0_linux_x86.cmake")
+    INCLUDE("./qnx_6.6.0_linux_${ARCH_TYPE_OPTION}.cmake")
     set(objcopy "nto${ARCH_TYPE_OPTION}-objcopy")
     #tests are not supported yet for QNX build
     set (BUILD_TESTS OFF)
@@ -144,6 +145,11 @@ endif()
 if (REMOTE_CONTROL)
   add_definitions(-DSDL_REMOTE_CONTROL)
   message(STATUS "Remote control support is enabled (aka Reverse SDL or SDL-RC)")
+endif()
+
+if (ENABLE_IVDCM)
+  add_definitions(-DENABLE_IVDCM)
+  message(STATUS "IVDCM support is enabled")
 endif()
 
 #Jenkins integration section end
@@ -245,7 +251,7 @@ pkg_check_modules(GLIB2 REQUIRED glib-2.0)
 add_definitions(${GLIB2_CFLAGS})
 endif()
 
-set(CMAKE_CXX_FLAGS "-fPIC -std=gnu++0x -Wall -Werror")
+set(CMAKE_CXX_FLAGS "-fPIC -std=gnu++0x -Wall -Werror -Wno-error=deprecated-declarations")
 if (CMAKE_BUILD_TYPE)
   if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
