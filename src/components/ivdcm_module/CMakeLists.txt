@@ -34,6 +34,8 @@ include_directories (
 
 set (SOURCES
     src/ivdcm.cc
+    #src/request_controller.cc
+    src/ivdcm_event.cc
 )
 
 set (LIBRARIES
