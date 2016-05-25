@@ -67,4 +67,3 @@ endif()
 if(HMI_DBUS_API)
   add_subdirectory(dbus-cmake)
 endif()
-
