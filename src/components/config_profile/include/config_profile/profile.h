@@ -498,6 +498,10 @@ class Profile : public utils::Singleton<Profile> {
 
     bool logs_enabled() const;
 
+    std::string ivdcm_ip() const;
+    uint16_t    ivdcm_port() const;
+    std::string ivdcm_nic_name() const;
+
     /*
      * @brief Updates all related values from ini file
      */
@@ -701,6 +705,11 @@ private:
     uint32_t                        resumption_delay_after_ign_;
     uint32_t                        hash_string_size_;
     bool                            logs_enabled_;
+
+    // IVDCM
+    std::string ivdcm_ip_;
+    uint16_t    ivdcm_port_;
+    std::string ivdcm_nic_name_;
 
     FRIEND_BASE_SINGLETON_CLASS(Profile);
     DISALLOW_COPY_AND_ASSIGN(Profile);
