@@ -40,18 +40,25 @@ namespace ivdcm_module {
 using functional_modules::ProcessResult;
 using functional_modules::GenericModule;
 using functional_modules::PluginInfo;
+using functional_modules::MobileFunctionID;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 
 PLUGIN_FACTORY(Ivdcm)
 
-Ivdcm::Ivdcm() : GenericModule(kCANModuleID),
-    from_mobile_("FromMobile To Can", this) {
+Ivdcm::Ivdcm() : GenericModule(kCANModuleID) {
   plugin_info_.name = "IvdcmPlugin";
   plugin_info_.version = 1;
 }
 
 Ivdcm::~Ivdcm() {}
+
+void Ivdcm::SubscribeToRpcMessages() {
+  plugin_info_.mobile_function_list.push_back(
+      MobileFunctionID::ON_INTERNET_STATE_CHANGED);
+  plugin_info_.mobile_function_list.push_back(
+      MobileFunctionID::SEND_IVDCM_DATA);
+}
 
 void Ivdcm::Handle(const MessageFromMobile message) {
 
@@ -141,6 +148,33 @@ void Ivdcm::OnAppHMILevelChanged(application_manager::ApplicationSharedPtr app,
   LOG4CXX_DEBUG(logger_, "Application " << app->name()
         << " has changed hmi level to " << app->hmi_level());
   // TODO(KKolodiy): here should be implemented the corresponding logic
+}
+
+void Ivdcm::SendMessageToMobile(application_manager::MessagePtr msg) {
+  LOG4CXX_DEBUG(logger_, "Message to mobile: " << msg->json_message());
+  service()->SendMessageToMobile(msg);
+}
+
+ProcessResult Ivdcm::ProcessMobileMessage(application_manager::MessagePtr msg) {
+  DCHECK(msg);
+
+  if (!msg) {
+    LOG4CXX_ERROR(logger_, "Null pointer message received.");
+    return ProcessResult::FAILED;
+  }
+
+  LOG4CXX_DEBUG(logger_, "Mobile message: " << msg->json_message());
+
+  // TODO(VS): will be uncommented after factory and command implementation
+/*  commands::Command* command = MobileCommandFactory::CreateCommand(msg);
+  if (command) {
+    request_controller_.AddRequest(msg->correlation_id(), command);
+    command->Run();
+  } else {
+    return ProcessResult::CANNOT_PROCESS;
+  }*/
+
+  return ProcessResult::PROCESSED;
 }
 
 }  //  namespace ivdcm_module

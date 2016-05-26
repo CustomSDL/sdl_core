@@ -37,14 +37,12 @@
 #include "functional_module/generic_module.h"
 #include "json/value.h"
 #include "utils/macro.h"
-#include "utils/threads/message_loop_thread.h"
 
 namespace ivdcm_module {
 
 typedef Json::Value MessageFromMobile;
 
-class Ivdcm : public functional_modules::GenericModule,
-  public threads::MessageLoopThread <std::queue<MessageFromMobile >>::Handler {
+class Ivdcm : public functional_modules::GenericModule {
  public:
   Ivdcm();
   ~Ivdcm();
@@ -62,9 +60,29 @@ class Ivdcm : public functional_modules::GenericModule,
   void Handle(const MessageFromMobile message);
 
  private:
+
+  /**
+   * @brief Subscribes plugin to mobie rpc messages
+   */
+  void SubscribeToRpcMessages();
+
+  /**
+   * @brief Sends message to mobile application
+   * @param msg message
+   */
+  void SendMessageToMobile(application_manager::MessagePtr msg);
+
+  /**
+   * @brief Process messages from mobile(called from SDL part through interface)
+   * @param msg request mesage
+   * @return processing result
+   */
+  virtual functional_modules::ProcessResult ProcessMobileMessage(
+    application_manager::MessagePtr msg);
+
+ private:
   static const functional_modules::ModuleID kCANModuleID = 404;
   functional_modules::PluginInfo plugin_info_;
-  threads::MessageLoopThread<std::queue<MessageFromMobile>> from_mobile_;
 
   friend class IvdcmModuleTest;
   DISALLOW_COPY_AND_ASSIGN(Ivdcm);
