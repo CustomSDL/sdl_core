@@ -69,21 +69,6 @@ PluginInfo Ivdcm::GetPluginInfo() const {
   return plugin_info_;
 }
 
-ProcessResult Ivdcm::ProcessMessage(application_manager::MessagePtr msg) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  DCHECK(msg);
-  if (!msg) {
-    LOG4CXX_ERROR(logger_, "Null pointer message received.");
-    return ProcessResult::FAILED;
-  }
-
-  LOG4CXX_DEBUG(logger_, "Mobile message: " << msg->json_message());
-
-  // TODO(KKolodiy): here should be implemented logic of the message processing
-
-  return ProcessResult::PROCESSED;
-}
-
 ProcessResult Ivdcm::ProcessHMIMessage(application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
   DCHECK(msg);
@@ -155,7 +140,7 @@ void Ivdcm::SendMessageToMobile(application_manager::MessagePtr msg) {
   service()->SendMessageToMobile(msg);
 }
 
-ProcessResult Ivdcm::ProcessMobileMessage(application_manager::MessagePtr msg) {
+ProcessResult Ivdcm::ProcessMessage(application_manager::MessagePtr msg) {
   DCHECK(msg);
 
   if (!msg) {
@@ -166,7 +151,8 @@ ProcessResult Ivdcm::ProcessMobileMessage(application_manager::MessagePtr msg) {
   LOG4CXX_DEBUG(logger_, "Mobile message: " << msg->json_message());
 
   // TODO(VS): will be uncommented after factory and command implementation
-/*  commands::Command* command = MobileCommandFactory::CreateCommand(msg);
+
+  /*  commands::Command* command = MobileCommandFactory::CreateCommand(msg);
   if (command) {
     request_controller_.AddRequest(msg->correlation_id(), command);
     command->Run();

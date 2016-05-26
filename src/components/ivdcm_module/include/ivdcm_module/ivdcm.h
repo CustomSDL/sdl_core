@@ -47,10 +47,16 @@ class Ivdcm : public functional_modules::GenericModule {
   Ivdcm();
   ~Ivdcm();
   virtual functional_modules::PluginInfo GetPluginInfo() const;
-  virtual functional_modules::ProcessResult ProcessMessage(
-      application_manager::MessagePtr msg);
   virtual functional_modules::ProcessResult ProcessHMIMessage(
       application_manager::MessagePtr msg);
+
+  /**
+   * @brief Process messages from mobile(called from SDL part through interface)
+   * @param msg request mesage
+   * @return processing result
+   */
+  virtual functional_modules::ProcessResult ProcessMessage(
+    application_manager::MessagePtr msg);
   virtual void RemoveAppExtension(uint32_t app_id);
   virtual void OnDeviceRemoved(const connection_handler::DeviceHandle& device);
   virtual void RemoveAppExtensions();
@@ -71,14 +77,6 @@ class Ivdcm : public functional_modules::GenericModule {
    * @param msg message
    */
   void SendMessageToMobile(application_manager::MessagePtr msg);
-
-  /**
-   * @brief Process messages from mobile(called from SDL part through interface)
-   * @param msg request mesage
-   * @return processing result
-   */
-  virtual functional_modules::ProcessResult ProcessMobileMessage(
-    application_manager::MessagePtr msg);
 
  private:
   static const functional_modules::ModuleID kCANModuleID = 404;
