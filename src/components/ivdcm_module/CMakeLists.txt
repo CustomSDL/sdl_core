@@ -26,6 +26,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif ()
 
 include_directories (
+  ${CMAKE_CURRENT_BINARY_DIR}
   ./include/
   ../include/
   ../functional_module/include/
@@ -33,6 +34,7 @@ include_directories (
   ../connection_handler/include/
   ${LOG4CXX_INCLUDE_DIRECTORY}
   ${JSONCPP_INCLUDE_DIRECTORY}
+  ${GPB_INCLUDE_DIRECTORY}
   ${CMAKE_BINARY_DIR}/src/components/
 )
 
@@ -41,6 +43,7 @@ set (SOURCES
     src/pcap_wrapper.cc
     #src/request_controller.cc
     src/ivdcm_event.cc
+    src/rpc.cc
 )
 
 set (LIBRARIES
@@ -48,17 +51,22 @@ set (LIBRARIES
     ApplicationManager
     FunctionalModule
     Utils
+    protobuf
+    IvdcmRPC
     Transmitter
     Net
 )
 
+generate_proto(${CMAKE_CURRENT_SOURCE_DIR}/interface/rpc.proto IvdcmRPC)
+
+link_directories(${LINK_DIRECTORIES} ${GPB_LIBS_DIRECTORY})
 add_library(${target} SHARED ${SOURCES})
+add_dependencies(${target} LibGPB)
 target_link_libraries(${target} ${LIBRARIES} )
 
 if(ENABLE_LOG)
   target_link_libraries(${target} log4cxx -L${LOG4CXX_LIBS_DIRECTORY})
 endif()
-
 
 install(TARGETS ${target}
   DESTINATION ${install_destination}

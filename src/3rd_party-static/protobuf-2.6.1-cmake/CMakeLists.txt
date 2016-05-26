@@ -34,6 +34,11 @@ set(GPB_LIBS_DIRECTORY ${GPB_BUILD_DIRECTORY}/src/.libs)
 set(PROTOC_BUILD_PATH /tmp/protobuf-2.6.1)
 set(PROTOC_PATH /tmp/protobuf-2.6.1/src/protoc)
 
+set(GPB_INCLUDE_DIRECTORY ${GPB_SOURCE_DIRECTORY}/src)
+set(GPB_INCLUDE_DIRECTORY ${GPB_INCLUDE_DIRECTORY} PARENT_SCOPE)
+set(GPB_LIBS_DIRECTORY ${GPB_BUILD_DIRECTORY}/src/.libs)
+set(GPB_LIBS_DIRECTORY ${GPB_LIBS_DIRECTORY} PARENT_SCOPE)
+
 file(MAKE_DIRECTORY
   ${GPB_BUILD_DIRECTORY}
 )
@@ -75,4 +80,42 @@ install(
   USE_SOURCE_PERMISSIONS
   FILES_MATCHING PATTERN libprotobuf.so*
 )
+
+macro(generate_proto PROTO_FILE LIB_NAME)
+  set(PROTOC_PATH /tmp/protobuf-2.6.1/src/protoc)
+  get_filename_component(PROTO_NAME ${PROTO_FILE} NAME_WE)
+  get_filename_component(PROTO_DIRECTORY ${PROTO_FILE} DIRECTORY)
+  STRING(REGEX REPLACE "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" GENERATE_PATH ${PROTO_DIRECTORY})
+  add_definitions(-DGOOGLE_PROTOBUF_NO_RTTI)
+  add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
+  MESSAGE(STATUS "Folder of generated files : ${GENERATE_PATH}")
+  MESSAGE(STATUS "File name: ${PROTO_FILE}")
+  MESSAGE(STATUS "File folder: ${PROTO_DIRECTORY}")
+  MESSAGE(STATUS "Lib name : ${LIB_NAME}")
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${GENERATE_PATH}/${PROTO_NAME}.pb.h ${GENERATE_PATH}/${PROTO_NAME}.pb.cc
+    COMMAND mkdir -p ${GENERATE_PATH}
+    COMMAND
+      BUILD_PATH=${CMAKE_BINARY_DIR}
+      ${PROTOC_PATH}
+      --proto_path=${PROTO_DIRECTORY}
+      --cpp_out=${GENERATE_PATH}
+      ${PROTO_FILE}
+    VERBATIM
+    DEPENDS ${PROTO_FILE} LibGPB
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT "Generating ${GENERATE_PATH}/${PROTO_NAME}.pb.h ${GENERATE_PATH}/${PROTO_NAME}.pb.cc")
+  set_source_files_properties(${GENERATE_PATH}/${PROTO_NAME}.pb.cc
+                              PROPERTIES GENERATED TRUE)
+  INCLUDE_DIRECTORIES(${GENERATE_PATH})
+  INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/src/components)
+
+  IF (NOT TARGET ${LIB_NAME})
+    ADD_LIBRARY(
+      ${LIB_NAME}
+      ${GENERATE_PATH}/${PROTO_NAME}.pb.cc
+    )
+    set_target_properties(${LIB_NAME} PROPERTIES COMPILE_FLAGS "-Wno-sign-compare")
+  endif(NOT TARGET ${LIB_NAME})
+endmacro(generate_proto)
 

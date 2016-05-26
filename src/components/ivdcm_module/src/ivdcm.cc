@@ -33,7 +33,7 @@
 #include "ivdcm_module/ivdcm.h"
 
 #include "utils/logger.h"
-
+#include "ivdcm_module/rpc.h"
 
 namespace ivdcm_module {
 
@@ -49,6 +49,9 @@ PLUGIN_FACTORY(Ivdcm)
 Ivdcm::Ivdcm() : GenericModule(kCANModuleID) {
   plugin_info_.name = "IvdcmPlugin";
   plugin_info_.version = 1;
+  // TODO(KKolodiy): only in order to check building and using GPB.
+  // It might be removed after appearing logic which is using GPB
+  RPC::check();
 }
 
 Ivdcm::~Ivdcm() {}
