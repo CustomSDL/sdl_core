@@ -227,6 +227,16 @@ const uint16_t kDefaultOpenAttemptTimeoutMsKey = 500;
 const uint32_t kDefaultAppIconsFolderMaxSize = 1048576;
 const uint32_t kDefaultAppIconsAmountToRemove = 1;
 
+// IVDCM
+const char* kIvdcmSection = "IVDCM";
+const char* kIvdcmIp      = "ip";
+const char* kIvdcmPort    = "port";
+const char* kIvdcmNicName = "nic_name";
+
+const char* kDefaultIvdcmIp      = "127.0.0.1";
+const uint16_t kDefaultIvdcmPort = 5445;
+const char* kDefaultIvdcmNicName = "sdlproxy";
+
 }  // namespace
 
 namespace profile {
@@ -297,7 +307,10 @@ Profile::Profile()
     attempts_to_open_policy_db_(kDefaultAttemptsToOpenPolicyDB),
     open_attempt_timeout_ms_(kDefaultAttemptsToOpenPolicyDB),
     hash_string_size_(kDefaultHashStringSize),
-    logs_enabled_(true) {
+    logs_enabled_(true),
+    ivdcm_ip_(kDefaultIvdcmIp),
+    ivdcm_port_(kDefaultIvdcmPort),
+    ivdcm_nic_name_(kDefaultIvdcmNicName) {
 }
 
 Profile::~Profile() {
@@ -1383,6 +1396,24 @@ void Profile::UpdateValues() {
   LOG_UPDATED_VALUE(hash_string_size_,
                     kHashStringSizeKey,
                     kApplicationManagerSection);
+
+
+  // IVDCM
+
+  ReadStringValue(&ivdcm_ip_, kDefaultIvdcmIp, kIvdcmSection, kIvdcmIp);
+
+  LOG_UPDATED_VALUE(ivdcm_ip_, kIvdcmIp, kIvdcmSection);
+
+
+  ReadUIntValue(&ivdcm_port_, kDefaultIvdcmPort, kIvdcmSection, kIvdcmPort);
+
+  LOG_UPDATED_VALUE(ivdcm_port_, kIvdcmPort, kIvdcmSection);
+
+
+  ReadStringValue(&ivdcm_nic_name_, kDefaultIvdcmNicName,
+                  kIvdcmSection, kIvdcmNicName);
+
+  LOG_UPDATED_VALUE(ivdcm_nic_name_, kIvdcmNicName, kIvdcmSection);
 }
 
 bool Profile::ReadValue(bool* value, const char* const pSection,
@@ -1590,6 +1621,18 @@ bool Profile::IsRelativePath(const std::string& path) {
 
 void Profile::MakeAbsolutePath(std::string& path) {
   path = file_system::CurrentWorkingDirectory() + "/" + path;
+}
+
+std::string Profile::ivdcm_ip() const {
+  return ivdcm_ip_;
+}
+
+uint16_t Profile::ivdcm_port() const {
+  return ivdcm_port_;
+}
+
+std::string Profile::ivdcm_nic_name() const {
+  return ivdcm_nic_name_;
 }
 
 }  //  namespace profile
