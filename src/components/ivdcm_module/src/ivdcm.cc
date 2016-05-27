@@ -51,7 +51,7 @@ Ivdcm::Ivdcm() : GenericModule(kCANModuleID) {
   plugin_info_.version = 1;
   // TODO(KKolodiy): only in order to check building and using GPB.
   // It might be removed after appearing logic which is using GPB
-  RPC::check();
+  LOG4CXX_DEBUG(logger_, "Test GPB: " << RPC::check());
 }
 
 Ivdcm::~Ivdcm() {}

@@ -33,11 +33,13 @@
 #ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_RPC_H_
 #define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_RPC_H_
 
+#include <string>
+
 namespace ivdcm_module {
 class RPC
 {
  public:
-  static void check();
+  static std::string check();
 };
 }  // namespace ivdcm_module
 

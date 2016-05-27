@@ -30,7 +30,6 @@
 
 set(GPB_SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../protobuf-2.6.1")
 set(GPB_BUILD_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/../protobuf-2.6.1-build")
-set(GPB_LIBS_DIRECTORY ${GPB_BUILD_DIRECTORY}/src/.libs)
 set(PROTOC_BUILD_PATH /tmp/protobuf-2.6.1)
 set(PROTOC_PATH /tmp/protobuf-2.6.1/src/protoc)
 
@@ -75,8 +74,8 @@ add_custom_target(LibGPB ALL make
 )
 
 install(
-  DIRECTORY ${GPB_LIBS_DIRECTORY}/
-  DESTINATION ${GPB_LIBS_DIRECTORY}/lib
+  DIRECTORY ${GPB_BUILD_DIRECTORY}/src/.libs/
+  DESTINATION ${CMAKE_BINARY_DIR}/bin/lib
   USE_SOURCE_PERMISSIONS
   FILES_MATCHING PATTERN libprotobuf.so*
 )
@@ -87,7 +86,6 @@ macro(generate_proto PROTO_FILE LIB_NAME)
   get_filename_component(PROTO_DIRECTORY ${PROTO_FILE} DIRECTORY)
   STRING(REGEX REPLACE "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" GENERATE_PATH ${PROTO_DIRECTORY})
   add_definitions(-DGOOGLE_PROTOBUF_NO_RTTI)
-  add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
   MESSAGE(STATUS "Folder of generated files : ${GENERATE_PATH}")
   MESSAGE(STATUS "File name: ${PROTO_FILE}")
   MESSAGE(STATUS "File folder: ${PROTO_DIRECTORY}")

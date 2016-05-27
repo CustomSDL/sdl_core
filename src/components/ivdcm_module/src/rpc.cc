@@ -32,11 +32,16 @@
 
 #include "ivdcm_module/rpc.h"
 #include "interface/rpc.pb.h"
+#include "google/protobuf/text_format.h"
+
 namespace ivdcm_module {
 
-void RPC::check() {
+std::string RPC::check() {
   sdl_ivdcm_api::SDLRPC message;
   message.set_rpc_type(sdl_ivdcm_api::MessageType::REQUEST);
+  std::string str;
+  google::protobuf::TextFormat::PrintToString(message, &str);
+  return str;
 }
 
 }  // namespace ivdcm_module
