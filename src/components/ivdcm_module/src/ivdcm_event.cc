@@ -36,9 +36,9 @@
 namespace ivdcm_module {
 
 IvdcmEvent::IvdcmEvent(const application_manager::MessagePtr& message,
-                               const std::string& id)
-: event_engine::Event<application_manager::MessagePtr,
-                      std::string>(message, id) {
+                       const functional_modules::MobileFunctionID& id)
+  : event_engine::Event<application_manager::MessagePtr,
+                        functional_modules::MobileFunctionID>(message, id) {
 }
 
 

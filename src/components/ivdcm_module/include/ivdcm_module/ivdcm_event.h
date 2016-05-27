@@ -39,10 +39,13 @@
 
 #include "ivdcm_module/event_engine/event.h"
 
+#include "functional_module/function_ids.h"
+
 namespace ivdcm_module {
 
 class IvdcmEvent :
-    public event_engine::Event<application_manager::MessagePtr, std::string> {
+    public event_engine::Event<application_manager::MessagePtr,
+    functional_modules::MobileFunctionID> {
  public:
   /**
    * @brief Constructor with parameters
@@ -51,7 +54,7 @@ class IvdcmEvent :
    * @param message Params in mobile response
    */
   IvdcmEvent(const application_manager::MessagePtr& message,
-                 const std::string& id);
+             const functional_modules::MobileFunctionID& id);
 
   /**
    * @brief Destructor
