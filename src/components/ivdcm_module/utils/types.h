@@ -1,5 +1,5 @@
-#ifndef SRC_FRAMEWORK_UTILS_TYPES_H_
-#define SRC_FRAMEWORK_UTILS_TYPES_H_
+#ifndef SRC_COMPONENTS_IVDCM_MODULE_UTILS_TYPES_H_
+#define SRC_COMPONENTS_IVDCM_MODULE_UTILS_TYPES_H_
 
 #include <sys/types.h>
 
@@ -74,4 +74,4 @@ typedef signed long long int Int64;
  */
 typedef unsigned long long int UInt64;
 
-#endif  // SRC_FRAMEWORK_UTILS_TYPES_H_
+#endif  // SRC_COMPONENTS_IVDCM_MODULE_UTILS_TYPES_H_

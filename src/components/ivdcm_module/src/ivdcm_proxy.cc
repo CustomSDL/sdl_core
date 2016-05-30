@@ -30,47 +30,33 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <dlfcn.h>
-#include "gtest/gtest.h"
-#include "ivdcm_module/ivdcm.h"
-
-using functional_modules::PluginInfo;
+#include "ivdcm_module/ivdcm_proxy.h"
+#include "ivdcm_module/ivdcm_proxy_listener.h"
+#include "utils/logger.h"
 
 namespace ivdcm_module {
 
-::testing::AssertionResult IsError(void* error) {
-  if (error) {
-    return ::testing::AssertionSuccess() << static_cast<const char*>(error);
-  } else {
-    return ::testing::AssertionFailure() << error;
-  }
+CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
+
+IvdcmProxy::IvdcmProxy(IvdcmProxyListener *listener)
+    : listener_(listener),
+      gpb_(GpbDataSenderReceiver(this)) {
+  gpb_.Start();
 }
 
-TEST(IvdcmLibraryTest, Load) {
-  const std::string kLibraryPath = "libivdcm.so";
+IvdcmProxy::~IvdcmProxy() {
+  gpb_.Stop();
+}
 
-  void* handle = dlopen(kLibraryPath.c_str(), RTLD_LAZY);
-  EXPECT_FALSE(IsError(dlerror()));
-  ASSERT_TRUE(handle != NULL);
+bool IvdcmProxy::Send(const sdl_ivdcm_api::SDLRPC &message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  return gpb_.Send(message);
+}
 
-  const std::string kSymbol = "Create";
-  void* symbol = dlsym(handle, kSymbol.c_str());
-  EXPECT_FALSE(IsError(dlerror()));
-  ASSERT_TRUE(symbol != NULL);
-
-  typedef Ivdcm* (*Create)();
-  Create create_manager = reinterpret_cast<Create>(symbol);
-  Ivdcm* module = create_manager();
-  ASSERT_TRUE(module != NULL);
-
-  PluginInfo plugin = module->GetPluginInfo();
-  EXPECT_EQ(plugin.name, "IvdcmPlugin");
-  EXPECT_EQ(plugin.version, 1);
-
-  delete module;
-  int ret = dlclose(handle);
-  EXPECT_FALSE(ret);
-  EXPECT_FALSE(IsError(dlerror()));
+void IvdcmProxy::OnReceived(const sdl_ivdcm_api::SDLRPC &message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  listener_->OnReceived(message);
 }
 
 }  // namespace ivdcm_module
+

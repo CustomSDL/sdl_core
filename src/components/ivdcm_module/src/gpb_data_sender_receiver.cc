@@ -30,47 +30,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <dlfcn.h>
-#include "gtest/gtest.h"
-#include "ivdcm_module/ivdcm.h"
-
-using functional_modules::PluginInfo;
+#include "ivdcm_module/gpb_data_sender_receiver.h"
+#include "ivdcm_module/ivdcm_proxy.h"
 
 namespace ivdcm_module {
 
-::testing::AssertionResult IsError(void* error) {
-  if (error) {
-    return ::testing::AssertionSuccess() << static_cast<const char*>(error);
-  } else {
-    return ::testing::AssertionFailure() << error;
-  }
+GpbDataSenderReceiver::GpbDataSenderReceiver(IvdcmProxy *parent)
+    : parent_(parent) {
 }
 
-TEST(IvdcmLibraryTest, Load) {
-  const std::string kLibraryPath = "libivdcm.so";
+GpbDataSenderReceiver::~GpbDataSenderReceiver() {
 
-  void* handle = dlopen(kLibraryPath.c_str(), RTLD_LAZY);
-  EXPECT_FALSE(IsError(dlerror()));
-  ASSERT_TRUE(handle != NULL);
+}
 
-  const std::string kSymbol = "Create";
-  void* symbol = dlsym(handle, kSymbol.c_str());
-  EXPECT_FALSE(IsError(dlerror()));
-  ASSERT_TRUE(symbol != NULL);
+void GpbDataSenderReceiver::Start() {
+  // TODO(KKolodiy): run transmitter
+}
 
-  typedef Ivdcm* (*Create)();
-  Create create_manager = reinterpret_cast<Create>(symbol);
-  Ivdcm* module = create_manager();
-  ASSERT_TRUE(module != NULL);
+void GpbDataSenderReceiver::Stop() {
+  // TODO(KKolodiy): stop transmitter
+}
 
-  PluginInfo plugin = module->GetPluginInfo();
-  EXPECT_EQ(plugin.name, "IvdcmPlugin");
-  EXPECT_EQ(plugin.version, 1);
+bool GpbDataSenderReceiver::Send(const sdl_ivdcm_api::SDLRPC &message) {
+  // TODO(KKolodiy): convert protobuf -> string and send using transmitter
+  return false;
+}
 
-  delete module;
-  int ret = dlclose(handle);
-  EXPECT_FALSE(ret);
-  EXPECT_FALSE(IsError(dlerror()));
+void GpbDataSenderReceiver::OnMessageReceived(const std::string &buff) {
+  // TODO(KKolodiy): convert string -> protobuf
+  // parent_->OnReceived(message);
 }
 
 }  // namespace ivdcm_module

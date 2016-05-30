@@ -26,6 +26,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif ()
 
 include_directories (
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
   ./include/
   ../include/
   ../functional_module/include/
@@ -41,6 +43,8 @@ set (SOURCES
     src/pcap_wrapper.cc
     src/request_controller.cc
     src/ivdcm_event.cc
+    src/ivdcm_proxy.cc
+    src/gpb_data_sender_receiver.cc
 )
 
 set (LIBRARIES
@@ -58,7 +62,6 @@ target_link_libraries(${target} ${LIBRARIES} )
 if(ENABLE_LOG)
   target_link_libraries(${target} log4cxx -L${LOG4CXX_LIBS_DIRECTORY})
 endif()
-
 
 install(TARGETS ${target}
   DESTINATION ${install_destination}

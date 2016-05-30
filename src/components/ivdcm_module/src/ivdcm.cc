@@ -34,7 +34,6 @@
 
 #include "utils/logger.h"
 
-
 namespace ivdcm_module {
 
 using functional_modules::ProcessResult;
@@ -46,7 +45,9 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 
 PLUGIN_FACTORY(Ivdcm)
 
-Ivdcm::Ivdcm() : GenericModule(kCANModuleID) {
+Ivdcm::Ivdcm()
+    : GenericModule(kCANModuleID),
+      proxy(IvdcmProxy(this)) {
   plugin_info_.name = "IvdcmPlugin";
   plugin_info_.version = 1;
 }
@@ -161,6 +162,10 @@ ProcessResult Ivdcm::ProcessMessage(application_manager::MessagePtr msg) {
   }*/
 
   return ProcessResult::PROCESSED;
+}
+
+void Ivdcm::OnReceived(const sdl_ivdcm_api::SDLRPC &message) {
+  // TODO(KKolodiy): here should be implemented the corresponding logic
 }
 
 }  //  namespace ivdcm_module
