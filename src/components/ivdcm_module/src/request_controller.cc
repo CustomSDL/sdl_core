@@ -39,7 +39,7 @@
 namespace ivdcm_module {
 namespace request_controller {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "CANRequestController")
+CREATE_LOGGERPTR_GLOBAL(logger_, "IvdcmRequestController")
 
 RequestController::RequestController() {
   functional_modules::TimeUnit timeout_seconds = 100;
@@ -70,6 +70,10 @@ void RequestController::DeleteRequest(const uint32_t& mobile_correlation_id) {
   mobile_request_list_.erase(mobile_correlation_id);
   // TODO(VS): add app id
   timer_.RemoveTrackable(TrackableMessage(0, mobile_correlation_id));
+}
+
+void RequestController::ResetTimer(const uint32_t& mobile_correlation_id) {
+  timer_.AddTrackable(TrackableMessage(0, mobile_correlation_id));
 }
 
 void RequestController::OnTimeoutTriggered(const TrackableMessage& expired) {
