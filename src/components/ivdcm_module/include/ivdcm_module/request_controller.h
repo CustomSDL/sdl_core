@@ -35,8 +35,9 @@
 
 #include <map>
 
-#include "can_cooperation/commands/command.h"
-#include "can_cooperation/can_module_timer.h"
+#include "ivdcm_module/commands/command.h"
+#include "ivdcm_module/ivdcm_module_timer.h"
+#include "utils/shared_ptr.h"
 
 namespace ivdcm_module {
 namespace request_controller {
@@ -76,6 +77,12 @@ class RequestController : public functional_modules::TimerObserver<TrackableMess
   void DeleteRequest(const uint32_t& mobile_correlation_id);
 
   void OnTimeoutTriggered(const TrackableMessage& expired);
+
+  /**
+   * @brief Update request timer from cur time(Use it if you want reset timet for some reason)
+   * @param mobile_corellation_id mobile request correlation id
+   */
+  void ResetTimer(const uint32_t& mobile_correlation_id);
 
  private:
   std::map<correlation_id, MobileRequestPtr> mobile_request_list_;

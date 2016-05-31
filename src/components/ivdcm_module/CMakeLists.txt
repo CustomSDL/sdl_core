@@ -39,7 +39,7 @@ include_directories (
 set (SOURCES
     src/ivdcm.cc
     src/pcap_wrapper.cc
-    #src/request_controller.cc
+    src/request_controller.cc
     src/ivdcm_event.cc
 )
 
