@@ -48,6 +48,8 @@ set (LIBRARIES
     ApplicationManager
     FunctionalModule
     Utils
+    Transmitter
+    Net
 )
 
 add_library(${target} SHARED ${SOURCES})
@@ -69,6 +71,9 @@ install(
   FILES ${FILES_FOR_COPY}
   DESTINATION ${install_destination}
 )
+
+add_subdirectory(net)
+add_subdirectory(transmitter)
 
 if(BUILD_TESTS)
   add_subdirectory(test)
