@@ -32,6 +32,9 @@
 
 #include "ivdcm_module/ivdcm.h"
 
+#include "config_profile/profile.h"
+#include "google/protobuf/text_format.h"
+#include "interface/rpc.pb.h"
 #include "utils/logger.h"
 
 namespace ivdcm_module {
@@ -47,9 +50,12 @@ PLUGIN_FACTORY(Ivdcm)
 
 Ivdcm::Ivdcm()
     : GenericModule(kCANModuleID),
-      proxy(IvdcmProxy(this)) {
+      proxy_(IvdcmProxy(this)) {
   plugin_info_.name = "IvdcmPlugin";
   plugin_info_.version = 1;
+  // TODO(KKolodiy) workaround for reading profile,
+  // possible it is fixed in fresh version of OpenSDL
+  profile::Profile::instance()->config_file_name("smartDeviceLink.ini");
 }
 
 Ivdcm::~Ivdcm() {}
@@ -165,6 +171,9 @@ ProcessResult Ivdcm::ProcessMessage(application_manager::MessagePtr msg) {
 }
 
 void Ivdcm::OnReceived(const sdl_ivdcm_api::SDLRPC &message) {
+  std::string str;
+  google::protobuf::TextFormat::PrintToString(message, &str);
+  LOG4CXX_DEBUG(logger_, "Protobuf message: " << str);
   // TODO(KKolodiy): here should be implemented the corresponding logic
 }
 

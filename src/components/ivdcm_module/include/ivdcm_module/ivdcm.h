@@ -86,7 +86,7 @@ class Ivdcm
  private:
   static const functional_modules::ModuleID kCANModuleID = 404;
   functional_modules::PluginInfo plugin_info_;
-  IvdcmProxy proxy;
+  IvdcmProxy proxy_;
 
   friend class IvdcmModuleTest;
   DISALLOW_COPY_AND_ASSIGN(Ivdcm);

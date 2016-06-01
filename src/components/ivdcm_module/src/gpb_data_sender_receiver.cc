@@ -31,34 +31,96 @@
  */
 
 #include "ivdcm_module/gpb_data_sender_receiver.h"
+
+#include "config_profile/profile.h"
+#include "ivdcm_module/interface/rpc.pb.h"
 #include "ivdcm_module/ivdcm_proxy.h"
+#include "net/connected_socket_impl.h"
+#include "net/server_socket_impl.h"
+#include "utils/threads/thread.h"
+#include "utils/threads/thread_delegate.h"
 
 namespace ivdcm_module {
 
+CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
+
+class GpbTransmitter : public threads::ThreadDelegate {
+ public:
+  explicit GpbTransmitter(GpbDataSenderReceiver *parent)
+      : parent_(parent) {
+  }
+  virtual void threadMain() {
+    LOG4CXX_AUTO_TRACE(logger_);
+    net::ConnectedSocket *conn = parent_->socket_->accept();
+    parent_->transmitter_.set_socket(conn);
+    parent_->transmitter_.MessageListenLoop(parent_);
+    conn->close();
+  }
+  virtual void exitThreadMain() {
+    LOG4CXX_AUTO_TRACE(logger_);
+    parent_->transmitter_.Stop();
+  }
+ private:
+  GpbDataSenderReceiver *parent_;
+};
+
 GpbDataSenderReceiver::GpbDataSenderReceiver(IvdcmProxy *parent)
-    : parent_(parent) {
+    : parent_(parent),
+      transmitter_(),
+      socket_(0),
+      thread_(0) {
+  std::string ip = profile::Profile::instance()->ivdcm_ip();
+  uint32_t port = profile::Profile::instance()->ivdcm_port();
+  socket_ = new net::ServerSocketImpl(ip.c_str(), port);
+  socket_->bind();
+  const int kOneClient = 1;
+  socket_->listen(kOneClient);
+  thread_ = threads::CreateThread("IvdcmGpbTransmitter",
+                                  new GpbTransmitter(this));
 }
 
 GpbDataSenderReceiver::~GpbDataSenderReceiver() {
-
+  Stop();
+  delete thread_->delegate();
+  threads::DeleteThread(thread_);
+  socket_->shutdown();
+  socket_->close();
+  delete socket_;
 }
 
 void GpbDataSenderReceiver::Start() {
-  // TODO(KKolodiy): run transmitter
+  LOG4CXX_AUTO_TRACE(logger_);
+  if (!thread_->start()) {
+    LOG4CXX_ERROR(logger_, "Could not start thread to transmit GPB message");
+  }
 }
 
 void GpbDataSenderReceiver::Stop() {
-  // TODO(KKolodiy): stop transmitter
+  LOG4CXX_AUTO_TRACE(logger_);
+  thread_->join();
 }
 
 bool GpbDataSenderReceiver::Send(const sdl_ivdcm_api::SDLRPC &message) {
-  // TODO(KKolodiy): convert protobuf -> string and send using transmitter
-  return false;
+  LOG4CXX_AUTO_TRACE(logger_);
+  std::string buff;
+  bool ret = message.SerializeToString(&buff);
+  if (ret) {
+    return transmitter_.Send(buff);
+  } else {
+    LOG4CXX_WARN(logger_, "Could not serialize GPB message");
+    return false;
+  }
 }
 
 void GpbDataSenderReceiver::OnMessageReceived(const std::string &buff) {
-  // TODO(KKolodiy): convert string -> protobuf
-  // parent_->OnReceived(message);
+  LOG4CXX_AUTO_TRACE(logger_);
+  sdl_ivdcm_api::SDLRPC message;
+  bool ret = message.ParseFromString(buff);
+  if (ret) {
+    parent_->OnReceived(message);
+  } else {
+    LOG4CXX_WARN(logger_, "Could not parse GPB message");
+  }
 }
 
 }  // namespace ivdcm_module

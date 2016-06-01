@@ -33,6 +33,7 @@ include_directories (
   ../functional_module/include/
   ../application_manager/include/
   ../connection_handler/include/
+  ../config_profile/include/
   ${LOG4CXX_INCLUDE_DIRECTORY}
   ${JSONCPP_INCLUDE_DIRECTORY}
   ${GPB_INCLUDE_DIRECTORY}
@@ -52,6 +53,7 @@ set (LIBRARIES
     jsoncpp
     ApplicationManager
     FunctionalModule
+    ConfigProfile
     Utils
     protobuf
     IvdcmRPC
