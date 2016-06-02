@@ -51,10 +51,14 @@ class GpbTransmitter : public threads::ThreadDelegate {
   }
   virtual void threadMain() {
     LOG4CXX_AUTO_TRACE(logger_);
-    net::ConnectedSocket *conn = parent_->socket_->accept();
-    parent_->transmitter_.set_socket(conn);
-    parent_->transmitter_.MessageListenLoop(parent_);
-    conn->close();
+    bool stop = false;
+    while (!stop) {
+      net::ConnectedSocket *conn = parent_->socket_->accept();
+      parent_->transmitter_.set_socket(conn);
+      stop = parent_->transmitter_.MessageListenLoop(parent_);
+      conn->close();
+      delete conn;
+    }
   }
   virtual void exitThreadMain() {
     LOG4CXX_AUTO_TRACE(logger_);

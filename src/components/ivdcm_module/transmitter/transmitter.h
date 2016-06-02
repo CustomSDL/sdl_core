@@ -20,12 +20,12 @@ class Transmitter {
   bool Recv(std::string* message);
 
   template <class NotificationSubscriber>
-  void MessageListenLoop(NotificationSubscriber* subscriber) {
+  bool MessageListenLoop(NotificationSubscriber* subscriber) {
     while (!stop_flag_) {
       std::string buff;
       if (!Recv(&buff)) {
-        LOG4CXX_ERROR(logger_, "Server is down");
-        return;
+        LOG4CXX_ERROR(logger_, "Socket peer is down");
+        return false;
       }
       if (buff.size() > 0) {
         subscriber->OnMessageReceived(buff);
@@ -33,6 +33,7 @@ class Transmitter {
         LOG4CXX_WARN(logger_, "Received 0 bytes");
       }
     }
+    return true;
   }
   void Stop() { stop_flag_ = true; }
 
