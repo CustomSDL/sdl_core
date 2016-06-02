@@ -49,7 +49,7 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 PLUGIN_FACTORY(Ivdcm)
 
 Ivdcm::Ivdcm()
-    : GenericModule(kCANModuleID),
+    : GenericModule(kModuleID),
       proxy_(IvdcmProxy(this)) {
   plugin_info_.name = "IvdcmPlugin";
   plugin_info_.version = 1;

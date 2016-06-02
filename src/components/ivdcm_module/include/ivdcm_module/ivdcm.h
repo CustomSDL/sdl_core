@@ -84,7 +84,7 @@ class Ivdcm
   void SendMessageToMobile(application_manager::MessagePtr msg);
 
  private:
-  static const functional_modules::ModuleID kCANModuleID = 404;
+  static const functional_modules::ModuleID kModuleID = 404;
   functional_modules::PluginInfo plugin_info_;
   IvdcmProxy proxy_;
 
