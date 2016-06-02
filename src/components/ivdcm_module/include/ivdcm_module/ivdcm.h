@@ -36,13 +36,17 @@
 #include <queue>
 #include "functional_module/generic_module.h"
 #include "json/value.h"
+#include "ivdcm_module/ivdcm_proxy.h"
+#include "ivdcm_module/ivdcm_proxy_listener.h"
 #include "utils/macro.h"
 
 namespace ivdcm_module {
 
 typedef Json::Value MessageFromMobile;
 
-class Ivdcm : public functional_modules::GenericModule {
+class Ivdcm
+    : public functional_modules::GenericModule,
+      public IvdcmProxyListener {
  public:
   Ivdcm();
   ~Ivdcm();
@@ -64,6 +68,7 @@ class Ivdcm : public functional_modules::GenericModule {
   virtual void OnAppHMILevelChanged(application_manager::ApplicationSharedPtr app,
       mobile_apis::HMILevel::eType old_level);
   void Handle(const MessageFromMobile message);
+  virtual void OnReceived(const sdl_ivdcm_api::SDLRPC &message);
 
  private:
 
@@ -81,6 +86,7 @@ class Ivdcm : public functional_modules::GenericModule {
  private:
   static const functional_modules::ModuleID kCANModuleID = 404;
   functional_modules::PluginInfo plugin_info_;
+  IvdcmProxy proxy;
 
   friend class IvdcmModuleTest;
   DISALLOW_COPY_AND_ASSIGN(Ivdcm);
@@ -88,6 +94,6 @@ class Ivdcm : public functional_modules::GenericModule {
 
 EXPORT_FUNCTION(Ivdcm)
 
-}  // namespace can_cooperation
+}  // namespace ivdcm_module
 
 #endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_H_

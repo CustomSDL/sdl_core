@@ -33,7 +33,6 @@
 #include "ivdcm_module/ivdcm.h"
 
 #include "utils/logger.h"
-#include "ivdcm_module/rpc.h"
 
 namespace ivdcm_module {
 
@@ -46,12 +45,11 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 
 PLUGIN_FACTORY(Ivdcm)
 
-Ivdcm::Ivdcm() : GenericModule(kCANModuleID) {
+Ivdcm::Ivdcm()
+    : GenericModule(kCANModuleID),
+      proxy(IvdcmProxy(this)) {
   plugin_info_.name = "IvdcmPlugin";
   plugin_info_.version = 1;
-  // TODO(KKolodiy): only in order to check building and using GPB.
-  // It might be removed after appearing logic which is using GPB
-  LOG4CXX_DEBUG(logger_, "Test GPB: " << RPC::check());
 }
 
 Ivdcm::~Ivdcm() {}
@@ -164,6 +162,10 @@ ProcessResult Ivdcm::ProcessMessage(application_manager::MessagePtr msg) {
   }*/
 
   return ProcessResult::PROCESSED;
+}
+
+void Ivdcm::OnReceived(const sdl_ivdcm_api::SDLRPC &message) {
+  // TODO(KKolodiy): here should be implemented the corresponding logic
 }
 
 }  //  namespace ivdcm_module

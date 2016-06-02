@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_INCLUDE_UTILS_SCOPE_GUARD_H
-#define SRC_COMPONENTS_INCLUDE_UTILS_SCOPE_GUARD_H
+#ifndef SRC_COMPONENTS_IVDCM_MODULE_UTILS_SCOPE_GUARD_H_
+#define SRC_COMPONENTS_IVDCM_MODULE_UTILS_SCOPE_GUARD_H_
 
 namespace utils {
 
@@ -312,5 +312,6 @@ ObjScopeGuardImpl1<Obj, MemFun, P1> MakeObjGuard(Obj& obj, MemFun memFun,
                                                  const P1& p1) {
   return ObjScopeGuardImpl1<Obj, MemFun, P1>::MakeObjGuard(obj, memFun, p1);
 }
-}
-#endif  // SRC_COMPONENTS_INCLUDE_UTILS_SCOPE_GUARD_H
+}  // namespace utils
+
+#endif  // SRC_COMPONENTS_IVDCM_MODULE_UTILS_SCOPE_GUARD_H_

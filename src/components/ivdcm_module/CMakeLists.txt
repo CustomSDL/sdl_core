@@ -26,6 +26,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif ()
 
 include_directories (
+  ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   ./include/
   ../include/
@@ -43,7 +44,8 @@ set (SOURCES
     src/pcap_wrapper.cc
     src/request_controller.cc
     src/ivdcm_event.cc
-    src/rpc.cc
+    src/ivdcm_proxy.cc
+    src/gpb_data_sender_receiver.cc
 )
 
 set (LIBRARIES

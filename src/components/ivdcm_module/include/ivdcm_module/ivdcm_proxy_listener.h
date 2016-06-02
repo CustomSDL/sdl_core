@@ -30,47 +30,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <dlfcn.h>
-#include "gtest/gtest.h"
-#include "ivdcm_module/ivdcm.h"
+#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_LISTENER_H_
+#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_LISTENER_H_
 
-using functional_modules::PluginInfo;
+namespace sdl_ivdcm_api {
+class SDLRPC;
+}  // namespace sdl_ivdcm_api
 
 namespace ivdcm_module {
-
-::testing::AssertionResult IsError(void* error) {
-  if (error) {
-    return ::testing::AssertionSuccess() << static_cast<const char*>(error);
-  } else {
-    return ::testing::AssertionFailure() << error;
+class IvdcmProxyListener {
+ public:
+  virtual ~IvdcmProxyListener() {
   }
-}
-
-TEST(IvdcmLibraryTest, Load) {
-  const std::string kLibraryPath = "libivdcm.so";
-
-  void* handle = dlopen(kLibraryPath.c_str(), RTLD_LAZY);
-  EXPECT_FALSE(IsError(dlerror()));
-  ASSERT_TRUE(handle != NULL);
-
-  const std::string kSymbol = "Create";
-  void* symbol = dlsym(handle, kSymbol.c_str());
-  EXPECT_FALSE(IsError(dlerror()));
-  ASSERT_TRUE(symbol != NULL);
-
-  typedef Ivdcm* (*Create)();
-  Create create_manager = reinterpret_cast<Create>(symbol);
-  Ivdcm* module = create_manager();
-  ASSERT_TRUE(module != NULL);
-
-  PluginInfo plugin = module->GetPluginInfo();
-  EXPECT_EQ(plugin.name, "IvdcmPlugin");
-  EXPECT_EQ(plugin.version, 1);
-
-  delete module;
-  int ret = dlclose(handle);
-  EXPECT_FALSE(ret);
-  EXPECT_FALSE(IsError(dlerror()));
-}
-
+  virtual void OnReceived(const sdl_ivdcm_api::SDLRPC &message) = 0;
+};
 }  // namespace ivdcm_module
+
+#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_LISTENER_H_
