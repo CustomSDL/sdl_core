@@ -47,3 +47,10 @@ if (BUILD_USB_SUPPORT)
     set(LIBUSB_LIBS_DIRECTORY ${LIBUSB_LIBS_DIRECTORY} PARENT_SCOPE)
   endif()
 endif()
+
+if(ENABLE_IVDCM)
+  # GPB is used only for IVDCM module now
+  add_subdirectory(protobuf-2.6.1-cmake)
+  set(GPB_INCLUDE_DIRECTORY ${GPB_INCLUDE_DIRECTORY} PARENT_SCOPE)
+  set(GPB_LIBS_DIRECTORY ${GPB_LIBS_DIRECTORY} PARENT_SCOPE)
+endif()
