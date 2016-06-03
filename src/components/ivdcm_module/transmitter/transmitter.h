@@ -35,12 +35,10 @@ class Transmitter {
     }
     return true;
   }
-  void Stop() { stop_flag_ = true; }
+  void Stop();
 
  public:
   void set_socket(net::ConnectedSocket* socket) {
-    DCHECK_OR_RETURN_VOID(socket);
-    // TODO delete socket_ if it exists
     socket_ = socket;
   }
 

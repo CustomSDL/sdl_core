@@ -55,7 +55,7 @@ class GpbDataSenderReceiver {
  public:
   explicit GpbDataSenderReceiver(IvdcmProxy *parent);
   ~GpbDataSenderReceiver();
-  void Start();
+  bool Start();
   void Stop();
   bool Send(const sdl_ivdcm_api::SDLRPC& message);
   void OnMessageReceived(const std::string &buff);

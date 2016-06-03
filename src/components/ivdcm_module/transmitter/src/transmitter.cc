@@ -106,4 +106,12 @@ bool Transmitter::Recv(std::string* message) {
   LOG4CXX_INFO(logger_, "String size " << message->size());
   return true;
 }
+
+void Transmitter::Stop() {
+  stop_flag_ = true;
+  if (socket_) {
+    socket_->shutdown();
+  }
+}
+
 }  // namespace transmitter

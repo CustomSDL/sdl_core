@@ -54,8 +54,10 @@ class GpbTransmitter : public threads::ThreadDelegate {
     bool stop = false;
     while (!stop) {
       net::ConnectedSocket *conn = parent_->socket_->accept();
+      if (!conn) break;
       parent_->transmitter_.set_socket(conn);
       stop = parent_->transmitter_.MessageListenLoop(parent_);
+      parent_->transmitter_.set_socket(NULL);
       conn->close();
       delete conn;
     }
@@ -76,32 +78,29 @@ GpbDataSenderReceiver::GpbDataSenderReceiver(IvdcmProxy *parent)
   std::string ip = profile::Profile::instance()->ivdcm_ip();
   uint32_t port = profile::Profile::instance()->ivdcm_port();
   socket_ = new net::ServerSocketImpl(ip.c_str(), port);
-  socket_->bind();
-  const int kOneClient = 1;
-  socket_->listen(kOneClient);
   thread_ = threads::CreateThread("IvdcmGpbTransmitter",
                                   new GpbTransmitter(this));
 }
 
 GpbDataSenderReceiver::~GpbDataSenderReceiver() {
   Stop();
+  thread_->join();
   delete thread_->delegate();
   threads::DeleteThread(thread_);
-  socket_->shutdown();
   socket_->close();
   delete socket_;
 }
 
-void GpbDataSenderReceiver::Start() {
+bool GpbDataSenderReceiver::Start() {
   LOG4CXX_AUTO_TRACE(logger_);
-  if (!thread_->start()) {
-    LOG4CXX_ERROR(logger_, "Could not start thread to transmit GPB message");
-  }
+  const int kOneClient = 1;
+  return socket_->bind() && socket_->listen(kOneClient) && thread_->start();
 }
 
 void GpbDataSenderReceiver::Stop() {
   LOG4CXX_AUTO_TRACE(logger_);
-  thread_->join();
+  thread_->stop();
+  socket_->shutdown();
 }
 
 bool GpbDataSenderReceiver::Send(const sdl_ivdcm_api::SDLRPC &message) {
