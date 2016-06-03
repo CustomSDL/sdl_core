@@ -34,10 +34,19 @@
 #define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_GPB_DATA_SENDER_RECEIVER_H_
 
 #include <string>
+#include "transmitter/transmitter.h"
 
 namespace sdl_ivdcm_api {
 class SDLRPC;
 }  // namespace sdl_ivdcm_api
+
+namespace net {
+class ServerSocket;
+}  // namespace net
+
+namespace threads {
+class Thread;
+}  // namespace threads
 
 namespace ivdcm_module {
 class IvdcmProxy;
@@ -46,12 +55,16 @@ class GpbDataSenderReceiver {
  public:
   explicit GpbDataSenderReceiver(IvdcmProxy *parent);
   ~GpbDataSenderReceiver();
-  void Start();
+  bool Start();
   void Stop();
   bool Send(const sdl_ivdcm_api::SDLRPC& message);
   void OnMessageReceived(const std::string &buff);
  private:
   IvdcmProxy *parent_;
+  transmitter::Transmitter transmitter_;
+  net::ServerSocket *socket_;
+  threads::Thread* thread_;
+  friend class GpbTransmitter;
 };
 }  // namespace ivdcm_module
 
