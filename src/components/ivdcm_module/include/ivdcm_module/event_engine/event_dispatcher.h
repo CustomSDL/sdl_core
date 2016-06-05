@@ -39,12 +39,12 @@
 #include "utils/lock.h"
 #include "utils/singleton.h"
 
-#include "can_cooperation/event_engine/event.h"
-#include "can_cooperation/event_engine/event_observer.h"
+#include "ivdcm_module/event_engine/event.h"
+#include "ivdcm_module/event_engine/event_observer.h"
 
 #include "interfaces/MOBILE_API.h"
 
-namespace ivdcm_module {
+namespace event_engine {
 
 template<typename EventMessage, typename EventID>
 class EventDispatcher :
@@ -201,6 +201,6 @@ void EventDispatcher<EventMessage, EventID>::remove_observer(
   }
 }
 
-}  // namespace ivdcm_module
+}  // namespace event_engine
 
 #endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_EVENT_ENGINE_EVENT_DISPATCHER_H_

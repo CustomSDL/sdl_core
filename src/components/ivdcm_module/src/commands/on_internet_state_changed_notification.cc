@@ -30,32 +30,63 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_
-#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_
+#include "ivdcm_module/commands/on_internet_state_changed_notification.h"
+#include "ivdcm_module/ivdcm.h"
+#include "ivdcm_module/ivdcm_constants.h"
+#include "utils/logger.h"
+#include "config_profile/profile.h"
+#include "json/json.h"
+#include "ivdcm_module/ivdcm_constants.h"
+#include "ivdcm_module/interface/rpc.pb.h"
+#include "google/protobuf/text_format.h"
 
+#include <string>
 
 namespace ivdcm_module {
 
 namespace commands {
 
-/**
- * @brief Command interface
- **/
-class Command {
- public:
-  /**
-   * \brief Command class destructor
-   */
-  virtual ~Command() {}
+using message_params::kInternetState;
 
-  /**
-   * \brief Command on timeout reaction
-   */
-  virtual void OnTimeout() = 0;
-};
+CREATE_LOGGERPTR_GLOBAL(logger_, "OnInternetStateChangedNotification")
+
+OnInternetStateChangedNotification::OnInternetStateChangedNotification(
+    Ivdcm* parent)
+  : parent_(parent) {
+}
+
+
+void OnInternetStateChangedNotification::Execute(
+    const application_manager::MessagePtr& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+
+  sdl_ivdcm_api::OnInternetStateChangedNotificationParams message_params;
+
+  Json::Value value;
+  Json::Reader reader;
+  reader.parse(message->json_message(), value);
+
+  if (!value.isMember(kInternetState)) {
+    LOG4CXX_ERROR(logger_, "Wrong OnInternetStateChangedNotification params!");
+    return;
+  }
+
+  message_params.set_state(value[kInternetState].asBool());
+  message_params.set_nic_name(profile::Profile::instance()->ivdcm_nic_name());
+
+  std::string str;
+  google::protobuf::TextFormat::PrintToString(message_params, &str);
+
+  sdl_ivdcm_api::SDLRPC ivdcm_message;
+
+  ivdcm_message.set_params(str);
+
+  ivdcm_message.set_rpc_name(sdl_ivdcm_api::SDLRPCName::ON_INTERNET_STATE);
+  ivdcm_message.set_rpc_type(sdl_ivdcm_api::MessageType::NOTIFICATION);
+
+  parent_->SendIvdcmMesssage(ivdcm_message);
+}
 
 }  // namespace commands
 
 }  // namespace ivdcm_module
-
-#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_

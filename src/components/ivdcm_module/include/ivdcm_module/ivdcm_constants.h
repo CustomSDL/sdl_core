@@ -30,32 +30,21 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_
-#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_
-
+#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_CONSTANTS_H_
+#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_CONSTANTS_H_
 
 namespace ivdcm_module {
 
-namespace commands {
+namespace message_params {
 
-/**
- * @brief Command interface
- **/
-class Command {
- public:
-  /**
-   * \brief Command class destructor
-   */
-  virtual ~Command() {}
+const char kUrl[]           = "URL";
+const char kSuccess[]       = "success";
+const char kResultCode[]    = "resultCode";
+const char kInfo[]          = "info";
+const char kInternetState[] = "internetState";
 
-  /**
-   * \brief Command on timeout reaction
-   */
-  virtual void OnTimeout() = 0;
-};
-
-}  // namespace commands
+}  // namespace message_params
 
 }  // namespace ivdcm_module
 
-#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_
+#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_CONSTANTS_H_
