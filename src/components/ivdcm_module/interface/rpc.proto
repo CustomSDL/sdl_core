@@ -33,6 +33,7 @@ message OnInternetStateChangedNotificationParams {
 
 message SendIvdcmDataRequestParams{
   required string url = 1;
+  optional bytes upload_data = 2;
 }
 
 message SendIvdcmDataResponseParams {

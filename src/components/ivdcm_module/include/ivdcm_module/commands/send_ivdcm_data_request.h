@@ -74,6 +74,8 @@ class SendIvdcmDataRequest : public Command,
  private:
   Ivdcm* parent_;
 
+  std::vector<uint8_t> binary_data_;
+
   DISALLOW_COPY_AND_ASSIGN(SendIvdcmDataRequest);
 };
 

@@ -84,6 +84,7 @@ void OnInternetStateChangedNotification::Execute(
   ivdcm_message.set_rpc_name(sdl_ivdcm_api::SDLRPCName::ON_INTERNET_STATE);
   ivdcm_message.set_rpc_type(sdl_ivdcm_api::MessageType::NOTIFICATION);
 
+  parent_->set_connection_key(message->connection_key());
   parent_->SendIvdcmMesssage(ivdcm_message);
 }
 

@@ -38,6 +38,8 @@
 #include "utils/logger.h"
 #include "json/json.h"
 
+#include <vector>
+
 namespace ivdcm_module {
 
 namespace commands {
@@ -106,7 +108,13 @@ void  SendIvdcmDataRequest::SendRequest(const sdl_ivdcm_api::SDLRPC& message) {
   Json::FastWriter writer;
   mobile_msg->set_json_message(writer.write(value));
 
-  // TODO(VS): Add binary data for POST request when protofile will be updated
+  // Post non ip request
+  if (message_params.has_upload_data()) {
+    binary_data_.assign(message_params.upload_data().begin(),
+                       message_params.upload_data().end());
+    mobile_msg->set_binary_data(&binary_data_);
+    mobile_msg->set_data_size(binary_data_.size());
+  }
 
   parent_->AddRequestToRequestController(mobile_msg->correlation_id(), this);
   parent_->SendMessageToMobile(mobile_msg);
@@ -127,8 +135,9 @@ void SendIvdcmDataRequest::on_event(
       value[kResultCode].asUInt()));
   // value[kSuccess].asBool();
 
-  message_params.set_response_data(event.event_message()->binary_data(),
-                                   event.event_message()->data_size());
+  message_params.set_response_data(
+                      std::string(event.event_message()->binary_data()->begin(),
+                                  event.event_message()->binary_data()->end()));
 
   if (value.isMember(kInfo)) {
     message_params.set_info(value[kInfo].asString());
