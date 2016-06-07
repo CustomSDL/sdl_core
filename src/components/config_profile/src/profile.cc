@@ -231,10 +231,12 @@ const uint32_t kDefaultAppIconsAmountToRemove = 1;
 const char* kIvdcmSection = "IVDCM";
 const char* kIvdcmIp      = "ip";
 const char* kIvdcmPort    = "port";
+const char* kIvdcmControlPort = "control_port";
 const char* kIvdcmNicName = "nic_name";
 
 const char* kDefaultIvdcmIp      = "127.0.0.1";
 const uint16_t kDefaultIvdcmPort = 5445;
+const uint16_t kDefaultIvdcmControlPort = 5446;
 const char* kDefaultIvdcmNicName = "sdlproxy";
 
 }  // namespace
@@ -310,6 +312,7 @@ Profile::Profile()
     logs_enabled_(true),
     ivdcm_ip_(kDefaultIvdcmIp),
     ivdcm_port_(kDefaultIvdcmPort),
+    ivdcm_control_port_(kDefaultIvdcmControlPort),
     ivdcm_nic_name_(kDefaultIvdcmNicName) {
 }
 
@@ -1410,6 +1413,11 @@ void Profile::UpdateValues() {
   LOG_UPDATED_VALUE(ivdcm_port_, kIvdcmPort, kIvdcmSection);
 
 
+  ReadUIntValue(&ivdcm_control_port_, kDefaultIvdcmControlPort,
+                kIvdcmSection, kIvdcmControlPort);
+
+  LOG_UPDATED_VALUE(ivdcm_control_port_, kIvdcmControlPort, kIvdcmSection);
+
   ReadStringValue(&ivdcm_nic_name_, kDefaultIvdcmNicName,
                   kIvdcmSection, kIvdcmNicName);
 
@@ -1629,6 +1637,10 @@ std::string Profile::ivdcm_ip() const {
 
 uint16_t Profile::ivdcm_port() const {
   return ivdcm_port_;
+}
+
+uint16_t Profile::ivdcm_control_port() const {
+  return ivdcm_control_port_;
 }
 
 std::string Profile::ivdcm_nic_name() const {
