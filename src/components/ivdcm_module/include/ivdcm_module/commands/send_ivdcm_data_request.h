@@ -30,32 +30,57 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_
-#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_
+#ifndef SRC_COMPONENTS_CAN_COOPERATION_INCLUDE_CAN_COOPERATION_SEND_IVDCM_DATA_REQUEST_H_
+#define SRC_COMPONENTS_CAN_COOPERATION_INCLUDE_CAN_COOPERATION_SEND_IVDCM_DATA_REQUEST_H_
 
+#include <string>
+
+#include "ivdcm_module/ivdcm.h"
+#include "ivdcm_module/commands/command.h"
+#include "ivdcm_module/event_engine/event_observer.h"
+#include "application_manager/message.h"
 
 namespace ivdcm_module {
 
 namespace commands {
 
 /**
- * @brief Command interface
- **/
-class Command {
+ * @brief SendIvdcmData class for request to mobile
+ */
+class SendIvdcmDataRequest : public Command,
+  public event_engine::EventObserver<application_manager::MessagePtr,
+                                     functional_modules::MobileFunctionID> {
  public:
-  /**
-   * \brief Command class destructor
-   */
-  virtual ~Command() {}
+  explicit SendIvdcmDataRequest(Ivdcm*  parent);
 
   /**
-   * \brief Command on timeout reaction
+   * @brief SendIvdcmDataRequest class destructor
    */
-  virtual void OnTimeout() = 0;
+  virtual ~SendIvdcmDataRequest();
+
+  /**
+   * @brief Sends request to mobile
+   */
+  void SendRequest(const sdl_ivdcm_api::SDLRPC& message);
+
+  /**
+   * @brief SendIvdcmDataRequest on timeout reaction
+   */
+  virtual void OnTimeout();
+
+  void on_event(const event_engine::Event<application_manager::MessagePtr,
+                functional_modules::MobileFunctionID>& event);
+
+ private:
+  Ivdcm* parent_;
+
+  std::vector<uint8_t> binary_data_;
+
+  DISALLOW_COPY_AND_ASSIGN(SendIvdcmDataRequest);
 };
 
 }  // namespace commands
 
 }  // namespace ivdcm_module
 
-#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_
+#endif  // SRC_COMPONENTS_CAN_COOPERATION_INCLUDE_CAN_COOPERATION_SEND_IVDCM_DATA_REQUEST_H_

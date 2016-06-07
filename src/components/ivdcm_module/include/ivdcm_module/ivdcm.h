@@ -38,6 +38,7 @@
 #include "json/value.h"
 #include "ivdcm_module/ivdcm_proxy.h"
 #include "ivdcm_module/ivdcm_proxy_listener.h"
+#include "ivdcm_module/request_controller.h"
 #include "utils/macro.h"
 
 namespace ivdcm_module {
@@ -67,8 +68,46 @@ class Ivdcm
   virtual bool IsAppForPlugin(application_manager::ApplicationSharedPtr app);
   virtual void OnAppHMILevelChanged(application_manager::ApplicationSharedPtr app,
       mobile_apis::HMILevel::eType old_level);
-  void Handle(const MessageFromMobile message);
+
   virtual void OnReceived(const sdl_ivdcm_api::SDLRPC &message);
+  void SendIvdcmMesssage(const sdl_ivdcm_api::SDLRPC &message);
+
+  /**
+   * @brief Sends message to mobile application
+   * @param msg message
+   */
+  void SendMessageToMobile(application_manager::MessagePtr msg);
+
+  // RequestController wrapped methods
+  void AddRequestToRequestController(const uint32_t& mobile_correlation_id,
+                                  request_controller::MobileRequestPtr request);
+  void DeleteRequestFromRequestController(const uint32_t& mobile_correlation_id);
+  void ResetTimer(const uint32_t& mobile_correlation_id);
+
+  /**
+   * @brief Returns unique correlation ID for request to mobile
+   *
+   * @return Unique correlation ID
+   */
+  static uint32_t GetNextCorrelationID() {
+    return next_correlation_id_++;
+  }
+
+  /**
+   * @brief Returns key of application that process ivdcm requests.
+   * @return mobile application connection key
+   */
+  uint32_t connection_key() const {
+    return connection_key_;
+  }
+
+  /**
+   * @brief Sets key of application that process ivdcm requests. It happens
+   *        when OnInternateStateNotification come from mobile.
+   */
+  void set_connection_key(const uint32_t& connection_key) {
+    connection_key_ = connection_key;
+  }
 
  private:
 
@@ -77,16 +116,16 @@ class Ivdcm
    */
   void SubscribeToRpcMessages();
 
-  /**
-   * @brief Sends message to mobile application
-   * @param msg message
-   */
-  void SendMessageToMobile(application_manager::MessagePtr msg);
-
  private:
   static const functional_modules::ModuleID kModuleID = 404;
   functional_modules::PluginInfo plugin_info_;
   IvdcmProxy proxy_;
+  uint32_t connection_key_;
+
+  static uint32_t next_correlation_id_;
+
+  request_controller::RequestController request_controller_;
+
 
   friend class IvdcmModuleTest;
   DISALLOW_COPY_AND_ASSIGN(Ivdcm);

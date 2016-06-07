@@ -30,32 +30,38 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_
-#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_
+#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMANDS_ON_INTERNET_SATE_CHANGED_NOTIFICATION_H_
+#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMANDS_ON_INTERNET_SATE_CHANGED_NOTIFICATION_H_
 
+#include "ivdcm_module/ivdcm.h"
 
 namespace ivdcm_module {
 
 namespace commands {
 
 /**
- * @brief Command interface
- **/
-class Command {
+ * @brief OnInternetStateChangedNotification command class
+ */
+class OnInternetStateChangedNotification {
  public:
   /**
-   * \brief Command class destructor
-   */
-  virtual ~Command() {}
+   * @brief OnInternetStateChangedNotification class constructor
+   **/
+  explicit OnInternetStateChangedNotification(Ivdcm* parent);
 
   /**
-   * \brief Command on timeout reaction
+   * @brief Execute command
    */
-  virtual void OnTimeout() = 0;
+  virtual void Execute(const application_manager::MessagePtr& message);
+
+private:
+  Ivdcm* parent_;
+
+  DISALLOW_COPY_AND_ASSIGN(OnInternetStateChangedNotification);
 };
 
 }  // namespace commands
 
 }  // namespace ivdcm_module
 
-#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMAND_H_
+#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_COMMANDS_ON_INTERNET_SATE_CHANGED_NOTIFICATION_H_

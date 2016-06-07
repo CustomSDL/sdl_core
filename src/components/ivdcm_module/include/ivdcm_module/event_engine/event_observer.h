@@ -34,10 +34,10 @@
 #define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_EVENT_ENGINE_EVENT_OBSERVER_H_
 
 #include <string>
-#include "can_cooperation/event_engine/event.h"
+#include "ivdcm_module/event_engine/event.h"
 
 
-namespace ivdcm_module {
+namespace event_engine {
 
 template<typename EventMessage, typename EventID>
 class EventObserver {
@@ -90,6 +90,6 @@ EventObserver<EventMessage, EventID>::~EventObserver() {
   // unsubscribe_from_all_events();
 }
 
-}  // namespace ivdcm_module
+}  // namespace event_engine
 
 #endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_EVENT_ENGINE_EVENT_OBSERVER_H_

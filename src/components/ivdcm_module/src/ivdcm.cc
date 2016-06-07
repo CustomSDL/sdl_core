@@ -32,12 +32,18 @@
 
 #include "ivdcm_module/ivdcm.h"
 
+#include "ivdcm_module/commands/send_ivdcm_data_request.h"
+#include "ivdcm_module/commands/on_internet_state_changed_notification.h"
+#include "ivdcm_module/ivdcm_event.h"
+#include "ivdcm_module/event_engine/event_dispatcher.h"
 #include "config_profile/profile.h"
 #include "google/protobuf/text_format.h"
 #include "interface/rpc.pb.h"
 #include "utils/logger.h"
 
 namespace ivdcm_module {
+
+using event_engine::EventDispatcher;
 
 using functional_modules::ProcessResult;
 using functional_modules::GenericModule;
@@ -48,9 +54,12 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 
 PLUGIN_FACTORY(Ivdcm)
 
+uint32_t Ivdcm::next_correlation_id_ = 1;
+
 Ivdcm::Ivdcm()
     : GenericModule(kModuleID),
-      proxy_(IvdcmProxy(this)) {
+      proxy_(IvdcmProxy(this)),
+      connection_key_(0) {
   plugin_info_.name = "IvdcmPlugin";
   plugin_info_.version = 1;
   // TODO(KKolodiy) workaround for reading profile,
@@ -65,10 +74,6 @@ void Ivdcm::SubscribeToRpcMessages() {
       MobileFunctionID::ON_INTERNET_STATE_CHANGED);
   plugin_info_.mobile_function_list.push_back(
       MobileFunctionID::SEND_IVDCM_DATA);
-}
-
-void Ivdcm::Handle(const MessageFromMobile message) {
-
 }
 
 PluginInfo Ivdcm::GetPluginInfo() const {
@@ -157,24 +162,59 @@ ProcessResult Ivdcm::ProcessMessage(application_manager::MessagePtr msg) {
 
   LOG4CXX_DEBUG(logger_, "Mobile message: " << msg->json_message());
 
-  // TODO(VS): will be uncommented after factory and command implementation
-
-  /*  commands::Command* command = MobileCommandFactory::CreateCommand(msg);
-  if (command) {
-    request_controller_.AddRequest(msg->correlation_id(), command);
-    command->Run();
-  } else {
-    return ProcessResult::CANNOT_PROCESS;
-  }*/
-
-  return ProcessResult::PROCESSED;
+  switch (msg->function_id()) {
+    case MobileFunctionID::ON_INTERNET_STATE_CHANGED: {
+      commands::OnInternetStateChangedNotification notification(this);
+      notification.Execute(msg);
+      return ProcessResult::PROCESSED;
+    }
+    case MobileFunctionID::SEND_IVDCM_DATA: {
+      IvdcmEvent event(msg, MobileFunctionID::SEND_IVDCM_DATA);
+      EventDispatcher<application_manager::MessagePtr,
+                      functional_modules::MobileFunctionID>::instance()->
+                      raise_event(event);
+      return ProcessResult::PROCESSED;
+    }
+    default: {
+      return ProcessResult::CANNOT_PROCESS;
+    }
+  }
 }
 
 void Ivdcm::OnReceived(const sdl_ivdcm_api::SDLRPC &message) {
+  LOG4CXX_AUTO_TRACE(logger_);
   std::string str;
   google::protobuf::TextFormat::PrintToString(message, &str);
   LOG4CXX_DEBUG(logger_, "Protobuf message: " << str);
-  // TODO(KKolodiy): here should be implemented the corresponding logic
+
+  commands::SendIvdcmDataRequest* request = new commands::SendIvdcmDataRequest(
+                                                                          this);
+
+  if (request) {
+    request->SendRequest(message);
+  }
+}
+
+void  Ivdcm::SendIvdcmMesssage(const sdl_ivdcm_api::SDLRPC &message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  proxy_.Send(message);
+}
+
+void Ivdcm::AddRequestToRequestController(const uint32_t& mobile_correlation_id,
+                                 request_controller::MobileRequestPtr request) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  request_controller_.AddRequest(mobile_correlation_id, request);
+}
+
+void Ivdcm::DeleteRequestFromRequestController(
+    const uint32_t& mobile_correlation_id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  request_controller_.DeleteRequest(mobile_correlation_id);
+}
+
+void Ivdcm::ResetTimer(const uint32_t& mobile_correlation_id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  request_controller_.ResetTimer(mobile_correlation_id);
 }
 
 }  //  namespace ivdcm_module
