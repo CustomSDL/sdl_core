@@ -52,6 +52,8 @@ class QnxTunAdapter : public TunAdapterInterface {
   virtual bool GetNetmask(int id, std::string *value);
   virtual bool SetFlags(int id, int value);
   virtual bool GetFlags(int id, int *value);
+  virtual bool SetMtu(int id, int value);
+  virtual bool GetMtu(int id, int *value);
 
  private:
   const std::string nic_;

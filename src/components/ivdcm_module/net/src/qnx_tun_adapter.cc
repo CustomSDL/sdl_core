@@ -77,4 +77,12 @@ bool QnxTunAdapter::GetFlags(int id, int* value) {
   return false;
 }
 
+bool QnxTunAdapter::SetMtu(int id, int value) {
+  return false;
+}
+
+bool QnxTunAdapter::GetMtu(int id, int* value) {
+  return false;
+}
+
 }  // namespace net

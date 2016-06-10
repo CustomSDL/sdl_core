@@ -77,4 +77,12 @@ bool LinuxTunAdapter::GetFlags(int id, int* value) {
   return false;
 }
 
+bool LinuxTunAdapter::SetMtu(int id, int value) {
+  return false;
+}
+
+bool LinuxTunAdapter::GetMtu(int id, int* value) {
+  return false;
+}
+
 }  // namespace net

@@ -72,6 +72,7 @@ int IvdcmProxy::CreateTun() {
     tun_->SetDestinationAddress(id, "10.8.0.2");
     tun_->SetNetmask(id, "255.255.255.0");
     tun_->SetFlags(id, IFF_UP | IFF_NOARP);
+    tun_->SetMtu(id, 3000);
   }
   return id;
 }

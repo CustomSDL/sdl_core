@@ -102,12 +102,27 @@ class TunAdapterInterface {
    * @param value of flags
    */
   virtual bool SetFlags(int id, int value) = 0;
+
   /**
    * Gets flags
    * @param id of the interface
    * @param pointer to save value of flags
    */
   virtual bool GetFlags(int id, int *value) = 0;
+
+  /**
+   * Sets MTU
+   * @param id of the interface
+   * @param value of MTU
+   */
+  virtual bool SetMtu(int id, int value) = 0;
+
+  /**
+   * Gets MTU
+   * @param id of the interface
+   * @param pointer to save value of MTU
+   */
+  virtual bool GetMtu(int id, int *value) = 0;
 };
 
 }  // namespace net
