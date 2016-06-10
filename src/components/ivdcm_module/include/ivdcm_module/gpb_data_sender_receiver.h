@@ -60,11 +60,24 @@ class GpbDataSenderReceiver {
   bool Send(const sdl_ivdcm_api::SDLRPC& message);
   void OnMessageReceived(const std::string &buff);
  private:
+  inline void CreateControl();
+  inline void DestroyControl();
+  inline bool StartControl();
+  inline void StopControl();
+  inline void CreateTransmit();
+  inline void DestroyTransmit();
+  inline bool StartTransmit();
+  inline void StopTransmit();
+  inline bool IsControlMessage(const sdl_ivdcm_api::SDLRPC &message) const;
   IvdcmProxy *parent_;
   transmitter::Transmitter transmitter_;
   net::ServerSocket *socket_;
   threads::Thread* thread_;
+  transmitter::Transmitter controller_;
+  net::ServerSocket *control_socket_;
+  threads::Thread* control_thread_;
   friend class GpbTransmitter;
+  friend class ControlTransmitter;
 };
 }  // namespace ivdcm_module
 

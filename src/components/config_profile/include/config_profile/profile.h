@@ -500,6 +500,7 @@ class Profile : public utils::Singleton<Profile> {
 
     std::string ivdcm_ip() const;
     uint16_t    ivdcm_port() const;
+    uint16_t    ivdcm_control_port() const;
     std::string ivdcm_nic_name() const;
 
     /*
@@ -709,6 +710,7 @@ private:
     // IVDCM
     std::string ivdcm_ip_;
     uint16_t    ivdcm_port_;
+    uint16_t    ivdcm_control_port_;
     std::string ivdcm_nic_name_;
 
     FRIEND_BASE_SINGLETON_CLASS(Profile);
