@@ -32,56 +32,179 @@
 
 #include "net/qnx_tun_adapter.h"
 
+#include <arpa/inet.h>
+#include <errno.h>
+#include <net/if.h>
+#include <net/if_tun.h>
+#include <netinet/in.h>
+#include <stdlib.h>
+#include <cstring>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <string>
+
+#include "utils/logger.h"
+
 namespace net {
+
+CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 
 QnxTunAdapter::QnxTunAdapter(const std::string& nic)
     : nic_(nic) {
 }
 
+bool QnxTunAdapter::RunCommand(int cmd, ifreq *ifr) const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  int fd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (fd == -1) {
+    std::string error(strerror(errno));
+    LOG4CXX_ERROR(logger_, "Could not create socket with error: " << error);
+    return false;
+  }
+  int ret = ioctl(fd, cmd, ifr);
+  if (ret == -1) {
+    std::string error(strerror(errno));
+    LOG4CXX_ERROR(logger_, "Could not run command with error: " << error);
+  }
+  close(fd);
+  return ret != -1;
+}
+
+void QnxTunAdapter::InitRequest(int id, ifreq *ifr) const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  const int kBase = 10;
+  memset(ifr, 0, sizeof(*ifr));
+  char buffer[5];
+  std::string name = nic_ + std::string(itoa(id, buffer, kBase));
+  strlcpy(ifr->ifr_name, name.c_str(), sizeof(ifr->ifr_name));
+}
+
+void QnxTunAdapter::StringToSockAddr(const std::string& value,
+                                     sockaddr *addr) const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  sockaddr_in *addr_in = (sockaddr_in*) addr;
+  addr_in->sin_len = sizeof(*addr_in);
+  addr_in->sin_family = AF_INET;
+  inet_aton(value.c_str(), &addr_in->sin_addr);
+}
+
+void QnxTunAdapter::SockAddrToString(const sockaddr *addr,
+                                     std::string *value) const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  sockaddr_in *sin = (sockaddr_in *) addr;
+  *value = std::string(inet_ntoa(sin->sin_addr));
+}
+
 int QnxTunAdapter::Create() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  int id = 1;  // TODO(KKolodiy): stub, need to generate id`s
+  InitRequest(id, &ifr);
+  if (RunCommand(SIOCIFCREATE, &ifr)) {
+    return id;
+  }
   return -1;
 }
 
 void QnxTunAdapter::Destroy(int id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  InitRequest(id, &ifr);
+  RunCommand(SIOCIFDESTROY, &ifr);
 }
 
 bool QnxTunAdapter::SetAddress(int id, const std::string& value) {
-  return false;
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  InitRequest(id, &ifr);
+  StringToSockAddr(value, &ifr.ifr_addr);
+  return RunCommand(SIOCSIFADDR, &ifr);
 }
 
 bool QnxTunAdapter::GetAddress(int id, std::string* value) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  InitRequest(id, &ifr);
+  if (RunCommand(SIOCGIFADDR, &ifr)) {
+    SockAddrToString(&ifr.ifr_addr, value);
+    return true;
+  }
   return false;
 }
 
 bool QnxTunAdapter::SetDestinationAddress(int id, const std::string& value) {
-  return false;
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  InitRequest(id, &ifr);
+  StringToSockAddr(value, &ifr.ifr_dstaddr);
+  return RunCommand(SIOCSIFDSTADDR, &ifr);
 }
 
 bool QnxTunAdapter::GetDestinationAddress(int id, std::string* value) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  InitRequest(id, &ifr);
+  if (RunCommand(SIOCGIFDSTADDR, &ifr)) {
+    SockAddrToString(&ifr.ifr_dstaddr, value);
+    return true;
+  }
   return false;
 }
 
 bool QnxTunAdapter::SetNetmask(int id, const std::string& value) {
-  return false;
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  InitRequest(id, &ifr);
+  StringToSockAddr(value, &ifr.ifr_addr);
+  return RunCommand(SIOCSIFNETMASK, &ifr);
 }
 
 bool QnxTunAdapter::GetNetmask(int id, std::string* value) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  InitRequest(id, &ifr);
+  if (RunCommand(SIOCGIFNETMASK, &ifr)) {
+    SockAddrToString(&ifr.ifr_addr, value);
+    return true;
+  }
   return false;
 }
 
 bool QnxTunAdapter::SetFlags(int id, int value) {
-  return false;
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  InitRequest(id, &ifr);
+  ifr.ifr_flags = value;
+  return RunCommand(SIOCSIFFLAGS, &ifr);
 }
 
 bool QnxTunAdapter::GetFlags(int id, int* value) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  InitRequest(id, &ifr);
+  if (RunCommand(SIOCGIFFLAGS, &ifr)) {
+    *value = ifr.ifr_flags;
+    return true;
+  }
   return false;
 }
 
 bool QnxTunAdapter::SetMtu(int id, int value) {
-  return false;
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  InitRequest(id, &ifr);
+  ifr.ifr_mtu = value;
+  return RunCommand(SIOCSIFMTU, &ifr);
 }
 
 bool QnxTunAdapter::GetMtu(int id, int* value) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  ifreq ifr;
+  InitRequest(id, &ifr);
+  if (RunCommand(SIOCGIFMTU, &ifr)) {
+    *value = ifr.ifr_mtu;
+    return true;
+  }
   return false;
 }
 

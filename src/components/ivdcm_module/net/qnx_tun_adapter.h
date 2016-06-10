@@ -37,6 +37,9 @@
 
 #include "net/tun_adapter_interface.h"
 
+struct ifreq;
+struct sockaddr;
+
 namespace net {
 
 class QnxTunAdapter : public TunAdapterInterface {
@@ -56,6 +59,23 @@ class QnxTunAdapter : public TunAdapterInterface {
   virtual bool GetMtu(int id, int *value);
 
  private:
+  bool RunCommand(int cmd, ifreq *ifr) const;
+  void InitRequest(int id, ifreq *ifr) const;
+
+  /**
+   * Converts a string into an Internet address stored in a structure
+   * @param value of  Internet address (support only IPv4)
+   * @param addr pointer to save result
+   */
+  void StringToSockAddr(const std::string& value, sockaddr *addr) const;
+
+  /**
+   * Converts an Internet address into a string
+   * @param addr to save result
+   * @param value of  Internet address (support only IPv4)
+   */
+  void SockAddrToString(const sockaddr *addr, std::string *value) const;
+
   const std::string nic_;
 };
 
