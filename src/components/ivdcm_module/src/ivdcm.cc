@@ -59,6 +59,7 @@ uint32_t Ivdcm::next_correlation_id_ = 1;
 Ivdcm::Ivdcm()
     : GenericModule(kModuleID),
       proxy_(IvdcmProxy(this)),
+      tun_id_(-1),
       connection_key_(0) {
   plugin_info_.name = "IvdcmPlugin";
   plugin_info_.version = 1;
@@ -66,9 +67,17 @@ Ivdcm::Ivdcm()
   // TODO(KKolodiy) workaround for reading profile,
   // possible it is fixed in fresh version of OpenSDL
   profile::Profile::instance()->config_file_name("smartDeviceLink.ini");
+
+  // TODO(KKolodiy): this was add for checking TUN adapter only
+  // should be removed after implementation of the domain logic
+  tun_id_ = proxy_.CreateTun();
 }
 
-Ivdcm::~Ivdcm() {}
+Ivdcm::~Ivdcm() {
+  // TODO(KKolodiy): this was add for checking TUN adapter only
+  // should be removed after implementation of the domain logic
+  proxy_.DestroyTun(tun_id_);
+}
 
 void Ivdcm::SubscribeToRpcMessages() {
   plugin_info_.mobile_function_list.push_back(

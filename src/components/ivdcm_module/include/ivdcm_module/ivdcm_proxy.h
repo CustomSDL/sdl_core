@@ -35,6 +35,10 @@
 
 #include "ivdcm_module/gpb_data_sender_receiver.h"
 
+namespace net {
+class TunAdapterInterface;
+}  // namespace net
+
 namespace ivdcm_module {
 class IvdcmProxyListener;
 
@@ -44,9 +48,13 @@ class IvdcmProxy {
   ~IvdcmProxy();
   bool Send(const sdl_ivdcm_api::SDLRPC &message);
   void OnReceived(const sdl_ivdcm_api::SDLRPC &message);
+  int CreateTun();
+  void DestroyTun(int id);
+
  private:
   IvdcmProxyListener *listener_;
   GpbDataSenderReceiver gpb_;
+  net::TunAdapterInterface *tun_;
 };
 }  // namespace ivdcm_module
 

@@ -120,6 +120,9 @@ class Ivdcm
   static const functional_modules::ModuleID kModuleID = 404;
   functional_modules::PluginInfo plugin_info_;
   IvdcmProxy proxy_;
+  // TODO(KKolodiy): this tun_id_ was add for checking TUN adapter only
+  // should be removed after implementation of the domain logic
+  int tun_id_;
   uint32_t connection_key_;
 
   static uint32_t next_correlation_id_;

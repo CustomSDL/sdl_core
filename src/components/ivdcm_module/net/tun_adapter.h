@@ -30,55 +30,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ivdcm_module/ivdcm_proxy.h"
+#ifndef SRC_COMPONENTS_IVDCM_MODULE_NET_TUN_ADAPTER_H_
+#define SRC_COMPONENTS_IVDCM_MODULE_NET_TUN_ADAPTER_H_
 
-#include <net/if.h>
+#include <string>
 
-#include "ivdcm_module/ivdcm_proxy_listener.h"
-#include "net/tun_adapter.h"
-#include "utils/logger.h"
+#ifdef __QNXNTO__
+#  include "net/qnx_tun_adapter.h"
+#else
+#  include "net/linux_tun_adapter.h"
+#endif  // __QNXNTO__
 
-namespace ivdcm_module {
-
-CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
-
-IvdcmProxy::IvdcmProxy(IvdcmProxyListener *listener)
-    : listener_(listener),
-      gpb_(GpbDataSenderReceiver(this)),
-      tun_(0) {
-  tun_ = net::CreateTunAdapter("tun");
-  gpb_.Start();
+namespace net {
+static TunAdapterInterface* CreateTunAdapter(const std::string& nic) {
+#ifdef __QNXNTO__
+  return new QnxTunAdapter(nic);
+#else
+  return new LinuxTunAdapter(nic);
+#endif  // __QNXNTO__
 }
+}  // namespace net
 
-IvdcmProxy::~IvdcmProxy() {
-  gpb_.Stop();
-  delete tun_;
-}
-
-bool IvdcmProxy::Send(const sdl_ivdcm_api::SDLRPC &message) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  return gpb_.Send(message);
-}
-
-void IvdcmProxy::OnReceived(const sdl_ivdcm_api::SDLRPC &message) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  listener_->OnReceived(message);
-}
-
-int IvdcmProxy::CreateTun() {
-  int id = tun_->Create();
-  if (id != -1) {
-    tun_->SetAddress(id, "10.8.0.1");
-    tun_->SetDestinationAddress(id, "10.8.0.2");
-    tun_->SetNetmask(id, "255.255.255.0");
-    tun_->SetFlags(id, IFF_UP | IFF_NOARP);
-  }
-  return id;
-}
-
-void IvdcmProxy::DestroyTun(int id) {
-  tun_->Destroy(id);
-}
-
-}  // namespace ivdcm_module
-
+#endif  // SRC_COMPONENTS_IVDCM_MODULE_NET_TUN_ADAPTER_H_
