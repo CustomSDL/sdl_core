@@ -200,19 +200,18 @@ void  Ivdcm::SendIvdcmMesssage(const sdl_ivdcm_api::SDLRPC &message) {
   proxy_.Send(message);
 }
 
-void Ivdcm::AddRequestToRequestController(const uint32_t& mobile_correlation_id,
+void Ivdcm::AddRequestToRequestController(uint32_t mobile_correlation_id,
                                  request_controller::MobileRequestPtr request) {
   LOG4CXX_AUTO_TRACE(logger_);
   request_controller_.AddRequest(mobile_correlation_id, request);
 }
 
-void Ivdcm::DeleteRequestFromRequestController(
-    const uint32_t& mobile_correlation_id) {
+void Ivdcm::DeleteRequestFromRequestController(uint32_t mobile_correlation_id) {
   LOG4CXX_AUTO_TRACE(logger_);
   request_controller_.DeleteRequest(mobile_correlation_id);
 }
 
-void Ivdcm::ResetTimer(const uint32_t& mobile_correlation_id) {
+void Ivdcm::ResetTimer(uint32_t mobile_correlation_id) {
   LOG4CXX_AUTO_TRACE(logger_);
   request_controller_.ResetTimer(mobile_correlation_id);
 }
