@@ -49,8 +49,9 @@ namespace net {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 
-QnxTunAdapter::QnxTunAdapter(const std::string& nic)
-    : nic_(nic) {
+// The network interfaces should be named tun0, tun1, etc.
+QnxTunAdapter::QnxTunAdapter()
+    : nic_("tun") {
 }
 
 bool QnxTunAdapter::RunCommand(int cmd, ifreq *ifr) const {
@@ -88,6 +89,11 @@ void QnxTunAdapter::StringToSockAddr(const std::string& value,
   inet_aton(value.c_str(), &addr_in->sin_addr);
 }
 
+int QnxTunAdapter::NextId() {
+  static int id = 0;
+  return ++id;
+}
+
 void QnxTunAdapter::SockAddrToString(const sockaddr *addr,
                                      std::string *value) const {
   LOG4CXX_AUTO_TRACE(logger_);
@@ -98,7 +104,7 @@ void QnxTunAdapter::SockAddrToString(const sockaddr *addr,
 int QnxTunAdapter::Create() {
   LOG4CXX_AUTO_TRACE(logger_);
   ifreq ifr;
-  int id = 1;  // TODO(KKolodiy): stub, need to generate id`s
+  int id = NextId();
   InitRequest(id, &ifr);
   if (RunCommand(SIOCIFCREATE, &ifr)) {
     return id;

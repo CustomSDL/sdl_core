@@ -44,7 +44,8 @@
 namespace net {
 static TunAdapterInterface* CreateTunAdapter(const std::string& nic) {
 #ifdef __QNXNTO__
-  return new QnxTunAdapter(nic);
+  // The network interfaces should be named tun0, tun1, etc.
+  return new QnxTunAdapter();
 #else
   return new LinuxTunAdapter(nic);
 #endif  // __QNXNTO__

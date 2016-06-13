@@ -44,7 +44,7 @@ namespace net {
 
 class QnxTunAdapter : public TunAdapterInterface {
  public:
-  explicit QnxTunAdapter(const std::string& nic);
+  QnxTunAdapter();
   virtual int Create();
   virtual void Destroy(int id);
   virtual bool SetAddress(int id, const std::string& value);
@@ -59,6 +59,7 @@ class QnxTunAdapter : public TunAdapterInterface {
   virtual bool GetMtu(int id, int *value);
 
  private:
+  static int NextId();
   bool RunCommand(int cmd, ifreq *ifr) const;
   void InitRequest(int id, ifreq *ifr) const;
 
