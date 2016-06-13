@@ -32,15 +32,21 @@
 
 #include "net/linux_tun_adapter.h"
 
+#include <arpa/inet.h>
+#include <cstdlib>
+#include <cstring>
 #include <fcntl.h>
 #include <errno.h>
 #include <linux/if_tun.h>
 #include <net/if.h>
-#include <string.h>
+#include <netinet/in.h>
+#include <string>
+#include <sstream>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "utils/logger.h"
 
@@ -71,28 +77,29 @@ bool LinuxTunAdapter::RunCommand(int cmd, ifreq *ifr) const {
 
 void LinuxTunAdapter::InitRequest(int id, ifreq *ifr) const {
   LOG4CXX_AUTO_TRACE(logger_);
-  const int kBase = 10;
   memset(ifr, 0, sizeof(*ifr));
-  char buffer[5];
-  std::string name = nic_ + std::string(itoa(id, buffer, kBase));
+  std::stringstream ss;
+  ss << id;
+  std::string number;
+  ss >> number;
+  std::string name = nic_ + number;
   strncpy(ifr->ifr_name, name.c_str(), sizeof(ifr->ifr_name));
 }
 
-void QnxTunAdapter::StringToSockAddr(const std::string& value,
+void LinuxTunAdapter::StringToSockAddr(const std::string& value,
                                      sockaddr *addr) const {
   LOG4CXX_AUTO_TRACE(logger_);
   sockaddr_in *addr_in = (sockaddr_in*) addr;
-  addr_in->sin_len = sizeof(*addr_in);
   addr_in->sin_family = AF_INET;
   inet_aton(value.c_str(), &addr_in->sin_addr);
 }
 
-int QnxTunAdapter::NextId() {
+int LinuxTunAdapter::NextId() {
   static int id = 0;
   return ++id;
 }
 
-void QnxTunAdapter::SockAddrToString(const sockaddr *addr,
+void LinuxTunAdapter::SockAddrToString(const sockaddr *addr,
                                      std::string *value) const {
   LOG4CXX_AUTO_TRACE(logger_);
   sockaddr_in *sin = (sockaddr_in *) addr;

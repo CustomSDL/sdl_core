@@ -33,15 +33,15 @@
 #include "net/qnx_tun_adapter.h"
 
 #include <arpa/inet.h>
+#include <cstdlib>
+#include <cstring>
 #include <errno.h>
 #include <net/if.h>
 #include <net/if_tun.h>
 #include <netinet/in.h>
-#include <stdlib.h>
-#include <cstring>
+#include <string>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <string>
 
 #include "utils/logger.h"
 

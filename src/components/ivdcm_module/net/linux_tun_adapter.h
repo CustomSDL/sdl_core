@@ -38,6 +38,9 @@
 
 #include "net/tun_adapter_interface.h"
 
+struct ifreq;
+struct sockaddr;
+
 namespace net {
 
 class LinuxTunAdapter : public TunAdapterInterface {
