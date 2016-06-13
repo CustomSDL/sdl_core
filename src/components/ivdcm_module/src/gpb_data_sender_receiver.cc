@@ -54,6 +54,7 @@ class GpbTransmitter : public threads::ThreadDelegate {
     bool stop = false;
     while (!stop) {
       net::ConnectedSocket *conn = parent_->socket_->accept();
+      LOG4CXX_INFO(logger_, "Incoming connection was accepted");
       if (!conn) break;
       parent_->transmitter_.set_socket(conn);
       stop = parent_->transmitter_.MessageListenLoop(parent_);
@@ -80,6 +81,7 @@ class ControlTransmitter : public threads::ThreadDelegate {
     bool stop = false;
     while (!stop) {
       net::ConnectedSocket *conn = parent_->control_socket_->accept();
+      LOG4CXX_INFO(logger_, "Incoming connection was accepted");
       if (!conn) break;
       parent_->controller_.set_socket(conn);
       stop = parent_->controller_.MessageListenLoop(parent_);
@@ -115,6 +117,7 @@ GpbDataSenderReceiver::~GpbDataSenderReceiver() {
 }
 
 void GpbDataSenderReceiver::CreateControl() {
+  LOG4CXX_AUTO_TRACE(logger_);
   std::string ip = profile::Profile::instance()->ivdcm_ip();
   uint32_t control_port = profile::Profile::instance()->ivdcm_control_port();
   control_socket_ = new net::ServerSocketImpl(ip.c_str(), control_port);
@@ -123,6 +126,7 @@ void GpbDataSenderReceiver::CreateControl() {
 }
 
 void GpbDataSenderReceiver::CreateTransmit() {
+  LOG4CXX_AUTO_TRACE(logger_);
   std::string ip = profile::Profile::instance()->ivdcm_ip();
   uint32_t port = profile::Profile::instance()->ivdcm_port();
   socket_ = new net::ServerSocketImpl(ip.c_str(), port);
@@ -131,6 +135,7 @@ void GpbDataSenderReceiver::CreateTransmit() {
 }
 
 void GpbDataSenderReceiver::DestroyControl() {
+  LOG4CXX_AUTO_TRACE(logger_);
   control_thread_->join();
   delete control_thread_->delegate();
   threads::DeleteThread(control_thread_);
@@ -139,6 +144,7 @@ void GpbDataSenderReceiver::DestroyControl() {
 }
 
 void GpbDataSenderReceiver::DestroyTransmit() {
+  LOG4CXX_AUTO_TRACE(logger_);
   thread_->join();
   delete thread_->delegate();
   threads::DeleteThread(thread_);
