@@ -34,6 +34,7 @@
 
 #include <net/if.h>
 
+#include "config_profile/profile.h"
 #include "ivdcm_module/ivdcm_proxy_listener.h"
 #include "net/tun_adapter.h"
 #include "utils/logger.h"
@@ -46,7 +47,8 @@ IvdcmProxy::IvdcmProxy(IvdcmProxyListener *listener)
     : listener_(listener),
       gpb_(GpbDataSenderReceiver(this)),
       tun_(0) {
-  tun_ = net::CreateTunAdapter("tun");
+  std::string nic = profile::Profile::instance()->ivdcm_nic_name();
+  tun_ = net::CreateTunAdapter(nic);
   gpb_.Start();
 }
 
@@ -66,6 +68,7 @@ void IvdcmProxy::OnReceived(const sdl_ivdcm_api::SDLRPC &message) {
 }
 
 int IvdcmProxy::CreateTun() {
+  LOG4CXX_AUTO_TRACE(logger_);
   int id = tun_->Create();
   if (id != -1) {
     tun_->SetAddress(id, "10.8.0.1");
@@ -78,6 +81,7 @@ int IvdcmProxy::CreateTun() {
 }
 
 void IvdcmProxy::DestroyTun(int id) {
+  LOG4CXX_AUTO_TRACE(logger_);
   tun_->Destroy(id);
 }
 

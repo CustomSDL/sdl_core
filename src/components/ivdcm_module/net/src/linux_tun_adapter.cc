@@ -119,17 +119,24 @@ int LinuxTunAdapter::Create() {
   InitRequest(id, &ifr);
   ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
   int ret = ioctl(fd, TUNSETIFF, &ifr);
-  if (ret != -1) {
-    fds_[id] = fd;
-    return id;
+  if (ret == -1) {
+    std::string error(strerror(errno));
+    LOG4CXX_ERROR(logger_, "Could not init TUN with error: " << error);
+    close(fd);
+    return -1;
   }
-  close(fd);
-  return -1;
+  fds_[id] = fd;
+  return id;
 }
 
 void LinuxTunAdapter::Destroy(int id) {
   LOG4CXX_AUTO_TRACE(logger_);
-  close(fds_[id]);
+  int ret = close(fds_[id]);
+  if (ret == -1) {
+    std::string error(strerror(errno));
+    LOG4CXX_ERROR(logger_, "Could not close /dev/net/tun with error: " << error);
+  }
+  fds_.erase(id);
 }
 
 bool LinuxTunAdapter::SetAddress(int id, const std::string& value) {
