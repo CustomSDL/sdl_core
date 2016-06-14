@@ -38,6 +38,7 @@ namespace ivdcm_module {
 namespace message_params {
 
 const char kUrl[]           = "URL";
+const char kOffset[]        = "offset";
 const char kSuccess[]       = "success";
 const char kResultCode[]    = "resultCode";
 const char kInfo[]          = "info";

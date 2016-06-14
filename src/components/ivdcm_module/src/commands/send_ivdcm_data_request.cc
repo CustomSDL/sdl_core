@@ -47,6 +47,7 @@ namespace commands {
 using event_engine::EventDispatcher;
 
 using message_params::kUrl;
+using message_params::kOffset;
 using message_params::kSuccess;
 using message_params::kResultCode;
 using message_params::kInfo;
@@ -104,6 +105,10 @@ void  SendIvdcmDataRequest::SendRequest(const sdl_ivdcm_api::SDLRPC& message) {
   Json::Value value;
 
   value[kUrl] = message_params.url();
+
+  if (message_params.has_offset()) {
+    value[kOffset] = static_cast<Json::UInt64>(message_params.offset());
+  }
 
   Json::FastWriter writer;
   mobile_msg->set_json_message(writer.write(value));
