@@ -79,10 +79,10 @@ class Ivdcm
   void SendMessageToMobile(application_manager::MessagePtr msg);
 
   // RequestController wrapped methods
-  void AddRequestToRequestController(const uint32_t& mobile_correlation_id,
+  void AddRequestToRequestController(uint32_t mobile_correlation_id,
                                   request_controller::MobileRequestPtr request);
-  void DeleteRequestFromRequestController(const uint32_t& mobile_correlation_id);
-  void ResetTimer(const uint32_t& mobile_correlation_id);
+  void DeleteRequestFromRequestController( uint32_t mobile_correlation_id);
+  void ResetTimer(uint32_t mobile_correlation_id);
 
   /**
    * @brief Returns unique correlation ID for request to mobile
