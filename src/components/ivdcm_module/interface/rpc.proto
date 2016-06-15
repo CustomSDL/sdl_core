@@ -2,11 +2,6 @@ syntax = "proto2";
 package sdl_ivdcm_api;
 
 //----------------COMMON--------------------------------------------------------------------------------------------
-enum SDLRPCName {
-  ON_INTERNET_STATE = 0;
-  SEND_IVDCM_DATA = 1;
-}
-
 enum MessageType {
   REQUEST = 0;
   RESPONSE = 1;
