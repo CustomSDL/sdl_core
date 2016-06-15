@@ -62,6 +62,7 @@ Ivdcm::Ivdcm()
       connection_key_(0) {
   plugin_info_.name = "IvdcmPlugin";
   plugin_info_.version = 1;
+  SubscribeToRpcMessages();
   // TODO(KKolodiy) workaround for reading profile,
   // possible it is fixed in fresh version of OpenSDL
   profile::Profile::instance()->config_file_name("smartDeviceLink.ini");
