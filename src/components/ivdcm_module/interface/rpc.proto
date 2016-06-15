@@ -22,6 +22,11 @@ enum ResultCode{
 }
 
 message SDLRPC {
+  enum SDLRPCName {
+    ON_INTERNET_STATE = 0;
+    SEND_IVDCM_DATA   = 1;
+  }
+
   required MessageType rpc_type = 1;
   required SDLRPCName  rpc_name = 2;
   required bytes       params   = 3;

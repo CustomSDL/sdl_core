@@ -185,7 +185,7 @@ void GpbDataSenderReceiver::Stop() {
 bool GpbDataSenderReceiver::IsControlMessage(
     const sdl_ivdcm_api::SDLRPC &message) const {
   return message.rpc_name()
-      == sdl_ivdcm_api::SDLRPCName::ON_INTERNET_STATE;
+      == sdl_ivdcm_api::SDLRPC_SDLRPCName::SDLRPC_SDLRPCName_ON_INTERNET_STATE;
 }
 
 bool GpbDataSenderReceiver::Send(const sdl_ivdcm_api::SDLRPC &message) {

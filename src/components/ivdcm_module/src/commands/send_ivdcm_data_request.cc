@@ -149,13 +149,13 @@ void SendIvdcmDataRequest::on_event(
   }
 
   std::string str;
-  google::protobuf::TextFormat::PrintToString(message_params, &str);
+  message_params.SerializeToString(&str);
 
   sdl_ivdcm_api::SDLRPC message;
 
   message.set_params(str);
 
-  message.set_rpc_name(sdl_ivdcm_api::SDLRPCName::SEND_IVDCM_DATA);
+  message.set_rpc_name(sdl_ivdcm_api::SDLRPC_SDLRPCName::SDLRPC_SDLRPCName_SEND_IVDCM_DATA);
   message.set_rpc_type(sdl_ivdcm_api::MessageType::RESPONSE);
 
   parent_->SendIvdcmMesssage(message);
