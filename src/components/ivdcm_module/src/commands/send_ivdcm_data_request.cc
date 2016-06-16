@@ -49,7 +49,7 @@ using event_engine::EventDispatcher;
 using message_params::kUrl;
 using message_params::kOffset;
 using message_params::kSuccess;
-using message_params::kResultCode;
+using message_params::kSendDataResult;
 using message_params::kInfo;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "SendIvdcmDataRequest")
@@ -137,12 +137,14 @@ void SendIvdcmDataRequest::on_event(
   reader.parse(event.event_message()->json_message(), value);
 
   message_params.set_result_code(static_cast<sdl_ivdcm_api::ResultCode>(
-      value[kResultCode].asUInt()));
+      value[kSendDataResult].asUInt()));
   // value[kSuccess].asBool();
 
-  message_params.set_response_data(
+  if (event.event_message()->binary_data()) {
+    message_params.set_response_data(
                       std::string(event.event_message()->binary_data()->begin(),
                                   event.event_message()->binary_data()->end()));
+  }
 
   if (value.isMember(kInfo)) {
     message_params.set_info(value[kInfo].asString());

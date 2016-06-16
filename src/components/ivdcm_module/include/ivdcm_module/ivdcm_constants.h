@@ -40,7 +40,7 @@ namespace message_params {
 const char kUrl[]           = "URL";
 const char kOffset[]        = "offset";
 const char kSuccess[]       = "success";
-const char kResultCode[]    = "resultCode";
+const char kSendDataResult[] = "sendDataResult";
 const char kInfo[]          = "info";
 const char kInternetState[] = "internetState";
 
