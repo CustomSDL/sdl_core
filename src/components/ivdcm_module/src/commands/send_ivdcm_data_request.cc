@@ -115,10 +115,11 @@ void  SendIvdcmDataRequest::SendRequest(const sdl_ivdcm_api::SDLRPC& message) {
 
   // Post non ip request
   if (message_params.has_upload_data()) {
-    binary_data_.assign(message_params.upload_data().begin(),
-                       message_params.upload_data().end());
-    mobile_msg->set_binary_data(&binary_data_);
-    mobile_msg->set_data_size(binary_data_.size());
+    std::vector<uint8_t> *binary_data = new std::vector<uint8_t>();
+    binary_data->assign(message_params.upload_data().begin(),
+                        message_params.upload_data().end());
+    mobile_msg->set_binary_data(binary_data);
+    mobile_msg->set_data_size(binary_data->size());
   }
 
   parent_->AddRequestToRequestController(mobile_msg->correlation_id(), this);
