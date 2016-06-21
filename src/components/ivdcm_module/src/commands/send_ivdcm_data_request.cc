@@ -47,8 +47,9 @@ namespace commands {
 using event_engine::EventDispatcher;
 
 using message_params::kUrl;
+using message_params::kOffset;
 using message_params::kSuccess;
-using message_params::kResultCode;
+using message_params::kSendDataResult;
 using message_params::kInfo;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "SendIvdcmDataRequest")
@@ -105,15 +106,20 @@ void  SendIvdcmDataRequest::SendRequest(const sdl_ivdcm_api::SDLRPC& message) {
 
   value[kUrl] = message_params.url();
 
+  if (message_params.has_offset()) {
+    value[kOffset] = static_cast<Json::UInt64>(message_params.offset());
+  }
+
   Json::FastWriter writer;
   mobile_msg->set_json_message(writer.write(value));
 
   // Post non ip request
   if (message_params.has_upload_data()) {
-    binary_data_.assign(message_params.upload_data().begin(),
-                       message_params.upload_data().end());
-    mobile_msg->set_binary_data(&binary_data_);
-    mobile_msg->set_data_size(binary_data_.size());
+    std::vector<uint8_t> *binary_data = new std::vector<uint8_t>();
+    binary_data->assign(message_params.upload_data().begin(),
+                        message_params.upload_data().end());
+    mobile_msg->set_binary_data(binary_data);
+    mobile_msg->set_data_size(binary_data->size());
   }
 
   parent_->AddRequestToRequestController(mobile_msg->correlation_id(), this);
@@ -132,25 +138,27 @@ void SendIvdcmDataRequest::on_event(
   reader.parse(event.event_message()->json_message(), value);
 
   message_params.set_result_code(static_cast<sdl_ivdcm_api::ResultCode>(
-      value[kResultCode].asUInt()));
+      value[kSendDataResult].asUInt()));
   // value[kSuccess].asBool();
 
-  message_params.set_response_data(
+  if (event.event_message()->binary_data()) {
+    message_params.set_response_data(
                       std::string(event.event_message()->binary_data()->begin(),
                                   event.event_message()->binary_data()->end()));
+  }
 
   if (value.isMember(kInfo)) {
     message_params.set_info(value[kInfo].asString());
   }
 
   std::string str;
-  google::protobuf::TextFormat::PrintToString(message_params, &str);
+  message_params.SerializeToString(&str);
 
   sdl_ivdcm_api::SDLRPC message;
 
   message.set_params(str);
 
-  message.set_rpc_name(sdl_ivdcm_api::SDLRPCName::SEND_IVDCM_DATA);
+  message.set_rpc_name(sdl_ivdcm_api::SDLRPC_SDLRPCName::SDLRPC_SDLRPCName_SEND_IVDCM_DATA);
   message.set_rpc_type(sdl_ivdcm_api::MessageType::RESPONSE);
 
   parent_->SendIvdcmMesssage(message);

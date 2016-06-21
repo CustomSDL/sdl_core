@@ -73,15 +73,17 @@ void OnInternetStateChangedNotification::Execute(
 
   message_params.set_state(value[kInternetState].asBool());
   message_params.set_nic_name(profile::Profile::instance()->ivdcm_nic_name());
+  // TODO(KKolodiy): add virtual network ip
+  message_params.set_ip("");
 
   std::string str;
-  google::protobuf::TextFormat::PrintToString(message_params, &str);
+  message_params.SerializeToString(&str);
 
   sdl_ivdcm_api::SDLRPC ivdcm_message;
 
   ivdcm_message.set_params(str);
 
-  ivdcm_message.set_rpc_name(sdl_ivdcm_api::SDLRPCName::ON_INTERNET_STATE);
+  ivdcm_message.set_rpc_name(sdl_ivdcm_api::SDLRPC_SDLRPCName::SDLRPC_SDLRPCName_ON_INTERNET_STATE);
   ivdcm_message.set_rpc_type(sdl_ivdcm_api::MessageType::NOTIFICATION);
 
   parent_->set_connection_key(message->connection_key());

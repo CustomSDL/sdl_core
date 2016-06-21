@@ -198,6 +198,7 @@ ProcessResult PluginManager::ProcessHMIMessage(application_manager::MessagePtr m
 
 bool PluginManager::IsMessageForPlugin(application_manager::MessagePtr msg) {
   DCHECK(msg);
+  LOG4CXX_DEBUG(logger_, "Message id: " << msg->function_id());
   if (!msg) {
     LOG4CXX_ERROR(logger_, "Null pointer message was received.");
     return false;
