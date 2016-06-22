@@ -71,10 +71,12 @@ void OnInternetStateChangedNotification::Execute(
     return;
   }
 
-  message_params.set_state(value[kInternetState].asBool());
-  message_params.set_nic_name(profile::Profile::instance()->ivdcm_nic_name());
-  // TODO(KKolodiy): add virtual network ip
-  message_params.set_ip("");
+  bool state = value[kInternetState].asBool();
+  message_params.set_state(state);
+  std::string nic, ip;
+  parent_->OnInternetStateChanged(state, &nic, &ip);
+  message_params.set_nic_name(nic);
+  message_params.set_ip(ip);
 
   std::string str;
   message_params.SerializeToString(&str);

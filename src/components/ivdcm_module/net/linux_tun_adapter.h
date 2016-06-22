@@ -30,49 +30,45 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_H_
-#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_H_
+#ifndef SRC_COMPONENTS_IVDCM_MODULE_NET_LINUX_TUN_ADAPTER_H_
+#define SRC_COMPONENTS_IVDCM_MODULE_NET_LINUX_TUN_ADAPTER_H_
 
+#include <map>
 #include <string>
-#include "ivdcm_module/gpb_data_sender_receiver.h"
+
+#include "net/tun_adapter_interface.h"
+
+struct ifreq;
+struct sockaddr;
 
 namespace net {
-class TunAdapterInterface;
-}  // namespace net
 
-namespace ivdcm_module {
-class IvdcmProxyListener;
-
-class IvdcmProxy {
+class LinuxTunAdapter : public TunAdapterInterface {
  public:
-  explicit IvdcmProxy(IvdcmProxyListener *listener);
-  ~IvdcmProxy();
-  bool Send(const sdl_ivdcm_api::SDLRPC &message);
-  void OnReceived(const sdl_ivdcm_api::SDLRPC &message);
-  int CreateTun();
-  void DestroyTun(int id);
-
-  /**
-   * Gets name of tunnel software network interface (TUN)
-   * @param id unique number of TUN
-   * @return empty string if error is occurred otherwise name
-   */
-  std::string GetNameTun(int id);
-
-  /**
-   * Gets address of tunnel software network interface (TUN)
-   * @param id unique number of TUN
-   * @return empty string if error is occurred otherwise ip address
-   */
-  std::string GetAddressTun(int id);
+  explicit LinuxTunAdapter(const std::string& nic);
+  virtual int Create();
+  virtual void Destroy(int id);
+  virtual std::string GetName(int id) const;
+  virtual bool SetAddress(int id, const std::string& value);
+  virtual bool GetAddress(int id, std::string *value) const;
+  virtual bool SetDestinationAddress(int id, const std::string& value);
+  virtual bool GetDestinationAddress(int id, std::string *value) const;
+  virtual bool SetNetmask(int id, const std::string& value);
+  virtual bool GetNetmask(int id, std::string *value) const;
+  virtual bool SetFlags(int id, int value);
+  virtual bool GetFlags(int id, int *value) const;
+  virtual bool SetMtu(int id, int value);
+  virtual bool GetMtu(int id, int *value) const;
 
  private:
-  std::string NextIp() const;
-  IvdcmProxyListener *listener_;
-  GpbDataSenderReceiver gpb_;
-  std::string ip_range_;
-  net::TunAdapterInterface *tun_;
+  static int NextId();
+  bool RunCommand(int cmd, ifreq *ifr) const;
+  void InitRequest(int id, ifreq *ifr) const;
+  const std::string nic_;
+  std::map<int, int> fds_;
 };
-}  // namespace ivdcm_module
 
-#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_H_
+TunAdapterInterface* CreateTunAdapter(const std::string& nic);
+}  // namespace net
+
+#endif  // SRC_COMPONENTS_IVDCM_MODULE_NET_LINUX_TUN_ADAPTER_H_

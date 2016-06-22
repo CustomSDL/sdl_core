@@ -233,12 +233,15 @@ const char* kIvdcmIp      = "ip";
 const char* kIvdcmPort    = "port";
 const char* kIvdcmControlPort = "control_port";
 const char* kIvdcmNicName = "nic_name";
+const char* kIvdcmIpRange = "ip_range";
+const char* kIvdcmMtu = "mtu";
 
 const char* kDefaultIvdcmIp      = "127.0.0.1";
 const uint16_t kDefaultIvdcmPort = 5445;
 const uint16_t kDefaultIvdcmControlPort = 5446;
 const char* kDefaultIvdcmNicName = "sdlproxy";
-
+const char* kDefaultIvdcmIpRange = "10.8.0.0";
+const uint16_t kDefaultIvdcmMtu  = 1000;
 }  // namespace
 
 namespace profile {
@@ -313,7 +316,9 @@ Profile::Profile()
     ivdcm_ip_(kDefaultIvdcmIp),
     ivdcm_port_(kDefaultIvdcmPort),
     ivdcm_control_port_(kDefaultIvdcmControlPort),
-    ivdcm_nic_name_(kDefaultIvdcmNicName) {
+    ivdcm_nic_name_(kDefaultIvdcmNicName),
+    ivdcm_ip_range_(kDefaultIvdcmIpRange),
+    ivdcm_mtu_(kDefaultIvdcmMtu) {
 }
 
 Profile::~Profile() {
@@ -1422,6 +1427,16 @@ void Profile::UpdateValues() {
                   kIvdcmSection, kIvdcmNicName);
 
   LOG_UPDATED_VALUE(ivdcm_nic_name_, kIvdcmNicName, kIvdcmSection);
+
+  ReadStringValue(&ivdcm_ip_range_, kDefaultIvdcmIpRange,
+                  kIvdcmSection, kIvdcmIpRange);
+
+  LOG_UPDATED_VALUE(ivdcm_ip_range_, kIvdcmIpRange, kIvdcmSection);
+
+  ReadUIntValue(&ivdcm_mtu_, kDefaultIvdcmMtu,
+                  kIvdcmSection, kIvdcmMtu);
+
+  LOG_UPDATED_VALUE(ivdcm_mtu_, kIvdcmMtu, kIvdcmSection);
 }
 
 bool Profile::ReadValue(bool* value, const char* const pSection,
@@ -1647,4 +1662,11 @@ std::string Profile::ivdcm_nic_name() const {
   return ivdcm_nic_name_;
 }
 
+std::string Profile::ivdcm_ip_range() const {
+  return ivdcm_ip_range_;
+}
+
+uint16_t Profile::ivdcm_mtu() const {
+  return ivdcm_mtu_;
+}
 }  //  namespace profile

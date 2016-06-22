@@ -502,6 +502,8 @@ class Profile : public utils::Singleton<Profile> {
     uint16_t    ivdcm_port() const;
     uint16_t    ivdcm_control_port() const;
     std::string ivdcm_nic_name() const;
+    std::string ivdcm_ip_range() const;
+    uint16_t    ivdcm_mtu() const;
 
     /*
      * @brief Updates all related values from ini file
@@ -712,6 +714,8 @@ private:
     uint16_t    ivdcm_port_;
     uint16_t    ivdcm_control_port_;
     std::string ivdcm_nic_name_;
+    std::string ivdcm_ip_range_;
+    uint16_t    ivdcm_mtu_;
 
     FRIEND_BASE_SINGLETON_CLASS(Profile);
     DISALLOW_COPY_AND_ASSIGN(Profile);

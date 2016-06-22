@@ -30,49 +30,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_H_
-#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_H_
+#ifndef SRC_COMPONENTS_IVDCM_MODULE_NET_TUN_ADAPTER_H_
+#define SRC_COMPONENTS_IVDCM_MODULE_NET_TUN_ADAPTER_H_
 
-#include <string>
-#include "ivdcm_module/gpb_data_sender_receiver.h"
+#ifdef __QNXNTO__
+#  include "net/qnx_tun_adapter.h"
+#else
+#  include "net/linux_tun_adapter.h"
+#endif  // __QNXNTO__
 
-namespace net {
-class TunAdapterInterface;
-}  // namespace net
-
-namespace ivdcm_module {
-class IvdcmProxyListener;
-
-class IvdcmProxy {
- public:
-  explicit IvdcmProxy(IvdcmProxyListener *listener);
-  ~IvdcmProxy();
-  bool Send(const sdl_ivdcm_api::SDLRPC &message);
-  void OnReceived(const sdl_ivdcm_api::SDLRPC &message);
-  int CreateTun();
-  void DestroyTun(int id);
-
-  /**
-   * Gets name of tunnel software network interface (TUN)
-   * @param id unique number of TUN
-   * @return empty string if error is occurred otherwise name
-   */
-  std::string GetNameTun(int id);
-
-  /**
-   * Gets address of tunnel software network interface (TUN)
-   * @param id unique number of TUN
-   * @return empty string if error is occurred otherwise ip address
-   */
-  std::string GetAddressTun(int id);
-
- private:
-  std::string NextIp() const;
-  IvdcmProxyListener *listener_;
-  GpbDataSenderReceiver gpb_;
-  std::string ip_range_;
-  net::TunAdapterInterface *tun_;
-};
-}  // namespace ivdcm_module
-
-#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_H_
+#endif  // SRC_COMPONENTS_IVDCM_MODULE_NET_TUN_ADAPTER_H_

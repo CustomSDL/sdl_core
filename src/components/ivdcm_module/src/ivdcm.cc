@@ -59,6 +59,7 @@ uint32_t Ivdcm::next_correlation_id_ = 1;
 Ivdcm::Ivdcm()
     : GenericModule(kModuleID),
       proxy_(IvdcmProxy(this)),
+      tun_id_(-1),
       connection_key_(0) {
   plugin_info_.name = "IvdcmPlugin";
   plugin_info_.version = 1;
@@ -68,7 +69,18 @@ Ivdcm::Ivdcm()
   profile::Profile::instance()->config_file_name("smartDeviceLink.ini");
 }
 
-Ivdcm::~Ivdcm() {}
+void Ivdcm::OnInternetStateChanged(bool state, std::string* nic,
+                                   std::string* ip) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  if (state) {
+    tun_id_ = proxy_.CreateTun();
+    *nic = proxy_.GetNameTun(tun_id_);
+    *ip = proxy_.GetAddressTun(tun_id_);
+  } else {
+    proxy_.DestroyTun(tun_id_);
+    tun_id_ = -1;
+  }
+}
 
 void Ivdcm::SubscribeToRpcMessages() {
   plugin_info_.mobile_function_list.push_back(

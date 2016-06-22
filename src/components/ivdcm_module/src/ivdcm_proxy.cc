@@ -31,7 +31,13 @@
  */
 
 #include "ivdcm_module/ivdcm_proxy.h"
+
+#include <net/if.h>
+#include <sstream>
+
+#include "config_profile/profile.h"
 #include "ivdcm_module/ivdcm_proxy_listener.h"
+#include "net/tun_adapter.h"
 #include "utils/logger.h"
 
 namespace ivdcm_module {
@@ -40,12 +46,18 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 
 IvdcmProxy::IvdcmProxy(IvdcmProxyListener *listener)
     : listener_(listener),
-      gpb_(GpbDataSenderReceiver(this)) {
+      gpb_(GpbDataSenderReceiver(this)),
+      ip_range_(),
+      tun_(0) {
+  ip_range_ = profile::Profile::instance()->ivdcm_ip_range();
+  std::string nic = profile::Profile::instance()->ivdcm_nic_name();
+  tun_ = net::CreateTunAdapter(nic);
   gpb_.Start();
 }
 
 IvdcmProxy::~IvdcmProxy() {
   gpb_.Stop();
+  delete tun_;
 }
 
 bool IvdcmProxy::Send(const sdl_ivdcm_api::SDLRPC &message) {
@@ -56,6 +68,52 @@ bool IvdcmProxy::Send(const sdl_ivdcm_api::SDLRPC &message) {
 void IvdcmProxy::OnReceived(const sdl_ivdcm_api::SDLRPC &message) {
   LOG4CXX_AUTO_TRACE(logger_);
   listener_->OnReceived(message);
+}
+
+int IvdcmProxy::CreateTun() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  int id = tun_->Create();
+  if (id != -1) {
+    tun_->SetAddress(id, NextIp());
+    tun_->SetDestinationAddress(id, NextIp());
+    tun_->SetNetmask(id, "255.255.255.0");
+    tun_->SetFlags(id, IFF_UP | IFF_NOARP);
+    uint16_t mtu = profile::Profile::instance()->ivdcm_mtu();
+    tun_->SetMtu(id, mtu);
+  }
+  return id;
+}
+
+void IvdcmProxy::DestroyTun(int id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  tun_->Destroy(id);
+}
+
+std::string IvdcmProxy::NextIp() const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  static int i = 0;
+  const int kMax = 255;
+  if (++i > kMax) {
+    LOG4CXX_ERROR(logger_, "Range of IP addresses is exhausted");
+    return "";
+  }
+  std::stringstream ip;
+  ip << std::string(ip_range_.begin(), ip_range_.end() - 1) << i;
+  return ip.str();
+}
+
+std::string IvdcmProxy::GetAddressTun(int id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  std::string ip;
+  if (tun_->GetAddress(id, &ip)) {
+    return ip;
+  }
+  return "";
+}
+
+std::string IvdcmProxy::GetNameTun(int id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  return tun_->GetName(id);
 }
 
 }  // namespace ivdcm_module
