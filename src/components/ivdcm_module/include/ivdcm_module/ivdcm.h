@@ -50,7 +50,6 @@ class Ivdcm
       public IvdcmProxyListener {
  public:
   Ivdcm();
-  ~Ivdcm();
   virtual functional_modules::PluginInfo GetPluginInfo() const;
   virtual functional_modules::ProcessResult ProcessHMIMessage(
       application_manager::MessagePtr msg);
@@ -71,6 +70,7 @@ class Ivdcm
 
   virtual void OnReceived(const sdl_ivdcm_api::SDLRPC &message);
   void SendIvdcmMesssage(const sdl_ivdcm_api::SDLRPC &message);
+  void OnInternetStateChanged(bool state, std::string *nic, std::string *ip);
 
   /**
    * @brief Sends message to mobile application
@@ -120,9 +120,7 @@ class Ivdcm
   static const functional_modules::ModuleID kModuleID = 404;
   functional_modules::PluginInfo plugin_info_;
   IvdcmProxy proxy_;
-  // TODO(KKolodiy): this tun_id_ was add for checking TUN adapter only
-  // should be removed after implementation of the domain logic
-  int tun_id_;
+  int tun_id_; // Only one TUN is supported now
   uint32_t connection_key_;
 
   static uint32_t next_correlation_id_;

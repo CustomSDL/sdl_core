@@ -48,16 +48,17 @@ class LinuxTunAdapter : public TunAdapterInterface {
   explicit LinuxTunAdapter(const std::string& nic);
   virtual int Create();
   virtual void Destroy(int id);
+  virtual std::string GetName(int id) const;
   virtual bool SetAddress(int id, const std::string& value);
-  virtual bool GetAddress(int id, std::string *value);
+  virtual bool GetAddress(int id, std::string *value) const;
   virtual bool SetDestinationAddress(int id, const std::string& value);
-  virtual bool GetDestinationAddress(int id, std::string *value);
+  virtual bool GetDestinationAddress(int id, std::string *value) const;
   virtual bool SetNetmask(int id, const std::string& value);
-  virtual bool GetNetmask(int id, std::string *value);
+  virtual bool GetNetmask(int id, std::string *value) const;
   virtual bool SetFlags(int id, int value);
-  virtual bool GetFlags(int id, int *value);
+  virtual bool GetFlags(int id, int *value) const;
   virtual bool SetMtu(int id, int value);
-  virtual bool GetMtu(int id, int *value);
+  virtual bool GetMtu(int id, int *value) const;
 
  private:
   static int NextId();

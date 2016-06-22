@@ -71,12 +71,16 @@ bool QnxTunAdapter::RunCommand(int cmd, ifreq *ifr) const {
   return ret != -1;
 }
 
+std::string QnxTunAdapter::GetName(int id) const {
+  std::ostringstream name;
+  name << nic_ << id;
+  return name.str();
+}
+
 void QnxTunAdapter::InitRequest(int id, ifreq *ifr) const {
   LOG4CXX_AUTO_TRACE(logger_);
-  const int kBase = 10;
   memset(ifr, 0, sizeof(*ifr));
-  char buffer[5];
-  std::string name = nic_ + std::string(itoa(id, buffer, kBase));
+  std::string name = GetName(id);
   strlcpy(ifr->ifr_name, name.c_str(), sizeof(ifr->ifr_name));
 }
 
@@ -135,7 +139,7 @@ bool QnxTunAdapter::SetAddress(int id, const std::string& value) {
   return RunCommand(SIOCSIFADDR, &ifr);
 }
 
-bool QnxTunAdapter::GetAddress(int id, std::string* value) {
+bool QnxTunAdapter::GetAddress(int id, std::string* value) const {
   LOG4CXX_AUTO_TRACE(logger_);
   ifreq ifr;
   InitRequest(id, &ifr);
@@ -154,7 +158,7 @@ bool QnxTunAdapter::SetDestinationAddress(int id, const std::string& value) {
   return RunCommand(SIOCSIFDSTADDR, &ifr);
 }
 
-bool QnxTunAdapter::GetDestinationAddress(int id, std::string* value) {
+bool QnxTunAdapter::GetDestinationAddress(int id, std::string* value) const {
   LOG4CXX_AUTO_TRACE(logger_);
   ifreq ifr;
   InitRequest(id, &ifr);
@@ -173,7 +177,7 @@ bool QnxTunAdapter::SetNetmask(int id, const std::string& value) {
   return RunCommand(SIOCSIFNETMASK, &ifr);
 }
 
-bool QnxTunAdapter::GetNetmask(int id, std::string* value) {
+bool QnxTunAdapter::GetNetmask(int id, std::string* value) const {
   LOG4CXX_AUTO_TRACE(logger_);
   ifreq ifr;
   InitRequest(id, &ifr);
@@ -192,7 +196,7 @@ bool QnxTunAdapter::SetFlags(int id, int value) {
   return RunCommand(SIOCSIFFLAGS, &ifr);
 }
 
-bool QnxTunAdapter::GetFlags(int id, int* value) {
+bool QnxTunAdapter::GetFlags(int id, int* value) const {
   LOG4CXX_AUTO_TRACE(logger_);
   ifreq ifr;
   InitRequest(id, &ifr);
@@ -211,7 +215,7 @@ bool QnxTunAdapter::SetMtu(int id, int value) {
   return RunCommand(SIOCSIFMTU, &ifr);
 }
 
-bool QnxTunAdapter::GetMtu(int id, int* value) {
+bool QnxTunAdapter::GetMtu(int id, int* value) const {
   LOG4CXX_AUTO_TRACE(logger_);
   ifreq ifr;
   InitRequest(id, &ifr);

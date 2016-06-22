@@ -67,16 +67,19 @@ Ivdcm::Ivdcm()
   // TODO(KKolodiy) workaround for reading profile,
   // possible it is fixed in fresh version of OpenSDL
   profile::Profile::instance()->config_file_name("smartDeviceLink.ini");
-
-  // TODO(KKolodiy): this was add for checking TUN adapter only
-  // should be removed after implementation of the domain logic
-  tun_id_ = proxy_.CreateTun();
 }
 
-Ivdcm::~Ivdcm() {
-  // TODO(KKolodiy): this was add for checking TUN adapter only
-  // should be removed after implementation of the domain logic
-  proxy_.DestroyTun(tun_id_);
+void Ivdcm::OnInternetStateChanged(bool state, std::string* nic,
+                                   std::string* ip) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  if (state) {
+    tun_id_ = proxy_.CreateTun();
+    *nic = proxy_.GetNameTun(tun_id_);
+    *ip = proxy_.GetAddressTun(tun_id_);
+  } else {
+    proxy_.DestroyTun(tun_id_);
+    tun_id_ = -1;
+  }
 }
 
 void Ivdcm::SubscribeToRpcMessages() {

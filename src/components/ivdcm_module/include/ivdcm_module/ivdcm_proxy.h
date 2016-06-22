@@ -53,6 +53,13 @@ class IvdcmProxy {
   void DestroyTun(int id);
 
   /**
+   * Gets name of tunnel software network interface (TUN)
+   * @param id unique number of TUN
+   * @return empty string if error is occurred otherwise name
+   */
+  std::string GetNameTun(int id);
+
+  /**
    * Gets address of tunnel software network interface (TUN)
    * @param id unique number of TUN
    * @return empty string if error is occurred otherwise ip address

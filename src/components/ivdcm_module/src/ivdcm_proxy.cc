@@ -93,18 +93,13 @@ std::string IvdcmProxy::NextIp() const {
   LOG4CXX_AUTO_TRACE(logger_);
   static int i = 0;
   const int kMax = 255;
-  if (++i <= kMax) {
-    std::stringstream s;
-    s << i;
-    std::string number;
-    s >> number;
-    std::string ip = ip_range_;
-    ip.replace(ip.end() - 1, ip.end(), number);
-    return ip;
-  } else {
+  if (++i > kMax) {
     LOG4CXX_ERROR(logger_, "Range of IP addresses is exhausted");
     return "";
   }
+  std::stringstream ip;
+  ip << std::string(ip_range_.begin(), ip_range_.end() - 1) << i;
+  return ip.str();
 }
 
 std::string IvdcmProxy::GetAddressTun(int id) {
@@ -114,6 +109,11 @@ std::string IvdcmProxy::GetAddressTun(int id) {
     return ip;
   }
   return "";
+}
+
+std::string IvdcmProxy::GetNameTun(int id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  return tun_->GetName(id);
 }
 
 }  // namespace ivdcm_module

@@ -76,14 +76,16 @@ bool LinuxTunAdapter::RunCommand(int cmd, ifreq *ifr) const {
   return ret != -1;
 }
 
+std::string LinuxTunAdapter::GetName(int id) const {
+  std::ostringstream name;
+  name << nic_ << id;
+  return name.str();
+}
+
 void LinuxTunAdapter::InitRequest(int id, ifreq *ifr) const {
   LOG4CXX_AUTO_TRACE(logger_);
   memset(ifr, 0, sizeof(*ifr));
-  std::stringstream ss;
-  ss << id;
-  std::string number;
-  ss >> number;
-  std::string name = nic_ + number;
+  std::string name = GetName(id);
   strncpy(ifr->ifr_name, name.c_str(), sizeof(ifr->ifr_name));
 }
 
@@ -156,7 +158,7 @@ bool LinuxTunAdapter::SetAddress(int id, const std::string& value) {
   return RunCommand(SIOCSIFADDR, &ifr);
 }
 
-bool LinuxTunAdapter::GetAddress(int id, std::string* value) {
+bool LinuxTunAdapter::GetAddress(int id, std::string* value) const {
   LOG4CXX_AUTO_TRACE(logger_);
   ifreq ifr;
   InitRequest(id, &ifr);
@@ -175,7 +177,7 @@ bool LinuxTunAdapter::SetDestinationAddress(int id, const std::string& value) {
   return RunCommand(SIOCSIFDSTADDR, &ifr);
 }
 
-bool LinuxTunAdapter::GetDestinationAddress(int id, std::string* value) {
+bool LinuxTunAdapter::GetDestinationAddress(int id, std::string* value) const {
   LOG4CXX_AUTO_TRACE(logger_);
   ifreq ifr;
   InitRequest(id, &ifr);
@@ -194,7 +196,7 @@ bool LinuxTunAdapter::SetNetmask(int id, const std::string& value) {
   return RunCommand(SIOCSIFNETMASK, &ifr);
 }
 
-bool LinuxTunAdapter::GetNetmask(int id, std::string* value) {
+bool LinuxTunAdapter::GetNetmask(int id, std::string* value) const {
   LOG4CXX_AUTO_TRACE(logger_);
   ifreq ifr;
   InitRequest(id, &ifr);
@@ -213,7 +215,7 @@ bool LinuxTunAdapter::SetFlags(int id, int value) {
   return RunCommand(SIOCSIFFLAGS, &ifr);
 }
 
-bool LinuxTunAdapter::GetFlags(int id, int* value) {
+bool LinuxTunAdapter::GetFlags(int id, int* value) const {
   LOG4CXX_AUTO_TRACE(logger_);
   ifreq ifr;
   InitRequest(id, &ifr);
@@ -232,7 +234,7 @@ bool LinuxTunAdapter::SetMtu(int id, int value) {
   return RunCommand(SIOCSIFMTU, &ifr);
 }
 
-bool LinuxTunAdapter::GetMtu(int id, int* value) {
+bool LinuxTunAdapter::GetMtu(int id, int* value) const {
   LOG4CXX_AUTO_TRACE(logger_);
   ifreq ifr;
   InitRequest(id, &ifr);

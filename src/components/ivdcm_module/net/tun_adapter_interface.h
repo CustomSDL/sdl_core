@@ -55,6 +55,13 @@ class TunAdapterInterface {
   virtual void Destroy(int id) = 0;
 
   /**
+   * Gets name of TUN interface
+   * @param id of the interface
+   * @return name of the interface
+   */
+  virtual std::string GetName(int id) const = 0;
+
+  /**
    * Sets ifnet address
    * @param id of the interface
    * @param value of ifnet address
@@ -66,7 +73,7 @@ class TunAdapterInterface {
    * @param id of the interface
    * @param pointer to save value of ifnet address
    */
-  virtual bool GetAddress(int id, std::string *value) = 0;
+  virtual bool GetAddress(int id, std::string *value) const = 0;
 
   /**
    * Sets point-to-point address
@@ -80,7 +87,7 @@ class TunAdapterInterface {
    * @param id of the interface
    * @param pointer to save value of point-to-point address
    */
-  virtual bool GetDestinationAddress(int id, std::string *value) = 0;
+  virtual bool GetDestinationAddress(int id, std::string *value) const = 0;
 
   /**
    * Sets net mask
@@ -94,7 +101,7 @@ class TunAdapterInterface {
    * @param id of the interface
    * @param pointer to save value of net mask
    */
-  virtual bool GetNetmask(int id, std::string *value) = 0;
+  virtual bool GetNetmask(int id, std::string *value) const = 0;
 
   /**
    * Sets flags
@@ -108,7 +115,7 @@ class TunAdapterInterface {
    * @param id of the interface
    * @param pointer to save value of flags
    */
-  virtual bool GetFlags(int id, int *value) = 0;
+  virtual bool GetFlags(int id, int *value) const = 0;
 
   /**
    * Sets MTU
@@ -122,7 +129,7 @@ class TunAdapterInterface {
    * @param id of the interface
    * @param pointer to save value of MTU
    */
-  virtual bool GetMtu(int id, int *value) = 0;
+  virtual bool GetMtu(int id, int *value) const = 0;
 };
 
 }  // namespace net
