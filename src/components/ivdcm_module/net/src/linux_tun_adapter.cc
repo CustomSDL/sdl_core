@@ -55,7 +55,8 @@ namespace net {
 CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 
 LinuxTunAdapter::LinuxTunAdapter(const std::string& nic)
-    : nic_(nic), fds_() {
+    : nic_(nic),
+      fds_() {
 }
 
 bool LinuxTunAdapter::RunCommand(int cmd, ifreq *ifr) const {
@@ -86,10 +87,14 @@ void LinuxTunAdapter::InitRequest(int id, ifreq *ifr) const {
   strncpy(ifr->ifr_name, name.c_str(), sizeof(ifr->ifr_name));
 }
 
-void LinuxTunAdapter::StringToSockAddr(const std::string& value,
-                                     sockaddr *addr) const {
+/**
+ * Converts a string into an Internet address stored in a structure
+ * @param value of  Internet address (support only IPv4)
+ * @param addr pointer to save result
+ */
+static void StringToSockAddr(const std::string& value, sockaddr *addr) {
   LOG4CXX_AUTO_TRACE(logger_);
-  sockaddr_in *addr_in = (sockaddr_in*) addr;
+  sockaddr_in *addr_in = reinterpret_cast<sockaddr_in*>(addr);
   addr_in->sin_family = AF_INET;
   inet_aton(value.c_str(), &addr_in->sin_addr);
 }
@@ -99,10 +104,14 @@ int LinuxTunAdapter::NextId() {
   return ++id;
 }
 
-void LinuxTunAdapter::SockAddrToString(const sockaddr *addr,
-                                     std::string *value) const {
+/**
+ * Converts an Internet address into a string
+ * @param addr to save result
+ * @param value of  Internet address (support only IPv4)
+ */
+static void SockAddrToString(const sockaddr *addr, std::string *value) {
   LOG4CXX_AUTO_TRACE(logger_);
-  sockaddr_in *sin = (sockaddr_in *) addr;
+  const sockaddr_in *sin = reinterpret_cast<const sockaddr_in*>(addr);
   *value = std::string(inet_ntoa(sin->sin_addr));
 }
 
@@ -234,4 +243,7 @@ bool LinuxTunAdapter::GetMtu(int id, int* value) {
   return false;
 }
 
+TunAdapterInterface* CreateTunAdapter(const std::string& nic) {
+  return new LinuxTunAdapter(nic);
+}
 }  // namespace net

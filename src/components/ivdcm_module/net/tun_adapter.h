@@ -33,23 +33,10 @@
 #ifndef SRC_COMPONENTS_IVDCM_MODULE_NET_TUN_ADAPTER_H_
 #define SRC_COMPONENTS_IVDCM_MODULE_NET_TUN_ADAPTER_H_
 
-#include <string>
-
 #ifdef __QNXNTO__
 #  include "net/qnx_tun_adapter.h"
 #else
 #  include "net/linux_tun_adapter.h"
 #endif  // __QNXNTO__
-
-namespace net {
-static TunAdapterInterface* CreateTunAdapter(const std::string& nic) {
-#ifdef __QNXNTO__
-  // The network interfaces should be named tun0, tun1, etc.
-  return new QnxTunAdapter();
-#else
-  return new LinuxTunAdapter(nic);
-#endif  // __QNXNTO__
-}
-}  // namespace net
 
 #endif  // SRC_COMPONENTS_IVDCM_MODULE_NET_TUN_ADAPTER_H_

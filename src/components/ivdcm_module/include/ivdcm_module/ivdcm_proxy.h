@@ -33,6 +33,7 @@
 #ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_H_
 #define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_H_
 
+#include <string>
 #include "ivdcm_module/gpb_data_sender_receiver.h"
 
 namespace net {
@@ -51,9 +52,18 @@ class IvdcmProxy {
   int CreateTun();
   void DestroyTun(int id);
 
+  /**
+   * Gets address of tunnel software network interface (TUN)
+   * @param id unique number of TUN
+   * @return empty string if error is occurred otherwise ip address
+   */
+  std::string GetAddressTun(int id);
+
  private:
+  std::string NextIp() const;
   IvdcmProxyListener *listener_;
   GpbDataSenderReceiver gpb_;
+  std::string ip_range_;
   net::TunAdapterInterface *tun_;
 };
 }  // namespace ivdcm_module

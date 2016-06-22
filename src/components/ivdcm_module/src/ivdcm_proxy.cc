@@ -33,6 +33,7 @@
 #include "ivdcm_module/ivdcm_proxy.h"
 
 #include <net/if.h>
+#include <sstream>
 
 #include "config_profile/profile.h"
 #include "ivdcm_module/ivdcm_proxy_listener.h"
@@ -46,7 +47,9 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 IvdcmProxy::IvdcmProxy(IvdcmProxyListener *listener)
     : listener_(listener),
       gpb_(GpbDataSenderReceiver(this)),
+      ip_range_(),
       tun_(0) {
+  ip_range_ = profile::Profile::instance()->ivdcm_ip_range();
   std::string nic = profile::Profile::instance()->ivdcm_nic_name();
   tun_ = net::CreateTunAdapter(nic);
   gpb_.Start();
@@ -71,11 +74,12 @@ int IvdcmProxy::CreateTun() {
   LOG4CXX_AUTO_TRACE(logger_);
   int id = tun_->Create();
   if (id != -1) {
-    tun_->SetAddress(id, "10.8.0.1");
-    tun_->SetDestinationAddress(id, "10.8.0.2");
+    tun_->SetAddress(id, NextIp());
+    tun_->SetDestinationAddress(id, NextIp());
     tun_->SetNetmask(id, "255.255.255.0");
     tun_->SetFlags(id, IFF_UP | IFF_NOARP);
-    tun_->SetMtu(id, 3000);
+    uint16_t mtu = profile::Profile::instance()->ivdcm_mtu();
+    tun_->SetMtu(id, mtu);
   }
   return id;
 }
@@ -83,6 +87,33 @@ int IvdcmProxy::CreateTun() {
 void IvdcmProxy::DestroyTun(int id) {
   LOG4CXX_AUTO_TRACE(logger_);
   tun_->Destroy(id);
+}
+
+std::string IvdcmProxy::NextIp() const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  static int i = 0;
+  const int kMax = 255;
+  if (++i <= kMax) {
+    std::stringstream s;
+    s << i;
+    std::string number;
+    s >> number;
+    std::string ip = ip_range_;
+    ip.replace(ip.end() - 1, ip.end(), number);
+    return ip;
+  } else {
+    LOG4CXX_ERROR(logger_, "Range of IP addresses is exhausted");
+    return "";
+  }
+}
+
+std::string IvdcmProxy::GetAddressTun(int id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  std::string ip;
+  if (tun_->GetAddress(id, &ip)) {
+    return ip;
+  }
+  return "";
 }
 
 }  // namespace ivdcm_module
