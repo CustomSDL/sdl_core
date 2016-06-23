@@ -119,7 +119,8 @@ static void SockAddrToString(const sockaddr *addr, std::string *value) {
 
 int LinuxTunAdapter::Create() {
   LOG4CXX_AUTO_TRACE(logger_);
-  int fd = open("/dev/net/tun", O_RDWR);
+  const std::string kDev = "/dev/net/tun";
+  int fd = open(kDev.c_str(), O_RDWR);
   if (fd == -1) {
     std::string error(strerror(errno));
     LOG4CXX_ERROR(logger_, "Could not open /dev/net/tun with error: " << error);

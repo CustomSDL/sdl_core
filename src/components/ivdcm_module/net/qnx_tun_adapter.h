@@ -61,9 +61,27 @@ class QnxTunAdapter : public TunAdapterInterface {
   virtual bool GetMtu(int id, int *value) const;
 
  private:
+  /**
+   * Generates next unique ID for TUN interface
+   * @return unique ID
+   */
   static int NextId();
+
+  /**
+   * Runs command on TUN interface
+   * @param cmd command
+   * @param ifr structure contains name of TUN interface
+   * and is used to give parameter or save result of command
+   */
   bool RunCommand(int cmd, ifreq *ifr) const;
+
+  /**
+   * Initializes ifr structure and set name of TUN interface
+   * @param id unique ID of TUN interface
+   * @param ifr structure for initialize
+   */
   void InitRequest(int id, ifreq *ifr) const;
+
   const std::string nic_;
 };
 
