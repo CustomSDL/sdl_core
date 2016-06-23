@@ -34,7 +34,9 @@
 #define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_H_
 
 #include <string>
+#include <vector>
 #include "ivdcm_module/gpb_data_sender_receiver.h"
+#include "ivdcm_module/ip_data_sender.h"
 
 namespace net {
 class TunAdapterInterface;
@@ -47,10 +49,36 @@ class IvdcmProxy {
  public:
   explicit IvdcmProxy(IvdcmProxyListener *listener);
   ~IvdcmProxy();
+  /**
+   * Sends GPB message to IVDCM
+   * @param message to send
+   */
   bool Send(const sdl_ivdcm_api::SDLRPC &message);
+
+  /**
+   * Handles received GPB message from IVDCM
+   * @param message received message
+   */
   void OnReceived(const sdl_ivdcm_api::SDLRPC &message);
+
+  /**
+   * Creates TUN interface
+   * @return unique ID of the TUN interface
+   */
   int CreateTun();
+
+  /**
+   * Destroys TUN interface by unique ID
+   * @param id unique ID
+   */
   void DestroyTun(int id);
+
+  /**
+   * Sends IP data to TUN interface
+   * @param id unique ID of the TUN interface
+   * @param data to send
+   */
+  void Send(int id, const std::vector<uint8_t>& ip_data);
 
   /**
    * Gets name of tunnel software network interface (TUN)
@@ -70,6 +98,7 @@ class IvdcmProxy {
   std::string NextIp() const;
   IvdcmProxyListener *listener_;
   GpbDataSenderReceiver gpb_;
+  IpDataSender ip_data_sender_;
   std::string ip_range_;
   net::TunAdapterInterface *tun_;
 };

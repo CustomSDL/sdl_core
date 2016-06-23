@@ -37,6 +37,7 @@
 #include "ivdcm_module/ivdcm_proxy.h"
 #include "net/connected_socket_impl.h"
 #include "net/server_socket_impl.h"
+#include "utils/logger.h"
 #include "utils/threads/thread.h"
 #include "utils/threads/thread_delegate.h"
 
@@ -67,6 +68,7 @@ class GpbTransmitter : public threads::ThreadDelegate {
     LOG4CXX_AUTO_TRACE(logger_);
     parent_->transmitter_.Stop();
   }
+
  private:
   GpbDataSenderReceiver *parent_;
 };
@@ -94,6 +96,7 @@ class ControlTransmitter : public threads::ThreadDelegate {
     LOG4CXX_AUTO_TRACE(logger_);
     parent_->controller_.Stop();
   }
+
  private:
   GpbDataSenderReceiver *parent_;
 };

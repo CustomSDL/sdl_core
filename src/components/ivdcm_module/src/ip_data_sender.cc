@@ -30,18 +30,66 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_PCAP_WRAPPER_H_
-#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_PCAP_WRAPPER_H_
+#include "ivdcm_module/ip_data_sender.h"
 
-#include <pcap.h>
+#include "utils/logger.h"
 
 namespace ivdcm_module {
 
-class PcapWrapper {
+CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 
-};
+IpDataSender::IpDataSender()
+    : tuns_(),
+      to_tun_("IpDataSender", this),
+      lock_() {
+}
 
+bool IpDataSender::AddTun(int id, const std::string& name) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  char errbuf[PCAP_ERRBUF_SIZE];
+  pcap_t *fd = pcap_open_live(name.c_str(), 65535, 0, 10, errbuf);
+  if (fd) {
+    sync_primitives::AutoLock locker(lock_);
+    tuns_[id] = fd;
+    return true;
+  } else {
+    LOG4CXX_ERROR(logger_, "Could not open TUN interface " << name);
+    return false;
+  }
+}
 
-}  // namespace can_cooperation
+void IpDataSender::RemoveTun(int id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  bool exist = tuns_.find(id) != tuns_.end();
+  if (exist) {
+    sync_primitives::AutoLock locker(lock_);
+    pcap_close(tuns_[id]);
+    tuns_.erase(id);
+  } else {
+    LOG4CXX_WARN(logger_, "TUN interface (" << id << ") is not exist");
+  }
+}
 
-#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_PCAP_WRAPPER_H_
+void IpDataSender::Send(int id, const std::vector<uint8_t>& data) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  to_tun_.PostMessage(DataMessage(id, data));
+}
+
+void IpDataSender::Handle(const DataMessage message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  int id = message.first;
+  pcap_t *fd = 0;
+  lock_.Acquire();
+  bool exist = tuns_.find(id) != tuns_.end();
+  if (exist) {
+    fd = tuns_[id];
+  }
+  lock_.Release();
+  const std::vector<uint8_t>& data = message.second;
+  int ret = pcap_inject(fd, &(data)[0], data.size());
+  if (ret == -1) {
+    std::string error(pcap_geterr(fd));
+    LOG4CXX_ERROR(logger_, "Could not inject (" << id << "): " << error);
+  }
+}
+}  // namespace ivdcm_module
