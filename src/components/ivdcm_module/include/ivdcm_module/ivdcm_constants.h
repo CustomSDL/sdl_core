@@ -37,12 +37,13 @@ namespace ivdcm_module {
 
 namespace message_params {
 
-const char kUrl[]           = "URL";
-const char kOffset[]        = "offset";
-const char kSuccess[]       = "success";
+const char kUrl[]            = "URL";
+const char kOffset[]         = "offset";
+const char kSuccess[]        = "success";
 const char kSendDataResult[] = "sendDataResult";
-const char kInfo[]          = "info";
-const char kInternetState[] = "internetState";
+const char kInfo[]           = "info";
+const char kInternetState[]  = "internetState";
+const char kIsIPData[]       = "isIPData";
 
 }  // namespace message_params
 

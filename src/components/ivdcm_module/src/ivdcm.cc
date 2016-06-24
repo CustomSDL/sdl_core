@@ -75,6 +75,8 @@ void Ivdcm::SubscribeToRpcMessages() {
       MobileFunctionID::ON_INTERNET_STATE_CHANGED);
   plugin_info_.mobile_function_list.push_back(
       MobileFunctionID::SEND_IVDCM_DATA);
+  plugin_info_.mobile_function_list.push_back(
+      MobileFunctionID::ON_IVDCM_IP_DATA);
 }
 
 PluginInfo Ivdcm::GetPluginInfo() const {
@@ -174,6 +176,11 @@ ProcessResult Ivdcm::ProcessMessage(application_manager::MessagePtr msg) {
       EventDispatcher<application_manager::MessagePtr,
                       functional_modules::MobileFunctionID>::instance()->
                       raise_event(event);
+      return ProcessResult::PROCESSED;
+    }
+    case MobileFunctionID::ON_IVDCM_IP_DATA: {
+      LOG4CXX_INFO(logger_, "OnIVDCMIPData notification");
+      // TODO(VS): Trnasfer binary data to ipDataReceiver
       return ProcessResult::PROCESSED;
     }
     default: {

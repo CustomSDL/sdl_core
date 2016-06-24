@@ -63,6 +63,8 @@ class SendIvdcmDataRequest : public Command,
    */
   void SendRequest(const sdl_ivdcm_api::SDLRPC& message);
 
+  void SendRequest(application_manager::BinaryData* binary_data);
+
   /**
    * @brief SendIvdcmDataRequest on timeout reaction
    */
@@ -72,6 +74,10 @@ class SendIvdcmDataRequest : public Command,
                 functional_modules::MobileFunctionID>& event);
 
  private:
+
+  void SendRequest(const Json::Value params,
+                   application_manager::BinaryData* binary_data);
+
   Ivdcm* parent_;
 
   std::vector<uint8_t> binary_data_;

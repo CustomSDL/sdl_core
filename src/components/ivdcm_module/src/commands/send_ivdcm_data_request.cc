@@ -51,6 +51,7 @@ using message_params::kOffset;
 using message_params::kSuccess;
 using message_params::kSendDataResult;
 using message_params::kInfo;
+using message_params::kIsIPData;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "SendIvdcmDataRequest")
 
@@ -83,6 +84,45 @@ void  SendIvdcmDataRequest::SendRequest(const sdl_ivdcm_api::SDLRPC& message) {
     return;
   }
 
+  // Add params to mobile request
+  Json::Value value;
+
+  value[kUrl] = message_params.url();
+
+  value[kIsIPData] = false;
+
+  if (message_params.has_offset()) {
+    value[kOffset] = static_cast<Json::UInt64>(message_params.offset());
+  }
+
+  std::vector<uint8_t> *binary_data = NULL;
+
+  // Post non ip request
+  if (message_params.has_upload_data()) {
+    std::vector<uint8_t> *binary_data = new std::vector<uint8_t>();
+    binary_data->assign(message_params.upload_data().begin(),
+                        message_params.upload_data().end());
+  }
+
+  SendRequest(value, binary_data);
+}
+
+void SendIvdcmDataRequest::SendRequest(
+    application_manager::BinaryData* binary_data) {
+  LOG4CXX_AUTO_TRACE(logger_);
+
+  Json::Value value;
+
+  value[kIsIPData] = true;
+
+  SendRequest(value, binary_data);
+}
+
+
+void SendIvdcmDataRequest::SendRequest(const Json::Value params,
+                                 application_manager::BinaryData* binary_data) {
+  LOG4CXX_AUTO_TRACE(logger_);
+
   // If params ok, create request message for mobile
   application_manager::MessagePtr mobile_msg = new application_manager::Message(
       protocol_handler::MessagePriority::kDefault);
@@ -101,23 +141,10 @@ void  SendIvdcmDataRequest::SendRequest(const sdl_ivdcm_api::SDLRPC& message) {
     add_observer(functional_modules::MobileFunctionID::SEND_IVDCM_DATA,
                  mobile_msg->correlation_id(), this);
 
-  // Add params to mobile request
-  Json::Value value;
-
-  value[kUrl] = message_params.url();
-
-  if (message_params.has_offset()) {
-    value[kOffset] = static_cast<Json::UInt64>(message_params.offset());
-  }
-
   Json::FastWriter writer;
-  mobile_msg->set_json_message(writer.write(value));
+  mobile_msg->set_json_message(writer.write(params));
 
-  // Post non ip request
-  if (message_params.has_upload_data()) {
-    std::vector<uint8_t> *binary_data = new std::vector<uint8_t>();
-    binary_data->assign(message_params.upload_data().begin(),
-                        message_params.upload_data().end());
+  if (binary_data) {
     mobile_msg->set_binary_data(binary_data);
     mobile_msg->set_data_size(binary_data->size());
   }

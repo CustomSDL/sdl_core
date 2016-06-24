@@ -55,7 +55,8 @@ enum MobileFunctionID {
 
   // IVDCM module ids
   SEND_IVDCM_DATA = 11001,
-  ON_INTERNET_STATE_CHANGED = 11002
+  ON_INTERNET_STATE_CHANGED = 11002,
+  ON_IVDCM_IP_DATA = 11003
 };
 
 namespace hmi_api {
