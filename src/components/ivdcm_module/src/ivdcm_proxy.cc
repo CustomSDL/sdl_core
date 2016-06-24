@@ -32,7 +32,11 @@
 
 #include "ivdcm_module/ivdcm_proxy.h"
 
+#include <arpa/inet.h>
 #include <net/if.h>
+#include <netinet/if_ether.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
 #include <sstream>
 
 #include "config_profile/profile.h"
@@ -44,9 +48,56 @@ namespace ivdcm_module {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 
+struct ShowPacketInfo {
+  explicit ShowPacketInfo(const std::vector<uint8_t>* packet)
+    : packet_(packet) {
+  }
+  const std::vector<uint8_t>* packet_;
+};
+std::ostream& operator << (std::ostream& output, const ShowPacketInfo& info) {
+  output << "length(" << info.packet_->size() << ")";
+  const ether_header *eth_hdr = reinterpret_cast<const ether_header*>(&info.packet_[0]);
+#ifdef __QNXNTO__
+  const int eth_hdr_len = ETHER_HDR_LEN;
+#else
+  const int eth_hdr_len = ETH_HLEN;
+#endif
+  const ip *ip_hdr = reinterpret_cast<const ip*>(&info.packet_[eth_hdr_len]);
+  int header_len = (int)(ip_hdr->ip_hl*4);
+  const tcphdr *tcp_hdr = reinterpret_cast<const tcphdr*>(&info.packet_[eth_hdr_len + header_len]);
+  output << std::hex;
+  output << " source(" << eth_hdr->ether_shost << ")";
+  output << " destination(" << eth_hdr->ether_dhost << ")";
+  output << " type(" << ntohs(eth_hdr->ether_type) << ")";
+  output << " IP version(" << (unsigned int) ip_hdr->ip_v << ")";
+  output << " IP Header length(" << (unsigned int) ip_hdr->ip_hl << ")";
+  output << " IP tos (" << (uint8_t) ip_hdr->ip_tos << ")";
+  output << " IP Packet length (" << (uint16_t) ntohs(ip_hdr->ip_len) << ")";
+  output << " IP Id (" << (uint16_t) ntohs(ip_hdr->ip_id) << ")";
+  output << " IP offset (" << (uint16_t) ntohs(ip_hdr->ip_off) << ")";
+  output << " IP TTL (" << (uint8_t) ip_hdr->ip_ttl << ")";
+  output << " IP protocol (" << (uint8_t) ip_hdr->ip_p << ")";
+  output << " IP checksum (" << (uint16_t) ntohs(ip_hdr->ip_sum) << ")";
+  output << std::dec;
+  output << " IP src_addr (" << inet_ntoa(ip_hdr->ip_src) << ")";
+  output << " IP dst_addr (" << inet_ntoa(ip_hdr->ip_dst) << ")";
+  uint8_t dest_port, source_port;
+#ifdef __QNXNTO__
+    source_port = ntohs(tcp_hdr->th_sport);
+    dest_port = ntohs(tcp_hdr->th_dport);
+#else
+    source_port = ntohs(tcp_hdr->source);
+    dest_port = ntohs(tcp_hdr->dest);
+#endif
+  output << " source port (" << (uint16_t) source_port << ")";
+  output << " destination (" << (uint16_t) dest_port << ")";
+  return output;
+}
+
 IvdcmProxy::IvdcmProxy(IvdcmProxyListener *listener)
     : listener_(listener),
-      gpb_(GpbDataSenderReceiver(this)),
+      gpb_(this),
+      ip_data_sender_(),
       ip_range_(),
       tun_(0) {
   ip_range_ = profile::Profile::instance()->ivdcm_ip_range();
@@ -80,12 +131,14 @@ int IvdcmProxy::CreateTun() {
     tun_->SetFlags(id, IFF_UP | IFF_NOARP);
     uint16_t mtu = profile::Profile::instance()->ivdcm_mtu();
     tun_->SetMtu(id, mtu);
+    ip_data_sender_.AddTun(id, tun_->GetName(id));
   }
   return id;
 }
 
 void IvdcmProxy::DestroyTun(int id) {
   LOG4CXX_AUTO_TRACE(logger_);
+  ip_data_sender_.RemoveTun(id);
   tun_->Destroy(id);
 }
 
@@ -114,6 +167,12 @@ std::string IvdcmProxy::GetAddressTun(int id) {
 std::string IvdcmProxy::GetNameTun(int id) {
   LOG4CXX_AUTO_TRACE(logger_);
   return tun_->GetName(id);
+}
+
+void IvdcmProxy::Send(int id, const std::vector<uint8_t>& ip_data) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  LOG4CXX_DEBUG(logger_, "IP packet: " << ShowPacketInfo(&ip_data));
+  ip_data_sender_.Send(id, ip_data);
 }
 
 }  // namespace ivdcm_module

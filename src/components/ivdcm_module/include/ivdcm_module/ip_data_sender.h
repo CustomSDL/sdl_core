@@ -30,56 +30,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_GPB_DATA_SENDER_RECEIVER_H_
-#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_GPB_DATA_SENDER_RECEIVER_H_
+#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IP_DATA_SENDER_H_
+#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IP_DATA_SENDER_H_
 
+#include <pcap.h>
+#include <map>
+#include <queue>
 #include <string>
-#include "transmitter/transmitter.h"
-
-namespace sdl_ivdcm_api {
-class SDLRPC;
-}  // namespace sdl_ivdcm_api
-
-namespace net {
-class ServerSocket;
-}  // namespace net
-
-namespace threads {
-class Thread;
-}  // namespace threads
+#include <vector>
+#include <utility>
+#include "utils/lock.h"
+#include "utils/threads/message_loop_thread.h"
 
 namespace ivdcm_module {
-class IvdcmProxy;
+typedef std::pair<int, std::vector<uint8_t> > DataMessage;
+typedef std::queue<DataMessage> DataQueue;
 
-class GpbDataSenderReceiver {
+class IpDataSender
+    : public threads::MessageLoopThread<DataQueue>::Handler {
  public:
-  explicit GpbDataSenderReceiver(IvdcmProxy *parent);
-  ~GpbDataSenderReceiver();
-  bool Start();
-  void Stop();
-  bool Send(const sdl_ivdcm_api::SDLRPC& message);
-  void OnMessageReceived(const std::string &buff);
+  IpDataSender();
+  bool AddTun(int id, const std::string& name);
+  void RemoveTun(int id);
+  void Send(int id, const std::vector<uint8_t>& data);
 
  private:
-  inline void CreateControl();
-  inline void DestroyControl();
-  inline bool StartControl();
-  inline void StopControl();
-  inline void CreateTransmit();
-  inline void DestroyTransmit();
-  inline bool StartTransmit();
-  inline void StopTransmit();
-  inline bool IsControlMessage(const sdl_ivdcm_api::SDLRPC &message) const;
-  IvdcmProxy *parent_;
-  transmitter::Transmitter transmitter_;
-  net::ServerSocket *socket_;
-  threads::Thread* thread_;
-  transmitter::Transmitter controller_;
-  net::ServerSocket *control_socket_;
-  threads::Thread* control_thread_;
-  friend class GpbTransmitter;
-  friend class ControlTransmitter;
+  void Handle(const DataMessage message);
+  std::map<int, pcap_t*> tuns_;
+  threads::MessageLoopThread<DataQueue> to_tun_;
+  sync_primitives::Lock lock_;
 };
 }  // namespace ivdcm_module
 
-#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_GPB_DATA_SENDER_RECEIVER_H_
+#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IP_DATA_SENDER_H_
