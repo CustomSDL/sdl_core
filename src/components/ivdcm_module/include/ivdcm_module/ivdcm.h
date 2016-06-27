@@ -34,9 +34,10 @@
 #define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_H_
 
 #include <queue>
+#include <string>
+#include <vector>
 #include "functional_module/generic_module.h"
 #include "json/value.h"
-#include "ivdcm_module/ivdcm_proxy.h"
 #include "ivdcm_module/ivdcm_proxy_listener.h"
 #include "ivdcm_module/request_controller.h"
 #include "utils/macro.h"
@@ -45,11 +46,14 @@ namespace ivdcm_module {
 
 typedef Json::Value MessageFromMobile;
 
+class IvdcmProxy;
+
 class Ivdcm
     : public functional_modules::GenericModule,
       public IvdcmProxyListener {
  public:
   Ivdcm();
+  ~Ivdcm();
   virtual functional_modules::PluginInfo GetPluginInfo() const;
   virtual functional_modules::ProcessResult ProcessHMIMessage(
       application_manager::MessagePtr msg);
@@ -69,7 +73,9 @@ class Ivdcm
       mobile_apis::HMILevel::eType old_level);
 
   virtual void OnReceived(const sdl_ivdcm_api::SDLRPC &message);
+  virtual void OnReceived(int id, const std::vector<uint8_t>& ip_data);
   void SendIvdcmMesssage(const sdl_ivdcm_api::SDLRPC &message);
+  void SendIvdcmIpPacket(const std::vector<uint8_t> &packet);
   void OnInternetStateChanged(bool state, std::string *nic, std::string *ip);
 
   /**
@@ -119,8 +125,8 @@ class Ivdcm
  private:
   static const functional_modules::ModuleID kModuleID = 404;
   functional_modules::PluginInfo plugin_info_;
-  IvdcmProxy proxy_;
-  int tun_id_; // Only one TUN is supported now
+  IvdcmProxy *proxy_;
+  int tun_id_;  // Only one TUN is supported now
   uint32_t connection_key_;
 
   static uint32_t next_correlation_id_;

@@ -42,11 +42,11 @@ include_directories (
 
 set (SOURCES
     src/ivdcm.cc
-    src/pcap_wrapper.cc
     src/request_controller.cc
     src/ivdcm_event.cc
     src/ivdcm_proxy.cc
     src/gpb_data_sender_receiver.cc
+    src/ip_data_sender_receiver.cc
     src/commands/send_ivdcm_data_request.cc
     src/commands/on_internet_state_changed_notification.cc
 )
@@ -61,6 +61,7 @@ set (LIBRARIES
     IvdcmRPC
     Transmitter
     Net
+    pcap
 )
 
 generate_proto(${CMAKE_CURRENT_SOURCE_DIR}/interface/rpc.proto IvdcmRPC)

@@ -59,6 +59,7 @@ class GpbDataSenderReceiver {
   void Stop();
   bool Send(const sdl_ivdcm_api::SDLRPC& message);
   void OnMessageReceived(const std::string &buff);
+
  private:
   inline void CreateControl();
   inline void DestroyControl();

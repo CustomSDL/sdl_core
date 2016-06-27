@@ -33,6 +33,8 @@
 #ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_LISTENER_H_
 #define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_LISTENER_H_
 
+#include <vector>
+
 namespace sdl_ivdcm_api {
 class SDLRPC;
 }  // namespace sdl_ivdcm_api
@@ -42,7 +44,18 @@ class IvdcmProxyListener {
  public:
   virtual ~IvdcmProxyListener() {
   }
+  /**
+   * Handles receiving GPB message from IVDCM
+   * @param message GPB message according with rpc.proto file
+   */
   virtual void OnReceived(const sdl_ivdcm_api::SDLRPC &message) = 0;
+
+  /**
+   * Handles receiving IP data from TUN interface
+   * @param id unique ID of the TUN interface
+   * @param id_data IP packet from the TUN interface
+   */
+  virtual void OnReceived(int id, const std::vector<uint8_t>& ip_data) = 0;
 };
 }  // namespace ivdcm_module
 

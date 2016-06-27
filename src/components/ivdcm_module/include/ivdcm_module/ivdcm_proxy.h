@@ -33,23 +33,54 @@
 #ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_H_
 #define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IVDCM_PROXY_H_
 
+#include <map>
+#include <queue>
 #include <string>
+#include <vector>
+#include <utility>
 #include "ivdcm_module/gpb_data_sender_receiver.h"
+#include "utils/lock.h"
+#include "utils/threads/message_loop_thread.h"
 
 namespace net {
 class TunAdapterInterface;
 }  // namespace net
 
 namespace ivdcm_module {
-class IvdcmProxyListener;
+typedef std::vector<uint8_t> Packet;
+typedef std::pair<int, Packet> DataMessage;
+typedef std::queue<DataMessage> DataQueue;
 
-class IvdcmProxy {
+class IvdcmProxyListener;
+class IpDataSenderReceiver;
+
+class IvdcmProxy : public threads::MessageLoopThread<DataQueue>::Handler {
  public:
   explicit IvdcmProxy(IvdcmProxyListener *listener);
   ~IvdcmProxy();
+
+  /**
+   * Sends GPB message to IVDCM
+   * @param message to send
+   */
   bool Send(const sdl_ivdcm_api::SDLRPC &message);
+
+  /**
+   * Handles received GPB message from IVDCM
+   * @param message received message
+   */
   void OnReceived(const sdl_ivdcm_api::SDLRPC &message);
+
+  /**
+   * Creates TUN interface
+   * @return unique ID of the TUN interface
+   */
   int CreateTun();
+
+  /**
+   * Destroys TUN interface by unique ID
+   * @param id unique ID
+   */
   void DestroyTun(int id);
 
   /**
@@ -66,10 +97,38 @@ class IvdcmProxy {
    */
   std::string GetAddressTun(int id);
 
+  /**
+   * Sends IP data to TUN interface
+   * @param id unique ID of the TUN interface
+   * @param packet to send
+   */
+  void Send(int id, const std::vector<uint8_t>& packet);
+
+  /**
+   * Handles received IP packet from TUN interface
+   * @param id unique ID of the TUN interface
+   * @param packet received from TUN interface
+   */
+  void OnReceived(int id, const std::vector<uint8_t>& packet);
+
  private:
+  struct DataFromTun : public threads::MessageLoopThread<DataQueue>::Handler {
+    explicit DataFromTun(IvdcmProxyListener* listener)
+        : listener_(listener) {
+    }
+    void Handle(DataMessage message);
+    IvdcmProxyListener *listener_;
+  };
+  typedef std::map<int, IpDataSenderReceiver*> IpDataMap;
   std::string NextIp() const;
+  void Handle(DataMessage message);
   IvdcmProxyListener *listener_;
   GpbDataSenderReceiver gpb_;
+  sync_primitives::Lock lock_;
+  IpDataMap ip_data_;
+  DataFromTun handler_from_tun_;
+  threads::MessageLoopThread<DataQueue> to_tun_;
+  threads::MessageLoopThread<DataQueue> from_tun_;
   std::string ip_range_;
   net::TunAdapterInterface *tun_;
 };

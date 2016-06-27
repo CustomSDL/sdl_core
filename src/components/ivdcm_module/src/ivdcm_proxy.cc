@@ -32,10 +32,15 @@
 
 #include "ivdcm_module/ivdcm_proxy.h"
 
+#include <arpa/inet.h>
 #include <net/if.h>
+#include <netinet/if_ether.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
 #include <sstream>
 
 #include "config_profile/profile.h"
+#include "ivdcm_module/ip_data_sender_receiver.h"
 #include "ivdcm_module/ivdcm_proxy_listener.h"
 #include "net/tun_adapter.h"
 #include "utils/logger.h"
@@ -44,9 +49,70 @@ namespace ivdcm_module {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "IVDCM")
 
+struct ShowPacketInfo {
+  explicit ShowPacketInfo(const Packet* packet)
+      : packet_(packet) {
+  }
+  const Packet* packet_;
+};
+std::ostream& operator <<(std::ostream& output, const ShowPacketInfo& info) {
+  output << "length(" << info.packet_->size() << ")";
+  const ether_header *eth_hdr = reinterpret_cast<const ether_header*>(&info
+      .packet_[0]);
+#ifdef __QNXNTO__
+  const int eth_hdr_len = ETHER_HDR_LEN;
+#else
+  const int eth_hdr_len = ETH_HLEN;
+#endif
+  const ip *ip_hdr = reinterpret_cast<const ip*>(&info.packet_[eth_hdr_len]);
+  int header_len = static_cast<int>(ip_hdr->ip_hl * 4);
+  const tcphdr *tcp_hdr =
+      reinterpret_cast<const tcphdr*>(&info.packet_[eth_hdr_len + header_len]);
+  output << std::hex;
+  output << " source(" << eth_hdr->ether_shost << ")";
+  output << " destination(" << eth_hdr->ether_dhost << ")";
+  output << " type(" << ntohs(eth_hdr->ether_type) << ")";
+  output << " IP version(" << (unsigned int) ip_hdr->ip_v << ")";
+  output << " IP Header length(" << (unsigned int) ip_hdr->ip_hl << ")";
+  output << " IP tos (" << (uint8_t) ip_hdr->ip_tos << ")";
+  output << " IP Packet length (" << (uint16_t) ntohs(ip_hdr->ip_len) << ")";
+  output << " IP Id (" << (uint16_t) ntohs(ip_hdr->ip_id) << ")";
+  output << " IP offset (" << (uint16_t) ntohs(ip_hdr->ip_off) << ")";
+  output << " IP TTL (" << (uint8_t) ip_hdr->ip_ttl << ")";
+  output << " IP protocol (" << (uint8_t) ip_hdr->ip_p << ")";
+  output << " IP checksum (" << (uint16_t) ntohs(ip_hdr->ip_sum) << ")";
+  output << std::dec;
+  output << " IP src_addr (" << inet_ntoa(ip_hdr->ip_src) << ")";
+  output << " IP dst_addr (" << inet_ntoa(ip_hdr->ip_dst) << ")";
+  uint8_t dest_port, source_port;
+#ifdef __QNXNTO__
+  source_port = ntohs(tcp_hdr->th_sport);
+  dest_port = ntohs(tcp_hdr->th_dport);
+#else
+  source_port = ntohs(tcp_hdr->source);
+  dest_port = ntohs(tcp_hdr->dest);
+#endif
+  output << " source port (" << (uint16_t) source_port << ")";
+  output << " destination (" << (uint16_t) dest_port << ")";
+  return output;
+}
+
+void IvdcmProxy::DataFromTun::Handle(DataMessage message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  int id = message.first;
+  const Packet& packet = message.second;
+  LOG4CXX_DEBUG(logger_, "IP packet: " << ShowPacketInfo(&packet));
+  listener_->OnReceived(id, packet);
+}
+
 IvdcmProxy::IvdcmProxy(IvdcmProxyListener *listener)
     : listener_(listener),
-      gpb_(GpbDataSenderReceiver(this)),
+      gpb_(this),
+      lock_(),
+      ip_data_(),
+      handler_from_tun_(listener_),
+      to_tun_("IpDataToTun", this),
+      from_tun_("IpDataFromTun", &handler_from_tun_),
       ip_range_(),
       tun_(0) {
   ip_range_ = profile::Profile::instance()->ivdcm_ip_range();
@@ -70,22 +136,45 @@ void IvdcmProxy::OnReceived(const sdl_ivdcm_api::SDLRPC &message) {
   listener_->OnReceived(message);
 }
 
+void IvdcmProxy::OnReceived(int id, const std::vector<uint8_t>& packet) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  from_tun_.PostMessage(DataMessage(id, packet));
+}
+
 int IvdcmProxy::CreateTun() {
   LOG4CXX_AUTO_TRACE(logger_);
   int id = tun_->Create();
   if (id != -1) {
     tun_->SetAddress(id, NextIp());
-    tun_->SetDestinationAddress(id, NextIp());
     tun_->SetNetmask(id, "255.255.255.0");
     tun_->SetFlags(id, IFF_UP | IFF_NOARP);
     uint16_t mtu = profile::Profile::instance()->ivdcm_mtu();
     tun_->SetMtu(id, mtu);
+    std::string name = tun_->GetName(id);
+    IpDataSenderReceiver *item = new IpDataSenderReceiver(id, name, this);
+    if (item->Start()) {
+      sync_primitives::AutoLock locker(lock_);
+      ip_data_[id] = item;
+    } else {
+      LOG4CXX_ERROR(
+          logger_,
+          "Could not start transmitting of IP data using " << name);
+      delete item;
+    }
   }
   return id;
 }
 
 void IvdcmProxy::DestroyTun(int id) {
   LOG4CXX_AUTO_TRACE(logger_);
+  sync_primitives::AutoLock locker(lock_);
+  IpDataMap::iterator i = ip_data_.find(id);
+  if (i != ip_data_.end()) {
+    IpDataSenderReceiver *item = i->second;
+    ip_data_.erase(id);
+    item->Stop();
+    delete item;
+  }
   tun_->Destroy(id);
 }
 
@@ -116,5 +205,24 @@ std::string IvdcmProxy::GetNameTun(int id) {
   return tun_->GetName(id);
 }
 
+void IvdcmProxy::Send(int id, const std::vector<uint8_t>& packet) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  to_tun_.PostMessage(DataMessage(id, packet));
+}
+
+void IvdcmProxy::Handle(DataMessage message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  int id = message.first;
+  sync_primitives::AutoLock locker(lock_);
+  IpDataMap::iterator i = ip_data_.find(id);
+  if (i != ip_data_.end()) {
+    const Packet& packet = message.second;
+    LOG4CXX_DEBUG(logger_, "IP packet: " << ShowPacketInfo(&packet));
+    IpDataSenderReceiver *sender = i->second;
+    sender->Send(packet);
+  } else {
+    LOG4CXX_ERROR(logger_, "Could not find sender " << id);
+  }
+}
 }  // namespace ivdcm_module
 

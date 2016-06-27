@@ -30,18 +30,33 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_PCAP_WRAPPER_H_
-#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_PCAP_WRAPPER_H_
+#ifndef SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IP_DATA_SENDER_RECEIVER_H_
+#define SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IP_DATA_SENDER_RECEIVER_H_
 
 #include <pcap.h>
+#include <string>
+#include <vector>
+#include <utility>
+#include "utils/threads/message_loop_thread.h"
 
 namespace ivdcm_module {
+class IvdcmProxy;
 
-class PcapWrapper {
+class IpDataSenderReceiver {
+ public:
+  IpDataSenderReceiver(int id, const std::string& name, IvdcmProxy *parent);
+  ~IpDataSenderReceiver();
+  bool Start();
+  void Stop();
+  void Send(const std::vector<uint8_t>& buff);
+  void OnMessageReceived(const std::vector<uint8_t> &buff);
 
+ private:
+  int id_;
+  IvdcmProxy *parent_;
+  pcap_t *fd_;
+  threads::Thread* thread_;
 };
+}  // namespace ivdcm_module
 
-
-}  // namespace can_cooperation
-
-#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_PCAP_WRAPPER_H_
+#endif  // SRC_COMPONENTS_IVDCM_MODULE_INCLUDE_IVDCM_MODULE_IP_DATA_SENDER_RECEIVER_H_

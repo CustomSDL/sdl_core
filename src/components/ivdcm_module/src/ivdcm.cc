@@ -35,6 +35,7 @@
 #include "ivdcm_module/commands/send_ivdcm_data_request.h"
 #include "ivdcm_module/commands/on_internet_state_changed_notification.h"
 #include "ivdcm_module/ivdcm_event.h"
+#include "ivdcm_module/ivdcm_proxy.h"
 #include "ivdcm_module/event_engine/event_dispatcher.h"
 #include "config_profile/profile.h"
 #include "google/protobuf/text_format.h"
@@ -58,7 +59,7 @@ uint32_t Ivdcm::next_correlation_id_ = 1;
 
 Ivdcm::Ivdcm()
     : GenericModule(kModuleID),
-      proxy_(IvdcmProxy(this)),
+      proxy_(0),
       tun_id_(-1),
       connection_key_(0) {
   plugin_info_.name = "IvdcmPlugin";
@@ -67,19 +68,37 @@ Ivdcm::Ivdcm()
   // TODO(KKolodiy) workaround for reading profile,
   // possible it is fixed in fresh version of OpenSDL
   profile::Profile::instance()->config_file_name("smartDeviceLink.ini");
+  proxy_ = new (std::nothrow) IvdcmProxy(this);
+}
+
+Ivdcm::~Ivdcm() {
+  delete proxy_;
 }
 
 void Ivdcm::OnInternetStateChanged(bool state, std::string* nic,
                                    std::string* ip) {
   LOG4CXX_AUTO_TRACE(logger_);
   if (state) {
-    tun_id_ = proxy_.CreateTun();
-    *nic = proxy_.GetNameTun(tun_id_);
-    *ip = proxy_.GetAddressTun(tun_id_);
+    tun_id_ = proxy_->CreateTun();
+    *nic = proxy_->GetNameTun(tun_id_);
+    *ip = proxy_->GetAddressTun(tun_id_);
   } else {
-    proxy_.DestroyTun(tun_id_);
+    proxy_->DestroyTun(tun_id_);
     tun_id_ = -1;
   }
+}
+
+void Ivdcm::OnReceived(int id, const std::vector<uint8_t>& packet) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  std::vector<uint8_t> *data = new std::vector<uint8_t>(packet.begin(),
+                                                        packet.end());
+  // TODO(KKolodiy): should be implemented
+  UNUSED(data);
+}
+
+void Ivdcm::SendIvdcmIpPacket(const std::vector<uint8_t>& packet) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  proxy_->Send(tun_id_, packet);
 }
 
 void Ivdcm::SubscribeToRpcMessages() {
@@ -210,7 +229,7 @@ void Ivdcm::OnReceived(const sdl_ivdcm_api::SDLRPC &message) {
 
 void  Ivdcm::SendIvdcmMesssage(const sdl_ivdcm_api::SDLRPC &message) {
   LOG4CXX_AUTO_TRACE(logger_);
-  proxy_.Send(message);
+  proxy_->Send(message);
 }
 
 void Ivdcm::AddRequestToRequestController(uint32_t mobile_correlation_id,
