@@ -64,6 +64,8 @@ ProcessResult VRModule::ProcessHMIMessage(
 
 void VRModule::RemoveAppExtension(uint32_t app_id) {
   LOG4CXX_AUTO_TRACE(logger_);
+  // This function is not implemented since there is no app extension
+  // functionality in VR Service
 }
 
 bool VRModule::IsAppForPlugin(

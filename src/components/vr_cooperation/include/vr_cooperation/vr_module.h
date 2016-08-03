@@ -78,15 +78,40 @@ class VRModule : public functional_modules::GenericModule,
    */
   void OnDeviceRemoved(const connection_handler::DeviceHandle& device);
 
+  /**
+   * @brief send message to HMI
+   */
   void SendMessageToHMI();
+
+  /**
+   * @brief receive message from HMI
+   */
   void ReceiveMessageFromHMI();
+
+  /**
+   * @brief send message to mobile
+   */
   void SendMessageToMobile();
+
+  /**
+   * @brief receive message from mobile
+   */
   void ReceiveMessageFromMobile();
 
  private:
+  /**
+   * @brief Class constructor
+   */
   VRModule();
+
+  /**
+   * @brief Class destructor
+   */
   ~VRModule();
 
+  /**
+   * @brief subcribe to RPC message
+   */
   void SubcribeToRPCMessage();
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;
