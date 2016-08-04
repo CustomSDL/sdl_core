@@ -35,6 +35,7 @@ include_directories (
 set (SOURCES
     ./src/vr_module.cc
     ./src/request_controller.cc
+    ./src/mobile_command_factory.cc
 )
 
 set (LIBRARIES
