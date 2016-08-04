@@ -37,6 +37,9 @@ set (SOURCES
     ./src/request_controller.cc
     ./src/vr_proxy.cc
     ./src/gpb_data_sender_receiver.cc
+    ./src/mobile_command_factory.cc
+    ./src/base_command_request.cc
+    ./src/register_service_request.cc
 )
 
 set (LIBRARIES

@@ -30,84 +30,47 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/vr_module.h"
-#include "utils/logger.h"
+#include "vr_cooperation/commands/base_command_request.h"
 
 namespace vr_cooperation {
 
-using functional_modules::ProcessResult;
+namespace commands {
 
-EXPORT_FUNCTION_IMPL(VRModule);
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRModule")
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-VRModule::VRModule()
-  : GenericModule(kVRModuleID) {
+BaseCommandRequest::BaseCommandRequest(
+  const application_manager::MessagePtr& message)
+  : message_(message) {
 }
 
-VRModule::~VRModule() {
+BaseCommandRequest::~BaseCommandRequest() {
 }
 
-functional_modules::PluginInfo VRModule::GetPluginInfo() const {
-  LOG4CXX_AUTO_TRACE(logger_);
-  return plugin_info_;
+
+void BaseCommandRequest::OnTimeout() {
 }
 
-ProcessResult VRModule::ProcessMessage(application_manager::MessagePtr msg) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  return ProcessResult::PROCESSED;
-}
-
-ProcessResult VRModule::ProcessHMIMessage(
-  application_manager::MessagePtr msg) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  return ProcessResult::PROCESSED;
-}
-
-void VRModule::RemoveAppExtension(uint32_t app_id) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  // This function is not implemented since there is no app extension
-  // functionality in VR Service
-}
-
-void VRModule::RemoveAppExtensions() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  // This function is not implemented since there is no app extension
-  // functionality in VR Service
-}
-
-bool VRModule::IsAppForPlugin(
-    application_manager::ApplicationSharedPtr app) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  return true;
-}
-
-void VRModule::OnAppHMILevelChanged(
-    application_manager::ApplicationSharedPtr app,
-    mobile_apis::HMILevel::eType) {
+void BaseCommandRequest::Init() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-void VRModule::OnDeviceRemoved(
-    const connection_handler::DeviceHandle& device) {
+void BaseCommandRequest::Run() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-void VRModule::SendMessageToHMI() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-void VRModule::ReceiveMessageFromHMI() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-void VRModule::SendMessageToMobile() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-void VRModule::ReceiveMessageFromMobile() {
+void BaseCommandRequest::on_event() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-void VRModule::SubcribeToRPCMessage() {
+void BaseCommandRequest::SendResponse() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-}  //  namespace vr_cooperation
+void BaseCommandRequest::SendRequest() {
+  LOG4CXX_AUTO_TRACE(logger_);
+}
+
+}  // namespace commands
+
+}  // namespace vr_cooperation
 
