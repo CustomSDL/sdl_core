@@ -40,7 +40,14 @@
 namespace vr_cooperation {
 namespace request_controller {
 
+/**
+ * @brief smart pointer for mobile request
+ */
 typedef utils::SharedPtr<commands::Command> MobileRequestPtr;
+
+/**
+ * @brief request correlation id
+ */
 typedef uint32_t  correlation_id;
 
 /**
@@ -61,9 +68,9 @@ class RequestController {
   virtual ~RequestController();
 
   /**
-   * @brief Adds pointer to request.
+   * @brief Adds request to mobile request list
    * @param mobile_correlation_id mobile request correlation id
-   * @param command pointer to request created in mobile factory
+   * @param request pointer to request created in mobile factory
    */
   void AddRequest(const uint32_t& mobile_correlation_id,
                   MobileRequestPtr request);
