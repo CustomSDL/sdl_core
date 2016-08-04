@@ -41,12 +41,28 @@
 
 namespace vr_cooperation {
 
+/**
+ * @brief VR Module plugin class
+ */
 class VRModule : public functional_modules::GenericModule,
   public utils::Singleton<VRModule> {
  public:
+  /**
+   * @brief get plugin information
+   */
   functional_modules::PluginInfo GetPluginInfo() const;
+
+  /**
+   * @brief process message from mobile
+   * @param msg message from mobile
+   */
   virtual functional_modules::ProcessResult ProcessMessage(
     application_manager::MessagePtr msg);
+
+  /**
+   * @brief process message from HMI
+   * @param msg message from HMI
+   */
   virtual functional_modules::ProcessResult ProcessHMIMessage(
     application_manager::MessagePtr msg);
 
@@ -58,7 +74,6 @@ class VRModule : public functional_modules::GenericModule,
 
   /**
    * @brief Check registering app can be handled by plugin
-   * @param msg Registration message
    * @param app Application basis already create by Core
    */
   bool IsAppForPlugin(
@@ -66,14 +81,14 @@ class VRModule : public functional_modules::GenericModule,
 
   /**
    * @brief Notify about change of HMILevel of plugin's app
-   * @param app App with new HMILevel
+   * @param app application with new HMILevel
    * @param old_level Old HMILevel of app
    */
   void OnAppHMILevelChanged(application_manager::ApplicationSharedPtr app,
     mobile_apis::HMILevel::eType old_level);
 
   /**
-   * Handles removing (disconnecting) device
+   * @brief Handles removing (disconnecting) device
    * @param device removed
    */
   void OnDeviceRemoved(const connection_handler::DeviceHandle& device);
@@ -113,6 +128,7 @@ class VRModule : public functional_modules::GenericModule,
    * @brief subcribe to RPC message
    */
   void SubcribeToRPCMessage();
+
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;
   request_controller::RequestController request_controller_;
