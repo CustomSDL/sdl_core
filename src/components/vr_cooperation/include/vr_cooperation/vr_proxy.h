@@ -35,13 +35,7 @@
 
 #include "utils/macro.h"
 
-namespace rsdl_api {
-class ProcessDataRequest;
-class ProcessDataResponse;
-}
-
 namespace vr_cooperation {
-class GPBDataSenderReceiver;
 
 class VRProxy {
  public:
@@ -56,22 +50,20 @@ class VRProxy {
   ~VRProxy();
 
   /**
-   * @brief Handle when receive SDLRPC message
-   * @param request_params request parameters
+   * @brief Receives GPB message
    */
-  void OnReceived(const rsdl_api::ProcessDataRequest& request_params);
+  void OnReceived();
 
   /**
-   * @brief Post SDLRPC message to queue
-   * @param response_params SDLRPC response message
+   * @brief Sends GPB message
    */
-  bool SendMessage(const rsdl_api::ProcessDataResponse& response_params);
+  bool SendMessage();
 
  private:
-  GPBDataSenderReceiver* gpb_data_sender_receiver_;
   DISALLOW_COPY_AND_ASSIGN(VRProxy);
 };
 
 }  // namespace vr_cooperation
 
 #endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_H_
+

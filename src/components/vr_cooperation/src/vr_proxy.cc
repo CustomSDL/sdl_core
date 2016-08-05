@@ -30,32 +30,27 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdlib.h>
 #include "vr_cooperation/vr_proxy.h"
-#include "vr_cooperation/gpb_data_sender_receiver.h"
-// Todo(giang): Will un-comment if GPB integration
-// #include "interface/RSDL.pb.h"
 #include "utils/logger.h"
 
 namespace vr_cooperation {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRProxy")
 
-VRProxy::VRProxy()
-    : gpb_data_sender_receiver_(NULL) {
+VRProxy::VRProxy() {
 }
 
 VRProxy::~VRProxy() {
 }
 
-void VRProxy::OnReceived(const rsdl_api::ProcessDataRequest& request_params) {
+void VRProxy::OnReceived() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-bool VRProxy::SendMessage(
-    const rsdl_api::ProcessDataResponse& response_params) {
+bool VRProxy::SendMessage() {
   LOG4CXX_AUTO_TRACE(logger_);
   return true;
 }
 
 }  //  namespace vr_cooperation
+
