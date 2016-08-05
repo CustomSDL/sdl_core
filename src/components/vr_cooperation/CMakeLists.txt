@@ -35,6 +35,10 @@ include_directories (
 set (SOURCES
     ./src/vr_module.cc
     ./src/request_controller.cc
+    ./src/hmi_command_factory.cc
+    ./src/commands/hmi/request_from_hmi.cc
+    ./src/commands/hmi/active_service_request.cc
+    ./src/commands/hmi/process_data_request.cc
 )
 
 set (LIBRARIES
