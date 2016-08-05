@@ -36,6 +36,7 @@
 #include <map>
 
 #include "vr_cooperation/commands/command.h"
+#include "vr_cooperation/vr_module_timer.h"
 
 namespace vr_cooperation {
 namespace request_controller {
@@ -53,7 +54,7 @@ typedef uint32_t  correlation_id;
 /**
  * @brief RequestController class is used to manage mobile requests lifetime.
  */
-class RequestController {
+class RequestController : public functional_modules::TimerObserver<TrackableMessage> {
  public:
   /**
    * @brief Class constructor
@@ -81,8 +82,15 @@ class RequestController {
    */
   void DeleteRequest(const uint32_t& mobile_correlation_id);
 
+  /**
+   * @brief Removes messages from map by timer
+   * @param TrackableMessage expired message
+   */
+  void OnTimeoutTriggered(const TrackableMessage& expired);
+
  private:
   std::map<correlation_id, MobileRequestPtr> mobile_request_list_;
+  functional_modules::ModuleTimer<TrackableMessage> timer_;
   DISALLOW_COPY_AND_ASSIGN(RequestController);
 };
 
