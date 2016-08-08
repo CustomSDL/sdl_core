@@ -39,8 +39,8 @@
 #include "utils/lock.h"
 #include "utils/singleton.h"
 
-#include "can_cooperation/event_engine/event.h"
-#include "can_cooperation/event_engine/event_observer.h"
+#include "vr_cooperation/event_engine/event.h"
+#include "vr_cooperation/event_engine/event_observer.h"
 
 #include "interfaces/HMI_API.h"
 
@@ -96,7 +96,6 @@ class EventDispatcher :
    */
   virtual ~EventDispatcher();
 
-
   FRIEND_BASE_SINGLETON_CLASS(EventDispatcher);
 
   // Data types section
@@ -110,17 +109,14 @@ class EventDispatcher :
   DISALLOW_COPY_AND_ASSIGN(EventDispatcher);
 };
 
-
 template<typename EventMessage, typename EventID>
 EventDispatcher<EventMessage, EventID>::EventDispatcher()
     : observers_() {
 }
 
-
 template<typename EventMessage, typename EventID>
 EventDispatcher<EventMessage, EventID>::~EventDispatcher() {
 }
-
 
 template<typename EventMessage, typename EventID>
 void EventDispatcher<EventMessage, EventID>::raise_event(
@@ -153,7 +149,6 @@ void EventDispatcher<EventMessage, EventID>::raise_event(
   }
 }
 
-
 template<typename EventMessage, typename EventID>
 void EventDispatcher<EventMessage, EventID>::add_observer(
                    const EventID& event_id,
@@ -162,7 +157,6 @@ void EventDispatcher<EventMessage, EventID>::add_observer(
   sync_primitives::AutoLock auto_lock(state_lock_);
   observers_[event_id][hmi_correlation_id].push_back(observer);
 }
-
 
 template<typename EventMessage, typename EventID>
 void EventDispatcher<EventMessage, EventID>::remove_observer(
@@ -181,7 +175,6 @@ void EventDispatcher<EventMessage, EventID>::remove_observer(
     }
   }
 }
-
 
 template<typename EventMessage, typename EventID>
 void EventDispatcher<EventMessage, EventID>::remove_observer(
@@ -205,4 +198,4 @@ void EventDispatcher<EventMessage, EventID>::remove_observer(
 
 }  // namespace event_engine
 
-#endif /* SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_EVENT_ENGINE_EVENT_DISPATCHER_H_ */
+#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_EVENT_ENGINE_EVENT_DISPATCHER_H_
