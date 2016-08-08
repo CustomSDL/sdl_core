@@ -35,6 +35,8 @@ include_directories (
 set (SOURCES
     ./src/vr_module.cc
     ./src/request_controller.cc
+    ./src/vr_proxy.cc
+    ./src/gpb_data_sender_receiver.cc
 )
 
 set (LIBRARIES
