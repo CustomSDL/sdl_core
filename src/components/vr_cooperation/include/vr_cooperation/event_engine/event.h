@@ -112,4 +112,4 @@ Event<EventMessage, EventID>::Event(const EventMessage& message, const EventID& 
 
 }  // namespace event_engine
 
-#endif /* SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_EVENT_ENGINE_EVENT_H_ */
+#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_EVENT_ENGINE_EVENT_H_
