@@ -40,6 +40,8 @@ set (SOURCES
     ./src/mobile_command_factory.cc
     ./src/base_command_request.cc
     ./src/register_service_request.cc
+    ./src/unregister_service_request.cc
+    ./src/active_service_request.cc
 )
 
 set (LIBRARIES
