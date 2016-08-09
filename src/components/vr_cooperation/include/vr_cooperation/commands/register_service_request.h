@@ -48,7 +48,8 @@ class RegisterServiceRequest : public BaseCommandRequest {
    * @brief RegisterServiceRequest class constructor
    * @param message Message from mobile
    **/
-  explicit RegisterServiceRequest(const application_manager::MessagePtr& message);
+  explicit RegisterServiceRequest(
+      const application_manager::MessagePtr& message);
 
   /**
    * @brief RegisterServiceRequest class destructor
@@ -64,7 +65,6 @@ class RegisterServiceRequest : public BaseCommandRequest {
    * @brief This method will be called whenever new event received
    */
   virtual void OnEvent();
-
 };
 
 }  // namespace commands

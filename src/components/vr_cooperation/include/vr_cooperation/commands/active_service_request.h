@@ -64,7 +64,6 @@ class ActiveServiceRequest : public BaseCommandRequest {
    * @brief This method will be called whenever new event received
    */
   virtual void OnEvent();
-
 };
 
 }  // namespace commands

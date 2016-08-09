@@ -48,7 +48,8 @@ class UnregisterServiceRequest : public BaseCommandRequest {
    * @brief UnregisterServiceRequest class constructor
    * @param message Message from mobile
    **/
-  explicit UnregisterServiceRequest(const application_manager::MessagePtr& message);
+  explicit UnregisterServiceRequest(
+      const application_manager::MessagePtr& message);
 
   /**
    * @brief UnregisterServiceRequest class destructor
@@ -64,7 +65,6 @@ class UnregisterServiceRequest : public BaseCommandRequest {
    * @brief This method will be called whenever new event received
    */
   virtual void OnEvent();
-
 };
 
 }  // namespace commands

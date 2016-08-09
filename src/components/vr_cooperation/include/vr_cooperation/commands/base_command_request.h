@@ -78,7 +78,6 @@ class BaseCommandRequest : public Command {
   virtual void on_event();
 
  protected:
-
   /**
    * @brief send response to mobile
    */
