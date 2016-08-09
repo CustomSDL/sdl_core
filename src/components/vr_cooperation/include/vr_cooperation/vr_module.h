@@ -113,6 +113,12 @@ class VRModule : public functional_modules::GenericModule,
    */
   void ReceiveMessageFromMobile();
 
+ protected:
+  /**
+   * @brief Remove extension for all applications
+   */
+  virtual void RemoveAppExtensions();
+
  private:
   /**
    * @brief Class constructor
