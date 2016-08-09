@@ -30,28 +30,28 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/commands/register_service_request.h"
+#include "vr_cooperation/commands/unregister_service_request.h"
 #include "utils/logger.h"
 
 namespace vr_cooperation {
 
 namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "RegisterServiceRequest")
+CREATE_LOGGERPTR_GLOBAL(logger_, "UnregisterServiceRequest")
 
-RegisterServiceRequest::RegisterServiceRequest(
+UnregisterServiceRequest::UnregisterServiceRequest(
   const application_manager::MessagePtr& message)
   : BaseCommandRequest(message) {
 }
 
-RegisterServiceRequest::~RegisterServiceRequest() {
+UnregisterServiceRequest::~UnregisterServiceRequest() {
 }
 
-void RegisterServiceRequest::Execute() {
+void UnregisterServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-void RegisterServiceRequest::OnEvent() {
+void UnregisterServiceRequest::OnEvent() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 

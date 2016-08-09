@@ -31,6 +31,7 @@
  */
 
 #include "vr_cooperation/commands/base_command_request.h"
+#include "utils/logger.h"
 
 namespace vr_cooperation {
 
