@@ -30,31 +30,44 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/commands/active_service_request.h"
-#include "utils/logger.h"
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
+
+#include "vr_cooperation/commands/base_command_request.h"
 
 namespace vr_cooperation {
 
 namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "ActiveServiceRequest")
+/**
+ * @brief ActivateServiceRequest command class
+ */
+class ActivateServiceRequest : public BaseCommandRequest {
+ public:
+  /**
+   * @brief ActivateServiceRequest class constructor
+   * @param message Message from mobile
+   **/
+  explicit ActivateServiceRequest(const application_manager::MessagePtr& message);
 
-ActiveServiceRequest::ActiveServiceRequest(
-  const application_manager::MessagePtr& message)
-  : BaseCommandRequest(message) {
-}
+  /**
+   * @brief ActivateServiceRequest class destructor
+   */
+  virtual ~ActivateServiceRequest();
 
-ActiveServiceRequest::~ActiveServiceRequest() {
-}
+  /**
+   * @brief Execute command
+   */
+  virtual void Execute();
 
-void ActiveServiceRequest::Execute() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-
-void ActiveServiceRequest::OnEvent() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
+  /**
+   * @brief This method will be called whenever new event received
+   */
+  virtual void OnEvent();
+};
 
 }  // namespace commands
 
 }  // namespace vr_cooperation
+
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
