@@ -41,11 +41,10 @@
 #include "json/json.h"
 #include "functional_module/function_ids.h"
 
-namespace can_cooperation {
-
+namespace vr_cooperation {
 /**
  * @brief MessageHelper class
- **/
+ */
 class MessageHelper {
  public:
   /**
@@ -54,6 +53,14 @@ class MessageHelper {
    * @return Unique correlation ID
    */
   static uint32_t GetNextVRCorrelationID();
+
+  /**
+   * @brief Returns Mobile API name by id
+   *
+   * @param MobileFunctionID func_id with function id
+   *
+   * @return string with name of Mobile API
+   */
   static const std::string GetMobileAPIName(functional_modules::MobileFunctionID func_id);
 
   /**
@@ -94,4 +101,4 @@ bool IsMember(const Json::Value& value, const std::string& key);
 
 }  // namespace can_cooperation
 
-#endif /* SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_MESSAGE_HELPER_H_ */
+#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_MESSAGE_HELPER_H_

@@ -34,7 +34,7 @@
 #include "vr_cooperation/message_helper.h"
 // #include "vr_cooperation/vr_module_constants.h"
 
-namespace can_cooperation {
+namespace vr_cooperation {
 using functional_modules::MobileFunctionID;
 namespace {
 std::map<MobileFunctionID, std::string> GenerateAPINames() {
@@ -92,8 +92,6 @@ bool IsMember(const Json::Value& value, const std::string& key) {
   return value.isMember(key);
 }
 
-}  // namespace can_cooperation
-
-
+}  // namespace vr_cooperation
 
 
