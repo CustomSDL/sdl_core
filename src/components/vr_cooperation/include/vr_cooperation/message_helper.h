@@ -30,45 +30,68 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_MESSAGE_HELPER_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_MESSAGE_HELPER_H_
 
-#include "vr_cooperation/commands/base_command_request.h"
+#include <stdint.h>
+#include <string>
+#include <map>
 
-namespace vr_cooperation {
+#include "utils/macro.h"
+#include "json/json.h"
+#include "functional_module/function_ids.h"
 
-namespace commands {
+namespace can_cooperation {
 
 /**
- * @brief ActivateServiceRequest command class
- */
-class ActivateServiceRequest : public BaseCommandRequest {
+ * @brief MessageHelper class
+ **/
+class MessageHelper {
  public:
   /**
-   * @brief ActivateServiceRequest class constructor
-   * @param message Message from mobile
-   **/
-  explicit ActivateServiceRequest(const application_manager::MessagePtr& message);
+   * @brief Returns unique correlation ID for next VR request
+   *
+   * @return Unique correlation ID
+   */
+  static uint32_t GetNextVRCorrelationID();
+  static const std::string GetMobileAPIName(functional_modules::MobileFunctionID func_id);
 
   /**
-   * @brief ActivateServiceRequest class destructor
+   * @brief Convert Json::Value to std::string
+   *
+   * @param value Value with json
+   *
+   * @return string with json
    */
-  virtual ~ActivateServiceRequest();
+  static std::string ValueToString(const Json::Value& value);
 
   /**
-   * @brief Execute command
+   * @brief Convert std::string to Json::Value
+   *
+   * @param string string with json
+   *
+   * @return Value created from string with json
    */
-  virtual void Execute();
+  static Json::Value StringToValue(const std::string& string);
 
-  /**
-   * @brief This method will be called whenever new event received
-   */
-  virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
-      std::string>& event);
+ private:
+  MessageHelper();
+
+  static uint32_t next_correlation_id_;
+  static const std::map<functional_modules::MobileFunctionID, std::string> kMobileAPINames;
+  DISALLOW_COPY_AND_ASSIGN(MessageHelper);
 };
 
-}  // namespace commands
+/**
+ * @brief Check for existence of specified key in Json::Value
+ *
+ * @param value Value with json
+ * @param key string with key name
+ *
+ * @return true if key exist
+ */
+bool IsMember(const Json::Value& value, const std::string& key);
 
-}  // namespace vr_cooperation
+}  // namespace can_cooperation
 
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
+#endif /* SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_MESSAGE_HELPER_H_ */

@@ -33,8 +33,11 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_
 
-#include "vr_cooperation/commands/command.h"
 #include "application_manager/message.h"
+#include "application_manager/service.h"
+#include "vr_cooperation/commands/command.h"
+#include "vr_cooperation/event_engine/event_observer.h"
+#include "json/json.h"
 
 namespace vr_cooperation {
 
@@ -43,8 +46,8 @@ namespace commands {
 /**
  * @brief Base command class for requests
  */
-class BaseCommandRequest : public Command {
-  // TODO(Thinh) inherit from EventEngine
+class BaseCommandRequest : public Command,
+  public event_engine::EventObserver<application_manager::MessagePtr, std::string> {
  public:
   /**
    * @brief BaseCommandRequest class constructor
@@ -79,19 +82,32 @@ class BaseCommandRequest : public Command {
 
  protected:
   /**
-   * @brief send response to mobile
+   * @brief Send response to HMI or Mobile
+   * @param success true if successful; false, if failed
+   * @param result_code Mobile result code in string ("SUCCESS", "INVALID_DATA", e.t.c)
+   * @param info Provides additional human readable info regarding the result(may be empty)
+   * @param is_mob_response true response for mobile; false - for HMI
    */
-  void SendResponse();
+  void SendResponse(bool success,
+      const char* result_code,
+      const std::string& info,
+      bool is_mob_response = false);
 
   /**
-   * @brief send request to HMI
+   * @brief send request to HMI or Mobile
+   * @param function_id request ID
+   * @param msg_params json with message params
+   * @param is_hmi_request send request to hmi or mobile
    */
-  void SendRequest();
+  void SendRequest(const char* function_id,
+      const Json::Value& message_params,
+      bool is_hmi_request = false);
 
   /**
    * @brief Interface method that is called whenever new event received
    */
-  virtual void OnEvent() = 0;
+  virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
+      std::string>& event) = 0;
 
   /**
    * @brief Interface method that executes specific logic of children classes
@@ -99,6 +115,10 @@ class BaseCommandRequest : public Command {
   virtual void Execute() = 0;
 
   application_manager::MessagePtr message_;
+
+ private:
+  application_manager::ApplicationSharedPtr app_;
+  application_manager::ServicePtr service_;
 };
 
 }  // namespace commands

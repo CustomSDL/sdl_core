@@ -30,6 +30,7 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "functional_module/function_ids.h"
 #include "vr_cooperation/commands/activate_service_request.h"
 #include "utils/logger.h"
 
@@ -49,10 +50,26 @@ ActivateServiceRequest::~ActivateServiceRequest() {
 
 void ActivateServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
+
+  Json::Value params;
+
+  Json::Reader reader;
+  reader.parse(message_->json_message(), params);
+
+  // TODO (KKarlash) Uncomment after functional modules update by Giang
+  // SendRequest(
+  //    functional_modules::hmi_api::activate_service,
+  //    params, true);
 }
 
-void ActivateServiceRequest::OnEvent() {
+void ActivateServiceRequest::OnEvent(const event_engine::Event<application_manager::MessagePtr,
+    std::string>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
+  std::string result_code;
+  std::string info;
+  bool success = true;
+
+  SendResponse(success, result_code.c_str(), info, true);
 }
 
 }  // namespace commands

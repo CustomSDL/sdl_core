@@ -299,9 +299,10 @@ void VRModule::OnDeviceRemoved(const connection_handler::DeviceHandle& device) {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-void VRModule::SendMessageToHMI() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  // TODO(Giang):
+void VRModule::SendMessageToHMI(application_manager::MessagePtr msg) {
+  LOG4CXX_DEBUG(logger_, "Message to HMI: " << msg->json_message());
+  service()->SendMessageToHMI(msg);
+  request_controller_.DeleteRequest(msg->correlation_id());
 }
 void VRModule::ReceiveMessageFromHMI() {
   LOG4CXX_AUTO_TRACE(logger_);
