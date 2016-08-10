@@ -55,6 +55,8 @@ using json_keys::kCode;
 using json_keys::kError;
 using json_keys::kMessage;
 
+const std::string kJsonRpc = "2.0";
+
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 BaseCommandRequest::BaseCommandRequest(
@@ -91,7 +93,6 @@ void BaseCommandRequest::SendResponse(bool success,
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg_params;
 
-
   msg_params[kSuccess] = success;
   msg_params[kResultCode] = result_code;
   if (!info.empty()) {
@@ -100,6 +101,7 @@ void BaseCommandRequest::SendResponse(bool success,
   Json::FastWriter writer;
   std::string params = writer.write(msg_params);
   message_->set_json_message(params);
+  message_->set_correlation_id(msg_params[kId].asInt());
   message_->set_protocol_version(
         application_manager::ProtocolVersion::kHMI);
   if (is_mob_response) {
@@ -120,7 +122,7 @@ void BaseCommandRequest::SendRequest(const char* function_id,
   EventDispatcher<application_manager::MessagePtr, std::string>::instance()->
   add_observer(function_id, msg[kId].asInt(), this);
 
-  msg[kJsonrpc] = "2.0";
+  msg[kJsonrpc] = kJsonRpc;
   msg[kMethod] = function_id;
   if (!message_params.isNull()) {
     msg[kParams] = message_params;
