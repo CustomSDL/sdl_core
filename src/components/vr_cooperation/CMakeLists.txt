@@ -30,6 +30,7 @@ include_directories (
   ${JSONCPP_INCLUDE_DIRECTORY}
   ${LOG4CXX_INCLUDE_DIRECTORY}
   ${CMAKE_BINARY_DIR}/src/components/
+  ${GPB_INCLUDE_DIRECTORY}
 )
 
 set (SOURCES
@@ -53,9 +54,15 @@ set (LIBRARIES
     ApplicationManager
     Utils
     ConfigProfile
+    protobuf
+    HMIProto
 )
 
+generate_proto(${CMAKE_CURRENT_SOURCE_DIR}/interface/hmi.proto HmiProto)
+
+link_directories(${LINK_DIRECTORIES} ${GPB_LIBS_DIRECTORY})
 add_library(${target} SHARED ${SOURCES})
+add_dependencies(${target} LibGPB)
 target_link_libraries(${target} ${LIBRARIES} )
 
 if(ENABLE_LOG)
