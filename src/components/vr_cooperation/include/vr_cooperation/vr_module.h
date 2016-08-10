@@ -33,20 +33,27 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_H_
 
-#include <queue>
-#include <string>
 #include "functional_module/generic_module.h"
 #include "vr_cooperation/request_controller.h"
-#include "utils/singleton.h"
+#include "utils/macro.h"
 
 namespace vr_cooperation {
+class VRProxy;
 
 /**
  * @brief VR Module plugin class
  */
-class VRModule : public functional_modules::GenericModule,
-  public utils::Singleton<VRModule> {
+class VRModule : public functional_modules::GenericModule {
  public:
+  /**
+   * @brief Class constructor
+   */
+  VRModule();
+
+  /**
+   * @brief Class destructor
+   */
+  ~VRModule();
   /**
    * @brief get plugin information
    */
@@ -106,7 +113,7 @@ class VRModule : public functional_modules::GenericModule,
   /**
    * @brief send message to mobile
    */
-  void SendMessageToMobile();
+  void SendMessageToMobile(application_manager::MessagePtr msg);
 
   /**
    * @brief receive message from mobile
@@ -121,17 +128,7 @@ class VRModule : public functional_modules::GenericModule,
 
  private:
   /**
-   * @brief Class constructor
-   */
-  VRModule();
-
-  /**
-   * @brief Class destructor
-   */
-  ~VRModule();
-
-  /**
-   * @brief subcribe to RPC message
+   * @brief Subscribes plugin to mobie rpc messages
    */
   void SubcribeToRPCMessage();
 
@@ -139,8 +136,12 @@ class VRModule : public functional_modules::GenericModule,
   functional_modules::PluginInfo plugin_info_;
   request_controller::RequestController request_controller_;
 
-  FRIEND_BASE_SINGLETON_CLASS(VRModule);
+  VRProxy* proxy_;
+
+  DISALLOW_COPY_AND_ASSIGN(VRModule);
 };
+
+EXPORT_FUNCTION(VRModule)
 
 }  // namespace vr_cooperation
 

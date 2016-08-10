@@ -52,6 +52,13 @@ enum MobileFunctionID {
   GET_INTERIOR_VEHICLE_DATA = 100017,
   SET_INTERIOR_VEHICLE_DATA = 100018,
   ON_INTERIOR_VEHICLE_DATA = 100019,
+
+  // VR module ids
+  REGISTER_SERVICE = 200001,
+  UNREGISTER_SERVICE = 200002,
+  ACTIVATE_SERVICE = 200003,
+  ON_SERVICE_DEACTIVATED = 200004,
+  ON_DEFAULT_SERVICE_CHOSEN = 200005
 };
 
 namespace hmi_api {
@@ -68,6 +75,13 @@ const char on_app_deactivated[]        = "BasicCommunication.OnAppDeactivated";
 const char sdl_activate_app[]          = "SDL.ActivateApp";
 const char on_device_rank_changed[]    = "RC.OnDeviceRankChanged";
 const char on_device_location_changed[] = "RC.OnDeviceLocationChanged";
+
+const char activate_service[] = "RC.ActivateSrvice";
+const char on_register_service[] = "RC.OnRegisterService";
+const char on_unregister_service[] = "RC.OnUnregisterService";
+const char on_service_deactivated[] = "RC.OnServiceDeactivated";
+const char on_default_service_chosen[] = "RC.OnDefaultServiceChosen";
+
 }  // namespace hmi_api
 
 /*namespace can_api {

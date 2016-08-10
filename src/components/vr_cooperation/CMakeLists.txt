@@ -42,6 +42,7 @@ set (SOURCES
     ./src/register_service_request.cc
     ./src/unregister_service_request.cc
     ./src/activate_service_request.cc
+    ./src/vr_module_event.cc
 )
 
 set (LIBRARIES
