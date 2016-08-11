@@ -65,9 +65,15 @@ void ActivateServiceRequest::Execute() {
 void ActivateServiceRequest::OnEvent(const event_engine::Event<application_manager::MessagePtr,
     std::string>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
-  std::string result_code;
+
+  Json::Value value;
+  Json::Reader reader;
+  reader.parse(event.event_message()->json_message(), value);
+
+  int result_code;
   std::string info;
-  bool success = true;
+
+  bool success = ParseMobileResultCode(value, result_code, info);
 
   SendResponse(success, result_code.c_str(), info, true);
 }

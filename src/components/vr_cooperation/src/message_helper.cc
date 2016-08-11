@@ -94,4 +94,3 @@ bool IsMember(const Json::Value& value, const std::string& key) {
 
 }  // namespace vr_cooperation
 
-
