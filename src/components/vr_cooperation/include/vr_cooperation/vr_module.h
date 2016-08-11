@@ -144,6 +144,16 @@ class VRModule : public functional_modules::GenericModule {
   functional_modules::ProcessResult HandleHMIMessage(
       application_manager::MessagePtr msg);
 
+  /**
+   * @brief Message Classification
+   */
+  bool MessageClassification(application_manager::MessagePtr& msg);
+
+  /**
+   * @brief HMI Message Classification
+   */
+  bool HMIMessageClassification(application_manager::MessagePtr& msg);
+
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;
   request_controller::RequestController request_controller_;

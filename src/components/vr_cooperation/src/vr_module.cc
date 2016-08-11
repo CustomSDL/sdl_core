@@ -34,6 +34,7 @@
 #include "vr_cooperation/event_engine/event_dispatcher.h"
 #include "json/json.h"
 #include "vr_cooperation/mobile_command_factory.h"
+#include "vr_cooperation/message_helper.h"
 #include "vr_cooperation/vr_module_event.h"
 #include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
@@ -75,12 +76,6 @@ void VRModule::SubcribeToRPCMessage() {
   plugin_info_.mobile_function_list.push_back(
       MobileFunctionID::ACTIVATE_SERVICE);
 
-  plugin_info_.mobile_function_list.push_back(
-      MobileFunctionID::ON_SERVICE_DEACTIVATED);
-
-  plugin_info_.mobile_function_list.push_back(
-      MobileFunctionID::ON_DEFAULT_SERVICE_CHOSEN);
-
   plugin_info_.hmi_function_list.push_back(hmi_api::activate_service);
   plugin_info_.hmi_function_list.push_back(hmi_api::on_register_service);
   plugin_info_.hmi_function_list.push_back(hmi_api::on_unregister_service);
@@ -101,8 +96,11 @@ ProcessResult VRModule::ProcessMessage(application_manager::MessagePtr msg) {
     LOG4CXX_ERROR(logger_, "Null pointer message received.");
     return ProcessResult::FAILED;
   }
-  LOG4CXX_DEBUG(logger_, "Mobile message: " << msg->json_message());
 
+  msg->set_function_name(MessageHelper::GetMobileAPIName(
+      static_cast<functional_modules::MobileFunctionID>(msg->function_id())));
+
+  LOG4CXX_DEBUG(logger_, "Mobile message: " << msg->json_message());
   return HandleMessage(msg);
 }
 
@@ -114,7 +112,6 @@ ProcessResult VRModule::ProcessHMIMessage(application_manager::MessagePtr msg) {
     return ProcessResult::FAILED;
   }
   LOG4CXX_DEBUG(logger_, "HMI message: " << msg->json_message());
-
   return HandleHMIMessage(msg);
 }
 
@@ -122,59 +119,20 @@ functional_modules::ProcessResult VRModule::HandleMessage(
   application_manager::MessagePtr msg) {
   LOG4CXX_INFO(logger_, "VRModule::HandleMessage");
 
-  Json::Value value;
-  Json::Reader reader;
-  reader.parse(msg->json_message(), value);
-
-  std::string function_name;
-
-  // Request or notification
-  if (value.isMember(json_keys::kMethod)) {
-    function_name = value[json_keys::kMethod].asString();
-
-    if (value.isMember(json_keys::kId)) {
-      msg->set_message_type(application_manager::MessageType::kRequest);
-    } else {
-      msg->set_message_type(application_manager::MessageType::kNotification);
-    }
-    // Response
-  } else if (value.isMember(json_keys::kResult)
-             && value[json_keys::kResult].isMember(json_keys::kMethod)) {
-    function_name = value[json_keys::kResult][json_keys::kMethod].asString();
-    msg->set_message_type(application_manager::MessageType::kResponse);
-    // Error response
-  } else if (value.isMember(json_keys::kError)
-             && value[json_keys::kError].isMember(json_keys::kData)
-             && value[json_keys::kError][json_keys::kData].isMember(
-                 json_keys::kMethod)) {
-    function_name = value[json_keys::kError][json_keys::kData]
-                    [json_keys::kMethod].asString();
-    msg->set_message_type(application_manager::MessageType::kErrorResponse);
-  } else {
-    DCHECK(false);
+  if (!MessageClassification(msg)) {
     return ProcessResult::FAILED;
   }
-
-  if (value.isMember(json_keys::kId)) {
-    msg->set_correlation_id(value[json_keys::kId].asInt());
-  } else if (application_manager::MessageType::kNotification != msg->type()) {
-    DCHECK(false);
-    return ProcessResult::FAILED;
-  }
-
   msg->set_protocol_version(application_manager::ProtocolVersion::kV3);
 
   switch (msg->type()) {
     case application_manager::MessageType::kResponse:
     case application_manager::MessageType::kErrorResponse: {
-      if (functional_modules::hmi_api::activate_service == function_name) {
+      if (functional_modules::hmi_api::activate_service
+          == msg->function_name()) {
         VRModuleEvent event(msg, MobileFunctionID::ACTIVATE_SERVICE);
         EventDispatcher<application_manager::MessagePtr,
           functional_modules::MobileFunctionID>::instance()->raise_event(event);
       }
-      break;
-    }
-    case application_manager::MessageType::kNotification: {
       break;
     }
     case application_manager::MessageType::kRequest: {
@@ -197,56 +155,16 @@ functional_modules::ProcessResult VRModule::HandleMessage(
 functional_modules::ProcessResult VRModule::HandleHMIMessage(
   application_manager::MessagePtr msg) {
   LOG4CXX_INFO(logger_, "VRModule::HandleHMIMessage");
-  Json::Value value;
-  Json::Reader reader;
-  reader.parse(msg->json_message(), value);
 
-  std::string function_name;
-
-  // Request or notification
-  if (value.isMember(json_keys::kMethod)) {
-    function_name = value[json_keys::kMethod].asString();
-
-    if (value.isMember(json_keys::kId)) {
-      msg->set_message_type(application_manager::MessageType::kRequest);
-    } else {
-      msg->set_message_type(application_manager::MessageType::kNotification);
-    }
-    // Response
-  } else if (value.isMember(json_keys::kResult)
-             && value[json_keys::kResult].isMember(json_keys::kMethod)) {
-    function_name = value[json_keys::kResult][json_keys::kMethod].asString();
-    msg->set_message_type(application_manager::MessageType::kResponse);
-    // Error response
-  } else if (value.isMember(json_keys::kError)
-             && value[json_keys::kError].isMember(json_keys::kData)
-             && value[json_keys::kError][json_keys::kData].isMember(
-                 json_keys::kMethod)) {
-    function_name = value[json_keys::kError][json_keys::kData]
-                    [json_keys::kMethod].asString();
-    msg->set_message_type(application_manager::MessageType::kErrorResponse);
-  } else {
-    DCHECK(false);
+  if (!HMIMessageClassification(msg)) {
     return ProcessResult::FAILED;
   }
-
-  if (value.isMember(json_keys::kId)) {
-    msg->set_correlation_id(value[json_keys::kId].asInt());
-  } else if (application_manager::MessageType::kNotification != msg->type()) {
-    DCHECK(false);
-    return ProcessResult::FAILED;
-  }
-
   msg->set_protocol_version(application_manager::ProtocolVersion::kV3);
 
   switch (msg->type()) {
-    case application_manager::MessageType::kResponse:
-    case application_manager::MessageType::kErrorResponse: {
-      break;
-    }
     case application_manager::MessageType::kNotification: {
       if (functional_modules::hmi_api::on_service_deactivated
-          == function_name) {
+          == msg->function_name()) {
          // TODO(giang): Un-comment when OnDefaultServiceChosen
          // notification was implemented
          // commands::OnServiceDeactivatedNotification notification(this);
@@ -274,6 +192,96 @@ functional_modules::ProcessResult VRModule::HandleHMIMessage(
     }
   }
   return ProcessResult::PROCESSED;
+}
+
+bool VRModule::MessageClassification(application_manager::MessagePtr& msg) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  Json::Value value;
+  Json::Reader reader;
+  reader.parse(msg->json_message(), value);
+
+  bool result = false;
+  // Request or notification
+  if (value.isMember(json_keys::kMethod)) {
+    if (value.isMember(json_keys::kId)) {
+      msg->set_message_type(application_manager::MessageType::kRequest);
+      result = true;
+    } else {
+      msg->set_message_type(application_manager::MessageType::kNotification);
+      result = true;
+    }
+    // Response
+  } else if (value.isMember(json_keys::kResult)
+             && value[json_keys::kResult].isMember(json_keys::kMethod)) {
+    msg->set_message_type(application_manager::MessageType::kResponse);
+    result = true;
+    // Error response
+  } else if (value.isMember(json_keys::kError)
+             && value[json_keys::kError].isMember(json_keys::kData)
+             && value[json_keys::kError][json_keys::kData].isMember(
+                 json_keys::kMethod)) {
+    msg->set_message_type(application_manager::MessageType::kErrorResponse);
+    result = true;
+  } else {
+    DCHECK(false);
+    result = false;
+  }
+
+  if (value.isMember(json_keys::kId)) {
+    msg->set_correlation_id(value[json_keys::kId].asInt());
+  } else if (application_manager::MessageType::kNotification != msg->type()) {
+    DCHECK(false);
+    result = false;
+  }
+  return result;
+}
+
+bool VRModule::HMIMessageClassification(application_manager::MessagePtr& msg) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  Json::Value value;
+  Json::Reader reader;
+  reader.parse(msg->json_message(), value);
+  bool result = false;
+
+  // Request or notification
+  if (value.isMember(json_keys::kMethod)) {
+    msg->set_function_name(value[json_keys::kMethod].asString());
+
+    if (value.isMember(json_keys::kId)) {
+      msg->set_message_type(application_manager::MessageType::kRequest);
+      result = true;
+    } else {
+      msg->set_message_type(application_manager::MessageType::kNotification);
+      result = true;
+    }
+    // Response
+  } else if (value.isMember(json_keys::kResult)
+             && value[json_keys::kResult].isMember(json_keys::kMethod)) {
+    msg->set_function_name(value[json_keys::kResult][json_keys::kMethod]
+                           .asString());
+    msg->set_message_type(application_manager::MessageType::kResponse);
+    result = true;
+    // Error response
+  } else if (value.isMember(json_keys::kError)
+             && value[json_keys::kError].isMember(json_keys::kData)
+             && value[json_keys::kError][json_keys::kData].isMember(
+                 json_keys::kMethod)) {
+    msg->set_function_name(value[json_keys::kError][json_keys::kData]
+                           [json_keys::kMethod].asString());
+    msg->set_message_type(application_manager::MessageType::kErrorResponse);
+    result = true;
+  } else {
+    DCHECK(false);
+    result = false;
+  }
+
+  if (value.isMember(json_keys::kId)) {
+    msg->set_correlation_id(value[json_keys::kId].asInt());
+  } else if (application_manager::MessageType::kNotification != msg->type()) {
+    DCHECK(false);
+    result = true;
+  }
+  return result;
 }
 
 void VRModule::RemoveAppExtension(uint32_t app_id) {
