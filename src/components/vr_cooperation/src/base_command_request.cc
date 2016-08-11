@@ -54,6 +54,7 @@ using json_keys::kResult;
 using json_keys::kCode;
 using json_keys::kError;
 using json_keys::kMessage;
+using json_keys::kAppId;
 
 const std::string kJsonRpc = "2.0";
 
@@ -63,7 +64,6 @@ BaseCommandRequest::BaseCommandRequest(
   const application_manager::MessagePtr& message)
   : message_(message) {
   service_ = VRModule::instance()->service();
-  app_ = service_->GetApplication(message_->connection_key());
 }
 
 BaseCommandRequest::~BaseCommandRequest() {
@@ -86,8 +86,115 @@ void BaseCommandRequest::on_event() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
+const hmi_apis::Common_Result::eType BaseCommandRequest::GetHMIResultCode(
+  std::string& mob_code) const {
+  hmi_apis::Common_Result::eType hmiResCode = hmi_apis::Common_Result::GENERIC_ERROR;
+
+  if (result_codes::kSuccess == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::SUCCESS;
+  }
+  else if (result_codes::kUnsupportedRequest == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::UNSUPPORTED_REQUEST;
+  }
+  else if (result_codes::kUnsupportedResource == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::UNSUPPORTED_RESOURCE;
+  }
+  else if (result_codes::kDisallowed == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::DISALLOWED;
+  }
+  else if (result_codes::kRejected == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::REJECTED;
+  }
+  else if (result_codes::kAborted == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::ABORTED;
+  }
+  else if (result_codes::kIgnored == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::IGNORED;
+  }
+  else if (result_codes::kRetry == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::RETRY;
+  }
+  else if (result_codes::kInUse == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::IN_USE;
+  }
+  else if (result_codes::kVehicleDataNotAvailable == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::DATA_NOT_AVAILABLE;
+  }
+  else if (result_codes::kTimedOut == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::TIMED_OUT;
+  }
+  else if (result_codes::kInvalidData == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::INVALID_DATA;
+  }
+  else if (result_codes::kCharLimitExceeded == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::CHAR_LIMIT_EXCEEDED;
+  }
+  else if (result_codes::kInvalidId == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::INVALID_ID;
+  }
+  else if (result_codes::kDuplicateName == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::DUPLICATE_NAME;
+  }
+  else if (result_codes::kApplicationNotRegistered == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::APPLICATION_NOT_REGISTERED;
+  }
+  else if (result_codes::kWrongLanguage == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::WRONG_LANGUAGE;
+  }
+  else if (result_codes::kOutOfMemory == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::OUT_OF_MEMORY;
+  }
+  else if (result_codes::kTooManyPendingRequests == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::TOO_MANY_PENDING_REQUESTS;
+  }
+  else if (result_codes::kApplicationNotRegistered == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::NO_APPS_REGISTERED;
+  }
+  else if (result_codes::kApplicationNotRegistered == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::NO_DEVICES_CONNECTED;
+  }
+  else if (result_codes::kWarnings == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::WARNINGS;
+  }
+  else if (result_codes::kGenericError == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::GENERIC_ERROR;
+  }
+  else if (result_codes::kUserDisallowed == mob_code) {
+    hmiResCode = hmi_apis::Common_Result::USER_DISALLOWED;
+  }
+  else {
+    LOG4CXX_ERROR(logger_, "Unknown Mobile result code ");
+    hmiResCode = hmi_apis::Common_Result::GENERIC_ERROR;
+  }
+  return hmiResCode;
+}
+
+bool BaseCommandRequest::ParseMobileResultCode(const Json::Value& value,
+    int& result_code,
+    std::string& info) {
+  result_code = -1;
+  info = "";
+
+  if (IsMember(value, kResult) && IsMember(value[kResult], kCode)) {
+    result_code = GetHMIResultCode(value[kResult][kCode].asString());
+  } else if (IsMember(value, kError) && IsMember(value[kError], kCode)) {
+    result_code = GetHMIResultCode(value[kError][kCode].asString());
+
+    if (IsMember(value[kError], kMessage)) {
+      info = value[kError][kMessage].asString();
+    }
+  }
+
+  if ((result_codes::kSuccess == result_code) ||
+      (result_codes::kWarnings == result_code)) {
+    return true;
+  }
+
+  return false;
+}
+
 void BaseCommandRequest::SendResponse(bool success,
-    const char* result_code,
+    const int& result_code,
     const std::string& info,
     bool is_mob_response/* = false*/) {
   LOG4CXX_AUTO_TRACE(logger_);
@@ -128,8 +235,6 @@ void BaseCommandRequest::SendRequest(const char* function_id,
     msg[kParams] = message_params;
   }
 
-  msg[kParams][json_keys::kAppId] = app_->hmi_app_id();
-
   Json::FastWriter writer;
   if (is_hmi_request) {
     application_manager::MessagePtr message_to_send(
@@ -137,6 +242,7 @@ void BaseCommandRequest::SendRequest(const char* function_id,
         protocol_handler::MessagePriority::kDefault));
     message_to_send->set_protocol_version(
       application_manager::ProtocolVersion::kV2);
+    message_to_send->set_connection_key(message_->connection_key());
     message_to_send->set_correlation_id(msg[kId].asInt());
     std::string json_msg = writer.write(msg);
     message_to_send->set_json_message(json_msg);
@@ -144,7 +250,7 @@ void BaseCommandRequest::SendRequest(const char* function_id,
       application_manager::MessageType::kRequest);
 
     LOG4CXX_DEBUG(logger_, "Request to HMI: " << json_msg);
-    service_->SendMessageToHMI(message_to_send);
+    service_->SendMessageToMobile(message_to_send);
   }
 
 }

@@ -35,6 +35,9 @@
 
 #include "application_manager/message.h"
 #include "application_manager/service.h"
+
+#include "interfaces/HMI_API.h"
+
 #include "vr_cooperation/commands/command.h"
 #include "vr_cooperation/event_engine/event_observer.h"
 #include "json/json.h"
@@ -82,14 +85,33 @@ class BaseCommandRequest : public Command,
 
  protected:
   /**
+   * @brief Converts Mobile string result code to HMI code
+   * @param hmi_code HMI result code
+   * @return eType value with HMI result code
+   */
+  const hmi_apis::Common_Result::eType GetHMIResultCode(std::string& mob_code) const;
+
+  /**
+   * @brief Parse result code from response
+   *
+   * @param value message in response from Mobile
+   * @param result_code Outgoing param with result code
+   * @param info Outgoing param with additional human readable info regarding the result(may be empty)
+   * @return true if it is success response? otherwise false
+   */
+  bool ParseMobileResultCode(const Json::Value& value,
+                       int&  result_code,
+                       std::string& info);
+
+  /**
    * @brief Send response to HMI or Mobile
    * @param success true if successful; false, if failed
-   * @param result_code Mobile result code in string ("SUCCESS", "INVALID_DATA", e.t.c)
+   * @param result_code Mobile result codess
    * @param info Provides additional human readable info regarding the result(may be empty)
    * @param is_mob_response true response for mobile; false - for HMI
    */
   void SendResponse(bool success,
-      const char* result_code,
+      const int& result_code,
       const std::string& info,
       bool is_mob_response = false);
 
@@ -117,7 +139,6 @@ class BaseCommandRequest : public Command,
   application_manager::MessagePtr message_;
 
  private:
-  application_manager::ApplicationSharedPtr app_;
   application_manager::ServicePtr service_;
 };
 
