@@ -30,6 +30,7 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "functional_module/function_ids.h"
 #include "vr_cooperation/commands/register_service_request.h"
 #include "utils/logger.h"
 
@@ -50,9 +51,17 @@ RegisterServiceRequest::~RegisterServiceRequest() {
 
 void RegisterServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
+  SendNotification(functional_modules::hmi_api::on_register_service,
+                   MessageHelper::StringToValue(message_->json_message()));
+  std::string result_code;
+  std::string info;
+  bool success = true;
+  SendResponse(success, result_code.c_str(), info, true);
 }
 
-void RegisterServiceRequest::OnEvent() {
+void RegisterServiceRequest::OnEvent(
+    const event_engine::Event<application_manager::MessagePtr,
+    std::string>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 

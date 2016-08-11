@@ -120,6 +120,11 @@ class VRModule : public functional_modules::GenericModule {
    */
   void SendResponseToHMI(application_manager::MessagePtr msg);
 
+  /**
+   * @brief Send notification to HMI
+   */
+  void SendNotificationToHMI(application_manager::MessagePtr msg);
+
  protected:
   /**
    * @brief Remove extension for all applications

@@ -45,6 +45,8 @@
 
 namespace vr_cooperation {
 
+class VRModule;
+
 namespace commands {
 
 /**
@@ -55,6 +57,7 @@ class BaseCommandRequest : public Command,
  public:
   /**
    * @brief BaseCommandRequest class constructor
+   * @param vr_module parent VRModule
    * @param message Message from mobile
    **/
   explicit BaseCommandRequest(VRModule* parent,
@@ -154,6 +157,14 @@ class BaseCommandRequest : public Command,
                     bool is_mob_response = false);
 
   /**
+   * @brief send request to HMI
+   * @param function_id request ID
+   * @param msg_params json with message params
+   */
+  void SendNotification(const char* function_id,
+                        const Json::Value& message_params);
+
+  /**
    * @brief Interface method that is called whenever new event received
    */
   virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
@@ -165,11 +176,11 @@ class BaseCommandRequest : public Command,
   virtual void Execute() = 0;
 
   application_manager::MessagePtr message_;
+  VRModule* parent_;
 
  private:
   application_manager::ServicePtr service_;
-
-  VRModule* parent_;
+  application_manager::ApplicationSharedPtr app_;
 };
 
 }  // namespace commands

@@ -50,7 +50,7 @@ class RegisterServiceRequest : public BaseCommandRequest {
    * @param parent pointer to VRModule
    * @param message Message from mobile
    **/
-  explicit RegisterServiceRequest(
+  RegisterServiceRequest(
       VRModule* parent,
       const application_manager::MessagePtr& message);
 
@@ -67,7 +67,8 @@ class RegisterServiceRequest : public BaseCommandRequest {
   /**
    * @brief This method will be called whenever new event received
    */
-  virtual void OnEvent();
+  virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
+                       std::string>& event);
 };
 
 }  // namespace commands

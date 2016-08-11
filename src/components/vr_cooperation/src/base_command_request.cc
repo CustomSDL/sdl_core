@@ -71,7 +71,6 @@ BaseCommandRequest::BaseCommandRequest(
 BaseCommandRequest::~BaseCommandRequest() {
 }
 
-
 void BaseCommandRequest::OnTimeout() {
 }
 
@@ -261,7 +260,39 @@ void BaseCommandRequest::SendResponse(bool success,
   PrepareResponseMessageForHMI(success, result_code, info, message_);
   if (is_mob_response) {
     parent_->SendResponseToHMI(message_);
+  } else {
+    parent_->SendResponseToMobile(message_);
   }
+}
+
+void BaseCommandRequest::SendNotification(const char* function_id,
+                                          const Json::Value& message_params) {
+  Json::Value msg;
+
+  msg[kId] = vr_module_->service()->GetNextCorrelationID();
+
+  msg[kJsonrpc] = "2.0";
+  msg[kMethod] = function_id;
+  if (!message_params.isNull()) {
+    msg[kParams] = message_params;
+  }
+
+  msg[kParams][json_keys::kAppId] = app_->hmi_app_id();
+
+  Json::FastWriter writer;
+
+  application_manager::MessagePtr message_to_send(
+      new application_manager::Message(
+          protocol_handler::MessagePriority::kDefault));
+  message_to_send->set_protocol_version(
+      application_manager::ProtocolVersion::kHMI);
+  message_to_send->set_correlation_id(msg[kId].asInt());
+  std::string json_msg = writer.write(msg);
+  message_to_send->set_json_message(json_msg);
+  message_to_send->set_message_type(application_manager::MessageType::kNotification);
+
+  LOG4CXX_DEBUG(logger_, "Notify to HMI: " << json_msg);
+  parent_->SendNotificationToHMI(message_to_send);
 }
 
 }  // namespace commands

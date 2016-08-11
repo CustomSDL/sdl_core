@@ -318,5 +318,10 @@ void VRModule::ReceiveMessageFromMobile() {
   // TODO(Giang):
 }
 
-}  // namespace vr_cooperation
+void VRModule::SendNotificationToHMI(application_manager::MessagePtr msg) {
+  LOG4CXX_DEBUG(logger_, "Notification to HMI: " << msg->json_message());
+  service()->SendMessageToHMI(msg);
+}
+
+}  //  namespace vr_cooperation
 
