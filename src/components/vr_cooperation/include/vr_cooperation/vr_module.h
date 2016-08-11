@@ -64,14 +64,14 @@ class VRModule : public functional_modules::GenericModule {
    * @param msg message from mobile
    */
   virtual functional_modules::ProcessResult ProcessMessage(
-    application_manager::MessagePtr msg);
+      application_manager::MessagePtr msg);
 
   /**
    * @brief process message from HMI
    * @param msg message from HMI
    */
   virtual functional_modules::ProcessResult ProcessHMIMessage(
-    application_manager::MessagePtr msg);
+      application_manager::MessagePtr msg);
 
   /**
    * @brief Remove extension created for specified application
@@ -83,8 +83,7 @@ class VRModule : public functional_modules::GenericModule {
    * @brief Check registering app can be handled by plugin
    * @param app Application basis already create by Core
    */
-  bool IsAppForPlugin(
-      application_manager::ApplicationSharedPtr app);
+  bool IsAppForPlugin(application_manager::ApplicationSharedPtr app);
 
   /**
    * @brief Notify about change of HMILevel of plugin's app
@@ -92,7 +91,7 @@ class VRModule : public functional_modules::GenericModule {
    * @param old_level Old HMILevel of app
    */
   void OnAppHMILevelChanged(application_manager::ApplicationSharedPtr app,
-    mobile_apis::HMILevel::eType old_level);
+                            mobile_apis::HMILevel::eType old_level);
 
   /**
    * @brief Handles removing (disconnecting) device
@@ -112,6 +111,7 @@ class VRModule : public functional_modules::GenericModule {
 
   /**
    * @brief send message to mobile
+   * @param msg message to send
    */
   void SendMessageToMobile(application_manager::MessagePtr msg);
 
@@ -131,6 +131,18 @@ class VRModule : public functional_modules::GenericModule {
    * @brief Subscribes plugin to mobie rpc messages
    */
   void SubcribeToRPCMessage();
+
+  /**
+   * @brief handle mobile message
+   */
+  functional_modules::ProcessResult HandleMessage(
+      application_manager::MessagePtr msg);
+
+  /**
+   * @brief handle HMI message
+   */
+  functional_modules::ProcessResult HandleHMIMessage(
+      application_manager::MessagePtr msg);
 
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;

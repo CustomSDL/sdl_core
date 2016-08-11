@@ -103,6 +103,25 @@ ProcessResult VRModule::ProcessMessage(application_manager::MessagePtr msg) {
   }
   LOG4CXX_DEBUG(logger_, "Mobile message: " << msg->json_message());
 
+  return HandleMessage(msg);
+}
+
+ProcessResult VRModule::ProcessHMIMessage(application_manager::MessagePtr msg) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  DCHECK(msg);
+  if (!msg) {
+    LOG4CXX_ERROR(logger_, "Null pointer message received.");
+    return ProcessResult::FAILED;
+  }
+  LOG4CXX_DEBUG(logger_, "HMI message: " << msg->json_message());
+
+  return HandleHMIMessage(msg);
+}
+
+functional_modules::ProcessResult VRModule::HandleMessage(
+  application_manager::MessagePtr msg) {
+  LOG4CXX_INFO(logger_, "VRModule::HandleMessage");
+
   Json::Value value;
   Json::Reader reader;
   reader.parse(msg->json_message(), value);
@@ -153,11 +172,9 @@ ProcessResult VRModule::ProcessMessage(application_manager::MessagePtr msg) {
         EventDispatcher<application_manager::MessagePtr,
           functional_modules::MobileFunctionID>::instance()->raise_event(event);
       }
-      return ProcessResult::PROCESSED;
       break;
     }
     case application_manager::MessageType::kNotification: {
-      return ProcessResult::PROCESSED;
       break;
     }
     case application_manager::MessageType::kRequest: {
@@ -168,26 +185,18 @@ ProcessResult VRModule::ProcessMessage(application_manager::MessagePtr msg) {
       } else {
         return ProcessResult::CANNOT_PROCESS;
       }
-      return ProcessResult::PROCESSED;
       break;
     }
     default: {
       return ProcessResult::FAILED;
     }
   }
-
   return ProcessResult::PROCESSED;
 }
 
-ProcessResult VRModule::ProcessHMIMessage(application_manager::MessagePtr msg) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  DCHECK(msg);
-  if (!msg) {
-    LOG4CXX_ERROR(logger_, "Null pointer message received.");
-    return ProcessResult::FAILED;
-  }
-  LOG4CXX_DEBUG(logger_, "HMI message: " << msg->json_message());
-
+functional_modules::ProcessResult VRModule::HandleHMIMessage(
+  application_manager::MessagePtr msg) {
+  LOG4CXX_INFO(logger_, "VRModule::HandleHMIMessage");
   Json::Value value;
   Json::Reader reader;
   reader.parse(msg->json_message(), value);
@@ -233,23 +242,21 @@ ProcessResult VRModule::ProcessHMIMessage(application_manager::MessagePtr msg) {
   switch (msg->type()) {
     case application_manager::MessageType::kResponse:
     case application_manager::MessageType::kErrorResponse: {
-      return ProcessResult::PROCESSED;
       break;
     }
     case application_manager::MessageType::kNotification: {
       if (functional_modules::hmi_api::on_service_deactivated
           == function_name) {
-        // TODO(giang): should un-comment when OnServiceDeactivate notification
-        // was implemented
-        // commands::OnServiceDeactivateNotification notification(msg);
-        // notification.Execute();
-        // } else if (functional_modules::hmi_api::on_default_service_chosen
-        // == function_name) {
-        //  commands::OnDefaultServiceChosen notification(msg);
-        //  notification.Execute();
-        //  }
+         // TODO(giang): Un-comment when OnDefaultServiceChosen
+         // notification was implemented
+         // commands::OnServiceDeactivatedNotification notification(this);
+         // notification.Execute(msg);
+         // } else if (functional_modules::hmi_api::on_default_service_chosen
+         // == function_name) {
+         //  commands::OnDefaultServiceChosen notification(msg);
+         //  notification.Execute();
+         //  }
       }
-      return ProcessResult::PROCESSED;
       break;
     }
     case application_manager::MessageType::kRequest: {
@@ -260,14 +267,12 @@ ProcessResult VRModule::ProcessHMIMessage(application_manager::MessagePtr msg) {
       } else {
         return ProcessResult::CANNOT_PROCESS;
       }
-      return ProcessResult::PROCESSED;
       break;
     }
     default: {
       return ProcessResult::FAILED;
     }
   }
-
   return ProcessResult::PROCESSED;
 }
 
