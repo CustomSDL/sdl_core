@@ -33,10 +33,9 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
 
-#include <string>
-#include "application_manager/message.h"
 #include "vr_cooperation/event_engine/event.h"
 #include "functional_module/function_ids.h"
+#include "application_manager/message.h"
 
 namespace vr_cooperation {
 

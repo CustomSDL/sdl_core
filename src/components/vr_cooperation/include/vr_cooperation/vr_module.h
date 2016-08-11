@@ -34,8 +34,8 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_H_
 
 #include "functional_module/generic_module.h"
-#include "vr_cooperation/request_controller.h"
 #include "utils/macro.h"
+#include "vr_cooperation/request_controller.h"
 
 namespace vr_cooperation {
 class VRProxy;
@@ -45,14 +45,7 @@ class VRProxy;
  */
 class VRModule : public functional_modules::GenericModule {
  public:
-  /**
-   * @brief Class constructor
-   */
   VRModule();
-
-  /**
-   * @brief Class destructor
-   */
   ~VRModule();
   /**
    * @brief get plugin information
@@ -134,25 +127,29 @@ class VRModule : public functional_modules::GenericModule {
 
   /**
    * @brief handle mobile message
+   * @param msg mobile message
    */
   functional_modules::ProcessResult HandleMessage(
       application_manager::MessagePtr msg);
 
   /**
    * @brief handle HMI message
+   * @param msg HMI message
    */
   functional_modules::ProcessResult HandleHMIMessage(
       application_manager::MessagePtr msg);
 
   /**
-   * @brief Message Classification
+   * @brief Set mobile message type
+   * @param msg mobile message
    */
-  bool MessageClassification(application_manager::MessagePtr& msg);
+  bool SetMessageType(application_manager::MessagePtr& msg) const;
 
   /**
-   * @brief HMI Message Classification
+   * @brief Set HMI message type
+   * @param msg hmi message
    */
-  bool HMIMessageClassification(application_manager::MessagePtr& msg);
+  bool SetHMIMessageType(application_manager::MessagePtr& msg) const;
 
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;
