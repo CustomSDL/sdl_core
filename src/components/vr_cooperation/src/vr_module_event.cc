@@ -55,4 +55,4 @@ int32_t VRModuleEvent::event_message_type() const {
   return event_message_->type();
 }
 
-}  //  namespace vr_cooperation
+}  // namespace vr_cooperation
