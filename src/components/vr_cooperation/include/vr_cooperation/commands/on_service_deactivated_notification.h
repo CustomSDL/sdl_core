@@ -44,20 +44,15 @@ class OnServiceDeactivatedNotification {
  public:
   /**
    * @brief OnServiceDeactivatedNotification class constructor
-   * @param parent parent object
-   **/
+   * @param parent VRModule parent
+   */
   explicit OnServiceDeactivatedNotification(VRModule* parent);
-
-  /**
-   * @brief OnAppPermissionChangedNotification class destructor
-   **/
-  virtual ~OnServiceDeactivatedNotification();
 
   /**
    * @brief Execute command
    * @param message message to be sent to mobile
-   **/
-  virtual void Execute(const application_manager::MessagePtr& message);
+   */
+  void Execute(const application_manager::MessagePtr& message);
 
  private:
   VRModule* parent_;

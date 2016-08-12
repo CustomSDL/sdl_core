@@ -37,14 +37,11 @@ namespace vr_cooperation {
 
 namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "OnServiceDeactivatedNotification")
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 OnServiceDeactivatedNotification::OnServiceDeactivatedNotification(
     VRModule* parent)
     : parent_(parent) {
-}
-
-OnServiceDeactivatedNotification::~OnServiceDeactivatedNotification() {
 }
 
 void OnServiceDeactivatedNotification::Execute(
