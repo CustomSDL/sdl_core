@@ -50,9 +50,7 @@ ActivateServiceRequest::~ActivateServiceRequest() {
 
 void ActivateServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-
   Json::Value params;
-
   Json::Reader reader;
   reader.parse(message_->json_message(), params);
 
@@ -65,17 +63,15 @@ void ActivateServiceRequest::Execute() {
 void ActivateServiceRequest::OnEvent(const event_engine::Event<application_manager::MessagePtr,
     std::string>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
-
   Json::Value value;
   Json::Reader reader;
   reader.parse(event.event_message()->json_message(), value);
 
   int result_code;
   std::string info;
-
   bool success = ParseMobileResultCode(value, result_code, info);
 
-  SendResponse(success, result_code.c_str(), info, true);
+  SendResponse(success, result_code, info, true);
 }
 
 }  // namespace commands

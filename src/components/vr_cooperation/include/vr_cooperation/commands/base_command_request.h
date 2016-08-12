@@ -104,16 +104,26 @@ class BaseCommandRequest : public Command,
                        std::string& info);
 
   /**
-   * @brief Send response to HMI or Mobile
-   * @param success true if successful; false, if failed
-   * @param result_code Mobile result codess
-   * @param info Provides additional human readable info regarding the result(may be empty)
-   * @param is_mob_response true response for mobile; false - for HMI
+   * @brief Prepares request message for Mobile
+   * @param function_id request ID
+   * @param msg_params json with message params
+   * @param message that will be sent to mobile
    */
-  void SendResponse(bool success,
+  void PrepareRequestMessageForMobile(const char* function_id,
+      const Json::Value& message_params,
+      application_manager::MessagePtr& message);
+
+  /**
+   * @brief Prepares response message for HMI
+   * @param success true if successful; false, if failed
+   * @param result_code Mobile result codes
+   * @param info Provides additional human readable info regarding the result(may be empty)
+   * @param message that will be sent to HMI
+   */
+  void PrepareResponseMessageForHMI(bool success,
       const int& result_code,
       const std::string& info,
-      bool is_mob_response = false);
+      application_manager::MessagePtr& message);
 
   /**
    * @brief send request to HMI or Mobile
@@ -124,6 +134,18 @@ class BaseCommandRequest : public Command,
   void SendRequest(const char* function_id,
       const Json::Value& message_params,
       bool is_hmi_request = false);
+
+  /**
+   * @brief Send response to HMI or Mobile
+   * @param success true if successful; false, if failed
+   * @param result_code Mobile result codes
+   * @param info Provides additional human readable info regarding the result(may be empty)
+   * @param is_mob_response true response for mobile; false - for HMI
+   */
+  void SendResponse(bool success,
+      const int& result_code,
+      const std::string& info,
+      bool is_mob_response = false);
 
   /**
    * @brief Interface method that is called whenever new event received
