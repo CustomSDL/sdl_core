@@ -175,22 +175,78 @@ bool BaseCommandRequest::ParseMobileResultCode(const Json::Value& value,
   result_code = -1;
   info = "";
 
+  std::string mobile_result_code;
   if (IsMember(value, kResult) && IsMember(value[kResult], kCode)) {
-    result_code = GetHMIResultCode(value[kResult][kCode].asString());
-  } else if (IsMember(value, kError) && IsMember(value[kError], kCode)) {
-    result_code = GetHMIResultCode(value[kError][kCode].asString());
-
-    if (IsMember(value[kError], kMessage)) {
-      info = value[kError][kMessage].asString();
-    }
+    mobile_result_code = value[kResult][kCode].asString();
+   } else if (IsMember(value, kError) && IsMember(value[kError], kCode)) {
+   mobile_result_code = value[kError][kCode].asString();
   }
 
-  if ((result_codes::kSuccess == result_code) ||
-      (result_codes::kWarnings == result_code)) {
-    return true;
+  result_code = GetHMIResultCode(mobile_result_code);
+  if (IsMember(value[kError], kMessage)) {
+    info = value[kError][kMessage].asString();
   }
 
-  return false;
+  // TODO (KKarlash) compare result_code with HMI result code values
+
+  return result_code != -1;
+}
+
+void BaseCommandRequest::PrepareRequestMessageForMobile(const char* function_id,
+    const Json::Value& message_params,
+    application_manager::MessagePtr& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  Json::Value msg;
+  msg[kId] = service_->GetNextCorrelationID();
+  msg[kJsonrpc] = kJsonRpc;
+  msg[kMethod] = function_id;
+  if (!message_params.isNull()) {
+    msg[kParams] = message_params;
+  }
+
+  message = new application_manager::Message(
+      protocol_handler::MessagePriority::kDefault);
+  message->set_protocol_version(application_manager::ProtocolVersion::kV2);
+  message->set_connection_key(message_->connection_key());
+  message->set_correlation_id(msg[kId].asInt());
+  Json::FastWriter writer;
+  message->set_json_message(writer.write(msg));
+  message->set_message_type(application_manager::MessageType::kRequest);
+}
+
+void BaseCommandRequest::PrepareResponseMessageForHMI(bool success,
+    const int& result_code,
+    const std::string& info,
+    application_manager::MessagePtr& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  Json::Value msg_params;
+  msg_params[kSuccess] = success;
+  msg_params[kResultCode] = result_code;
+  if (!info.empty()) {
+    msg_params[kInfo] = info;
+  }
+
+  message->set_message_type(application_manager::MessageType::kResponse);
+  Json::FastWriter writer;
+  message->set_json_message(writer.write(msg_params));
+  message->set_correlation_id(msg_params[kId].asInt());
+  message->set_protocol_version(application_manager::ProtocolVersion::kHMI);
+}
+
+
+void BaseCommandRequest::SendRequest(const char* function_id,
+    const Json::Value& message_params,
+    bool is_hmi_request/* = false*/) {
+  LOG4CXX_AUTO_TRACE(logger_);
+
+  if (is_hmi_request) {
+    application_manager::MessagePtr message_to_send;
+    PrepareRequestMessageForMobile(function_id, message_params, message_to_send);
+    EventDispatcher<application_manager::MessagePtr, std::string>::instance()->
+        add_observer(function_id, message_to_send->correlation_id(), this);
+    LOG4CXX_DEBUG(logger_, "Request to HMI: " << message_to_send->json_message());
+    service_->SendMessageToMobile(message_to_send);
+  }
 }
 
 void BaseCommandRequest::SendResponse(bool success,
@@ -198,61 +254,10 @@ void BaseCommandRequest::SendResponse(bool success,
     const std::string& info,
     bool is_mob_response/* = false*/) {
   LOG4CXX_AUTO_TRACE(logger_);
-  Json::Value msg_params;
-
-  msg_params[kSuccess] = success;
-  msg_params[kResultCode] = result_code;
-  if (!info.empty()) {
-    msg_params[kInfo] = info;
-  }
-  Json::FastWriter writer;
-  std::string params = writer.write(msg_params);
-  message_->set_json_message(params);
-  message_->set_correlation_id(msg_params[kId].asInt());
-  message_->set_protocol_version(
-        application_manager::ProtocolVersion::kHMI);
+  PrepareResponseMessageForHMI(success, result_code, info, message_);
   if (is_mob_response) {
     VRModule::instance()->SendResponseToHMI(message_);
   }
-}
-
-void BaseCommandRequest::SendRequest(const char* function_id,
-    const Json::Value& message_params,
-    bool is_hmi_request/* = false*/) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  Json::Value msg;
-
-  if (is_hmi_request) {
-    msg[kId] = service_->GetNextCorrelationID();
-  }
-
-  EventDispatcher<application_manager::MessagePtr, std::string>::instance()->
-  add_observer(function_id, msg[kId].asInt(), this);
-
-  msg[kJsonrpc] = kJsonRpc;
-  msg[kMethod] = function_id;
-  if (!message_params.isNull()) {
-    msg[kParams] = message_params;
-  }
-
-  Json::FastWriter writer;
-  if (is_hmi_request) {
-    application_manager::MessagePtr message_to_send(
-      new application_manager::Message(
-        protocol_handler::MessagePriority::kDefault));
-    message_to_send->set_protocol_version(
-      application_manager::ProtocolVersion::kV2);
-    message_to_send->set_connection_key(message_->connection_key());
-    message_to_send->set_correlation_id(msg[kId].asInt());
-    std::string json_msg = writer.write(msg);
-    message_to_send->set_json_message(json_msg);
-    message_to_send->set_message_type(
-      application_manager::MessageType::kRequest);
-
-    LOG4CXX_DEBUG(logger_, "Request to HMI: " << json_msg);
-    service_->SendMessageToMobile(message_to_send);
-  }
-
 }
 
 }  // namespace commands
