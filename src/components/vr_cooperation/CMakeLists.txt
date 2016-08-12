@@ -43,6 +43,7 @@ set (SOURCES
     ./src/unregister_service_request.cc
     ./src/activate_service_request.cc
     ./src/vr_module_event.cc
+    ./src/on_service_deactivated_notification.cc
 )
 
 set (LIBRARIES
