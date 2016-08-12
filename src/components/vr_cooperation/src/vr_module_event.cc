@@ -30,65 +30,29 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_EVENT_ENGINE_EVENT_OBSERVER_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_EVENT_ENGINE_EVENT_OBSERVER_H_
+#include "vr_cooperation/vr_module_event.h"
 
-#include <string>
-#include "vr_cooperation/event_engine/event.h"
+namespace vr_cooperation {
 
-namespace event_engine {
-
-template<typename EventMessage, typename EventID>
-class EventObserver {
- public:
-  // Typedef for possible Observer ID's from mobile_apis functionID enum
-  typedef int64_t ObserverID;
-
-  /*
-   * @brief Constructor
-   *
-   */
-  EventObserver();
-
-  /*
-   * @brief Destructor
-   */
-  virtual ~EventObserver();
-
-  /**
-   * @brief Retrieves observer unique id
-   *
-   * @return Unique Observer id
-   */
-  const ObserverID& id()  const {
-    return id_;
-  }
-
-  /**
-   * @brief Interface method that is called whenever new event received
-   *
-   * @param event The received event
-   */
-  virtual void on_event(const Event<EventMessage, EventID>& event) = 0;
-
- private:
-  ObserverID id_;
-
-  DISALLOW_COPY_AND_ASSIGN(EventObserver);
-};
-
-template<typename EventMessage, typename EventID>
-EventObserver<EventMessage, EventID>::EventObserver()
-    : id_(0) {
-  // Get unique id based on this
-  id_ = reinterpret_cast<ObserverID>(this);
+VRModuleEvent::VRModuleEvent(const application_manager::MessagePtr& message,
+                             const functional_modules::MobileFunctionID& id)
+    : event_engine::Event<application_manager::MessagePtr,
+        functional_modules::MobileFunctionID>(message, id) {
 }
 
-template<typename EventMessage, typename EventID>
-EventObserver<EventMessage, EventID>::~EventObserver() {
-  // unsubscribe_from_all_events();
+VRModuleEvent::~VRModuleEvent() {
 }
 
-}  // namespace event_engine
+int32_t VRModuleEvent::event_message_function_id() const {
+  return event_message_->function_id();
+}
 
-#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_EVENT_ENGINE_EVENT_OBSERVER_H_
+int32_t VRModuleEvent::event_message_correlation_id() const {
+  return event_message_->correlation_id();
+}
+
+int32_t VRModuleEvent::event_message_type() const {
+  return event_message_->type();
+}
+
+}  // namespace vr_cooperation
