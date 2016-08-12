@@ -61,9 +61,11 @@ const std::string kJsonRpc = "2.0";
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 BaseCommandRequest::BaseCommandRequest(
-  const application_manager::MessagePtr& message)
-  : message_(message) {
-  service_ = VRModule::instance()->service();
+    VRModule* parent,
+    const application_manager::MessagePtr& message)
+    : message_(message),
+      parent_(parent) {
+  service_ = parent_->service();
 }
 
 BaseCommandRequest::~BaseCommandRequest() {
@@ -256,7 +258,7 @@ void BaseCommandRequest::SendResponse(bool success,
   LOG4CXX_AUTO_TRACE(logger_);
   PrepareResponseMessageForHMI(success, result_code, info, message_);
   if (is_mob_response) {
-    VRModule::instance()->SendResponseToHMI(message_);
+    parent_->SendResponseToHMI(message_);
   }
 }
 

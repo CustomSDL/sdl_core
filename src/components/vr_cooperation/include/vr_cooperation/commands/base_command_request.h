@@ -40,6 +40,7 @@
 
 #include "vr_cooperation/commands/command.h"
 #include "vr_cooperation/event_engine/event_observer.h"
+#include "vr_cooperation/vr_module.h"
 #include "json/json.h"
 
 namespace vr_cooperation {
@@ -56,7 +57,9 @@ class BaseCommandRequest : public Command,
    * @brief BaseCommandRequest class constructor
    * @param message Message from mobile
    **/
-  explicit BaseCommandRequest(const application_manager::MessagePtr& message);
+  explicit BaseCommandRequest(
+      VRModule* parent,
+      const application_manager::MessagePtr& message);
 
   /**
    * @brief BaseCommandRequest class destructor
@@ -162,6 +165,8 @@ class BaseCommandRequest : public Command,
 
  private:
   application_manager::ServicePtr service_;
+
+  VRModule* parent_;
 };
 
 }  // namespace commands

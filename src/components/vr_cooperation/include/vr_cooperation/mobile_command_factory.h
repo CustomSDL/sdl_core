@@ -33,9 +33,10 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_MOBILE_COMMAND_FACTORY_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_MOBILE_COMMAND_FACTORY_H_
 
-#include "vr_cooperation/commands/command.h"
 #include "application_manager/message.h"
 #include "utils/macro.h"
+#include "vr_cooperation/commands/command.h"
+#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
@@ -50,6 +51,7 @@ class MobileCommandFactory {
    * @return Pointer to created command object.
    **/
   static commands::Command* CreateCommand(
+      VRModule* parent,
       const application_manager::MessagePtr& msg);
 
  private:
