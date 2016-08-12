@@ -34,6 +34,7 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_UNREGISTER_SERVICE_REQUEST_H_
 
 #include "vr_cooperation/commands/base_command_request.h"
+#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
@@ -46,9 +47,11 @@ class UnregisterServiceRequest : public BaseCommandRequest {
  public:
   /**
    * @brief UnregisterServiceRequest class constructor
+   * @param parent pointer to VRModule
    * @param message Message from mobile
    **/
   explicit UnregisterServiceRequest(
+      VRModule* parent,
       const application_manager::MessagePtr& message);
 
   /**

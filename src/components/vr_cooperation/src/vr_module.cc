@@ -136,7 +136,7 @@ functional_modules::ProcessResult VRModule::HandleMessage(
       break;
     }
     case application_manager::MessageType::kRequest: {
-      commands::Command* command = MobileCommandFactory::CreateCommand(msg);
+      commands::Command* command = MobileCommandFactory::CreateCommand(this, msg);
       if (command) {
         request_controller_.AddRequest(msg->correlation_id(), command);
         command->Run();
@@ -178,7 +178,7 @@ functional_modules::ProcessResult VRModule::HandleHMIMessage(
       break;
     }
     case application_manager::MessageType::kRequest: {
-      commands::Command* command = MobileCommandFactory::CreateCommand(msg);
+      commands::Command* command = MobileCommandFactory::CreateCommand(this, msg);
       if (command) {
         request_controller_.AddRequest(msg->correlation_id(), command);
         command->Run();

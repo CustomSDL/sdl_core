@@ -34,6 +34,7 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
 
 #include "vr_cooperation/commands/base_command_request.h"
+#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
@@ -46,9 +47,12 @@ class ActivateServiceRequest : public BaseCommandRequest {
  public:
   /**
    * @brief ActivateServiceRequest class constructor
+   * @param parent pointer to VRModule
    * @param message Message from mobile
    **/
-  explicit ActivateServiceRequest(const application_manager::MessagePtr& message);
+  explicit ActivateServiceRequest(
+      VRModule* parent,
+      const application_manager::MessagePtr& message);
 
   /**
    * @brief ActivateServiceRequest class destructor

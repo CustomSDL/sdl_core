@@ -41,8 +41,9 @@ namespace commands {
 CREATE_LOGGERPTR_GLOBAL(logger_, "ActivateServiceRequest")
 
 ActivateServiceRequest::ActivateServiceRequest(
-  const application_manager::MessagePtr& message)
-  : BaseCommandRequest(message) {
+      VRModule* parent,
+      const application_manager::MessagePtr& message)
+  : BaseCommandRequest(parent, message) {
 }
 
 ActivateServiceRequest::~ActivateServiceRequest() {
@@ -54,10 +55,9 @@ void ActivateServiceRequest::Execute() {
   Json::Reader reader;
   reader.parse(message_->json_message(), params);
 
-  // TODO (KKarlash) Uncomment after functional modules update by Giang
-  // SendRequest(
-  //    functional_modules::hmi_api::activate_service,
-  //    params, true);
+  SendRequest(
+      functional_modules::hmi_api::activate_service,
+      params, true);
 }
 
 void ActivateServiceRequest::OnEvent(const event_engine::Event<application_manager::MessagePtr,
