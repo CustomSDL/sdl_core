@@ -33,20 +33,20 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_H_
 
-#include <queue>
-#include <string>
 #include "functional_module/generic_module.h"
+#include "utils/macro.h"
 #include "vr_cooperation/request_controller.h"
-#include "utils/singleton.h"
 
 namespace vr_cooperation {
+class VRProxy;
 
 /**
  * @brief VR Module plugin class
  */
-class VRModule : public functional_modules::GenericModule,
-  public utils::Singleton<VRModule> {
+class VRModule : public functional_modules::GenericModule {
  public:
+  VRModule();
+  ~VRModule();
   /**
    * @brief get plugin information
    */
@@ -57,14 +57,14 @@ class VRModule : public functional_modules::GenericModule,
    * @param msg message from mobile
    */
   virtual functional_modules::ProcessResult ProcessMessage(
-    application_manager::MessagePtr msg);
+      application_manager::MessagePtr msg);
 
   /**
    * @brief process message from HMI
    * @param msg message from HMI
    */
   virtual functional_modules::ProcessResult ProcessHMIMessage(
-    application_manager::MessagePtr msg);
+      application_manager::MessagePtr msg);
 
   /**
    * @brief Remove extension created for specified application
@@ -76,8 +76,7 @@ class VRModule : public functional_modules::GenericModule,
    * @brief Check registering app can be handled by plugin
    * @param app Application basis already create by Core
    */
-  bool IsAppForPlugin(
-      application_manager::ApplicationSharedPtr app);
+  bool IsAppForPlugin(application_manager::ApplicationSharedPtr app);
 
   /**
    * @brief Notify about change of HMILevel of plugin's app
@@ -85,7 +84,7 @@ class VRModule : public functional_modules::GenericModule,
    * @param old_level Old HMILevel of app
    */
   void OnAppHMILevelChanged(application_manager::ApplicationSharedPtr app,
-    mobile_apis::HMILevel::eType old_level);
+                            mobile_apis::HMILevel::eType old_level);
 
   /**
    * @brief Handles removing (disconnecting) device
@@ -105,8 +104,9 @@ class VRModule : public functional_modules::GenericModule,
 
   /**
    * @brief send message to mobile
+   * @param msg message to send
    */
-  void SendMessageToMobile();
+  void SendMessageToMobile(application_manager::MessagePtr msg);
 
   /**
    * @brief receive message from mobile
@@ -121,26 +121,46 @@ class VRModule : public functional_modules::GenericModule,
 
  private:
   /**
-   * @brief Class constructor
-   */
-  VRModule();
-
-  /**
-   * @brief Class destructor
-   */
-  ~VRModule();
-
-  /**
-   * @brief subcribe to RPC message
+   * @brief Subscribes plugin to mobie rpc messages
    */
   void SubcribeToRPCMessage();
+
+  /**
+   * @brief handle mobile message
+   * @param msg mobile message
+   */
+  functional_modules::ProcessResult HandleMessage(
+      application_manager::MessagePtr msg);
+
+  /**
+   * @brief handle HMI message
+   * @param msg HMI message
+   */
+  functional_modules::ProcessResult HandleHMIMessage(
+      application_manager::MessagePtr msg);
+
+  /**
+   * @brief Set mobile message type
+   * @param msg mobile message
+   */
+  bool SetMessageType(application_manager::MessagePtr& msg) const;
+
+  /**
+   * @brief Set HMI message type
+   * @param msg hmi message
+   */
+  bool SetHMIMessageType(application_manager::MessagePtr& msg) const;
 
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;
   request_controller::RequestController request_controller_;
 
-  FRIEND_BASE_SINGLETON_CLASS(VRModule);
+  VRProxy* proxy_;
+
+  DISALLOW_COPY_AND_ASSIGN(VRModule);
 };
+
+EXPORT_FUNCTION(VRModule)
 
 }  // namespace vr_cooperation
 
