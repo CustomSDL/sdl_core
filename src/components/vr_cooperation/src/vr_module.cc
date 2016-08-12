@@ -35,6 +35,7 @@
 #include "json/json.h"
 #include "vr_cooperation/mobile_command_factory.h"
 #include "vr_cooperation/message_helper.h"
+#include "vr_cooperation/commands/on_service_deactivated_notification.h"
 #include "vr_cooperation/vr_module_event.h"
 #include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
@@ -165,10 +166,10 @@ functional_modules::ProcessResult VRModule::HandleHMIMessage(
     case application_manager::MessageType::kNotification: {
       if (functional_modules::hmi_api::on_service_deactivated
           == msg->function_name()) {
+          commands::OnServiceDeactivatedNotification notification(this);
+          notification.Execute(msg);
          // TODO(giang): Un-comment when OnDefaultServiceChosen
          // notification was implemented
-         // commands::OnServiceDeactivatedNotification notification(this);
-         // notification.Execute(msg);
          // } else if (functional_modules::hmi_api::on_default_service_chosen
          // == function_name) {
          //  commands::OnDefaultServiceChosen notification(msg);
