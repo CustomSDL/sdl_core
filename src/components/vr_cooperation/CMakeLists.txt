@@ -44,6 +44,7 @@ set (SOURCES
     ./src/activate_service_request.cc
     ./src/vr_module_event.cc
     ./src/message_helper.cc
+    ./src/on_service_deactivated_notification.cc
 )
 
 set (LIBRARIES
