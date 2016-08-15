@@ -33,7 +33,6 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_
 
-<<<<<<< 6cbd8167b6409f985ab2193e9e9e8c95cec29b52
 #include "application_manager/message.h"
 #include "application_manager/service.h"
 
@@ -43,11 +42,6 @@
 #include "vr_cooperation/event_engine/event_observer.h"
 #include "vr_cooperation/vr_module.h"
 #include "json/json.h"
-=======
-#include <string>
-#include "application_manager/message.h"
-#include "vr_cooperation/commands/command.h"
->>>>>>> REVSDL-2384 RegisterService request implementation
 
 namespace vr_cooperation {
 
@@ -59,7 +53,12 @@ namespace commands {
  * @brief Base command class for requests
  */
 class BaseCommandRequest : public Command,
+<<<<<<< 069d222a1de8630fd1a3b656d743032923bc0e01
   public event_engine::EventObserver<application_manager::MessagePtr, std::string> {
+=======
+  public event_engine::EventObserver<
+  application_manager::MessagePtr, const std::string&> {
+>>>>>>> REVSDL-2384 RegisterService request implementation
  public:
   /**
    * @brief BaseCommandRequest class constructor

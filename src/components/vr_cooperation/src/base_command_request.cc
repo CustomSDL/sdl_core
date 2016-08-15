@@ -283,7 +283,7 @@ void BaseCommandRequest::SendNotification(const char* function_id,
   Json::FastWriter writer;
 
   application_manager::MessagePtr message_to_send(
-      new application_manager::Message(
+      new (std::nothrow) application_manager::Message(
           protocol_handler::MessagePriority::kDefault));
   message_to_send->set_protocol_version(
       application_manager::ProtocolVersion::kHMI);

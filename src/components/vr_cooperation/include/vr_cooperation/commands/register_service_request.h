@@ -69,7 +69,7 @@ class RegisterServiceRequest : public BaseCommandRequest {
    * @param event The received event
    */
   virtual void OnEvent(const event_engine::Event<
-                       application_manager::MessagePtr, std::string>& event);
+                       application_manager::MessagePtr, const std::string&>& event);
 };
 
 }  // namespace commands
