@@ -57,9 +57,8 @@ class BaseCommandRequest : public Command,
    * @brief BaseCommandRequest class constructor
    * @param message Message from mobile
    **/
-  explicit BaseCommandRequest(
-      VRModule* parent,
-      const application_manager::MessagePtr& message);
+  explicit BaseCommandRequest(VRModule* parent,
+                              const application_manager::MessagePtr& message);
 
   /**
    * @brief BaseCommandRequest class destructor
@@ -83,16 +82,20 @@ class BaseCommandRequest : public Command,
 
   /**
    * @brief This method will be called when receive an event
+   *
+   * @param event The received event
    */
-  virtual void on_event();
+  virtual void on_event(const event_engine::Event<application_manager::MessagePtr,
+      std::string>& event);
 
  protected:
   /**
    * @brief Converts Mobile string result code to HMI code
-   * @param hmi_code HMI result code
+   * @param mobile_code Mobile result code
    * @return eType value with HMI result code
    */
-  const hmi_apis::Common_Result::eType GetHMIResultCode(std::string& mob_code) const;
+  const hmi_apis::Common_Result::eType GetHMIResultCode(
+      const std::string& mobile_code) const;
 
   /**
    * @brief Parse result code from response
@@ -103,8 +106,8 @@ class BaseCommandRequest : public Command,
    * @return true if it is success response? otherwise false
    */
   bool ParseMobileResultCode(const Json::Value& value,
-                       int&  result_code,
-                       std::string& info);
+                             int&  result_code,
+                             std::string& info);
 
   /**
    * @brief Prepares request message for Mobile
@@ -124,9 +127,9 @@ class BaseCommandRequest : public Command,
    * @param message that will be sent to HMI
    */
   void PrepareResponseMessageForHMI(bool success,
-      const int& result_code,
-      const std::string& info,
-      application_manager::MessagePtr& message);
+                                    const int& result_code,
+                                    const std::string& info,
+                                    application_manager::MessagePtr& message);
 
   /**
    * @brief send request to HMI or Mobile
@@ -135,8 +138,8 @@ class BaseCommandRequest : public Command,
    * @param is_hmi_request send request to hmi or mobile
    */
   void SendRequest(const char* function_id,
-      const Json::Value& message_params,
-      bool is_hmi_request = false);
+                   const Json::Value& message_params,
+                   bool is_hmi_request = false);
 
   /**
    * @brief Send response to HMI or Mobile
@@ -146,9 +149,9 @@ class BaseCommandRequest : public Command,
    * @param is_mob_response true response for mobile; false - for HMI
    */
   void SendResponse(bool success,
-      const int& result_code,
-      const std::string& info,
-      bool is_mob_response = false);
+                    const int& result_code,
+                    const std::string& info,
+                    bool is_mob_response = false);
 
   /**
    * @brief Interface method that is called whenever new event received
