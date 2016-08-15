@@ -84,84 +84,86 @@ void BaseCommandRequest::Run() {
   Execute();  // run child's logic
 }
 
-void BaseCommandRequest::on_event() {
+void BaseCommandRequest::on_event(const event_engine::Event<application_manager::MessagePtr,
+    std::string>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
+  OnEvent(event);  // run child's logic
 }
 
 const hmi_apis::Common_Result::eType BaseCommandRequest::GetHMIResultCode(
-  std::string& mob_code) const {
+    const std::string& mobile_code) const {
   hmi_apis::Common_Result::eType hmiResCode = hmi_apis::Common_Result::GENERIC_ERROR;
 
-  if (result_codes::kSuccess == mob_code) {
+  if (result_codes::kSuccess == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::SUCCESS;
   }
-  else if (result_codes::kUnsupportedRequest == mob_code) {
+  else if (result_codes::kUnsupportedRequest == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::UNSUPPORTED_REQUEST;
   }
-  else if (result_codes::kUnsupportedResource == mob_code) {
+  else if (result_codes::kUnsupportedResource == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::UNSUPPORTED_RESOURCE;
   }
-  else if (result_codes::kDisallowed == mob_code) {
+  else if (result_codes::kDisallowed == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::DISALLOWED;
   }
-  else if (result_codes::kRejected == mob_code) {
+  else if (result_codes::kRejected == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::REJECTED;
   }
-  else if (result_codes::kAborted == mob_code) {
+  else if (result_codes::kAborted == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::ABORTED;
   }
-  else if (result_codes::kIgnored == mob_code) {
+  else if (result_codes::kIgnored == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::IGNORED;
   }
-  else if (result_codes::kRetry == mob_code) {
+  else if (result_codes::kRetry == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::RETRY;
   }
-  else if (result_codes::kInUse == mob_code) {
+  else if (result_codes::kInUse == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::IN_USE;
   }
-  else if (result_codes::kVehicleDataNotAvailable == mob_code) {
+  else if (result_codes::kVehicleDataNotAvailable == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::DATA_NOT_AVAILABLE;
   }
-  else if (result_codes::kTimedOut == mob_code) {
+  else if (result_codes::kTimedOut == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::TIMED_OUT;
   }
-  else if (result_codes::kInvalidData == mob_code) {
+  else if (result_codes::kInvalidData == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::INVALID_DATA;
   }
-  else if (result_codes::kCharLimitExceeded == mob_code) {
+  else if (result_codes::kCharLimitExceeded == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::CHAR_LIMIT_EXCEEDED;
   }
-  else if (result_codes::kInvalidId == mob_code) {
+  else if (result_codes::kInvalidId == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::INVALID_ID;
   }
-  else if (result_codes::kDuplicateName == mob_code) {
+  else if (result_codes::kDuplicateName == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::DUPLICATE_NAME;
   }
-  else if (result_codes::kApplicationNotRegistered == mob_code) {
+  else if (result_codes::kApplicationNotRegistered == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::APPLICATION_NOT_REGISTERED;
   }
-  else if (result_codes::kWrongLanguage == mob_code) {
+  else if (result_codes::kWrongLanguage == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::WRONG_LANGUAGE;
   }
-  else if (result_codes::kOutOfMemory == mob_code) {
+  else if (result_codes::kOutOfMemory == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::OUT_OF_MEMORY;
   }
-  else if (result_codes::kTooManyPendingRequests == mob_code) {
+  else if (result_codes::kTooManyPendingRequests == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::TOO_MANY_PENDING_REQUESTS;
   }
-  else if (result_codes::kApplicationNotRegistered == mob_code) {
+  else if (result_codes::kApplicationNotRegistered == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::NO_APPS_REGISTERED;
   }
-  else if (result_codes::kApplicationNotRegistered == mob_code) {
+  else if (result_codes::kApplicationNotRegistered == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::NO_DEVICES_CONNECTED;
   }
-  else if (result_codes::kWarnings == mob_code) {
+  else if (result_codes::kWarnings == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::WARNINGS;
   }
-  else if (result_codes::kGenericError == mob_code) {
+  else if (result_codes::kGenericError == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::GENERIC_ERROR;
   }
-  else if (result_codes::kUserDisallowed == mob_code) {
+  else if (result_codes::kUserDisallowed == mobile_code) {
     hmiResCode = hmi_apis::Common_Result::USER_DISALLOWED;
   }
   else {
