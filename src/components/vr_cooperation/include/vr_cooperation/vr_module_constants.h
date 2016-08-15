@@ -35,6 +35,32 @@
 
 namespace vr_cooperation {
 
+namespace result_codes {
+const char kSuccess[] = "SUCCESS";
+const char kUnsupportedRequest[] = "UNSUPPORTED_REQUEST";
+const char kUnsupportedResource[] = "UNSUPPORTED_RESOURCE";
+const char kDisallowed[] = "DISALLOWED";
+const char kRejected[] = "REJECTED";
+const char kAborted[] = "ABORTED";
+const char kIgnored[] = "IGNORED";
+const char kRetry[] = "RETRY";
+const char kInUse[] = "IN_USE";
+const char kVehicleDataNotAvailable[] = "VEHICLE_DATA_NOT_AVAILABLE";
+const char kTimedOut[] = "TIMED_OUT";
+const char kInvalidData[] = "INVALID_DATA";
+const char kCharLimitExceeded[] = "CHAR_LIMIT_EXCEEDED";
+const char kInvalidId[] = "INVALID_ID";
+const char kDuplicateName[] = "DUPLICATE_NAME";
+const char kApplicationNotRegistered[] = "APPLICATION_NOT_REGISTERED";
+const char kOutOfMemory[] = "OUT_OF_MEMORY";
+const char kTooManyPendingRequests[] = "TOO_MANY_PENDING_REQUESTS";
+const char kWarnings[] = "WARNINGS";
+const char kWrongLanguage[] = "WRONG_LANGUAGE";
+const char kGenericError[] = "GENERIC_ERROR";
+const char kUserDisallowed[] = "USER_DISALLOWED";
+const char kReadOnly[] = "READ_ONLY";
+}  // namespace result_codes
+
 namespace json_keys {
 const char kParams[] = "params";
 const char kSuccess[] = "success";
@@ -53,4 +79,4 @@ const char kCode[] = "code";
 
 }  // namespace vr_cooperation
 
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_CONSTANTS_H_
+#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_CONSTANTS_H_

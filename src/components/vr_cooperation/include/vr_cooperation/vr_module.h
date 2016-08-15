@@ -94,8 +94,9 @@ class VRModule : public functional_modules::GenericModule {
 
   /**
    * @brief send message to HMI
+   * @param msg message that will be sent to HMI
    */
-  void SendMessageToHMI();
+  void SendMessageToHMI(application_manager::MessagePtr msg);
 
   /**
    * @brief receive message from HMI
@@ -112,6 +113,12 @@ class VRModule : public functional_modules::GenericModule {
    * @brief receive message from mobile
    */
   void ReceiveMessageFromMobile();
+
+  /**
+   * @brief Sends response to HMI
+   * @param msg response mesage
+   */
+  void SendResponseToHMI(application_manager::MessagePtr msg);
 
  protected:
   /**

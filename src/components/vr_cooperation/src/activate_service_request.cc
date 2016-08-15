@@ -30,6 +30,7 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "functional_module/function_ids.h"
 #include "vr_cooperation/commands/activate_service_request.h"
 #include "utils/logger.h"
 
@@ -40,8 +41,9 @@ namespace commands {
 CREATE_LOGGERPTR_GLOBAL(logger_, "ActivateServiceRequest")
 
 ActivateServiceRequest::ActivateServiceRequest(
-  const application_manager::MessagePtr& message)
-  : BaseCommandRequest(message) {
+      VRModule* parent,
+      const application_manager::MessagePtr& message)
+  : BaseCommandRequest(parent, message) {
 }
 
 ActivateServiceRequest::~ActivateServiceRequest() {
@@ -49,10 +51,27 @@ ActivateServiceRequest::~ActivateServiceRequest() {
 
 void ActivateServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
+  Json::Value params;
+  Json::Reader reader;
+  reader.parse(message_->json_message(), params);
+
+  SendRequest(
+      functional_modules::hmi_api::activate_service,
+      params, true);
 }
 
-void ActivateServiceRequest::OnEvent() {
+void ActivateServiceRequest::OnEvent(const event_engine::Event<application_manager::MessagePtr,
+    std::string>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
+  Json::Value value;
+  Json::Reader reader;
+  reader.parse(event.event_message()->json_message(), value);
+
+  int result_code;
+  std::string info;
+  bool success = ParseMobileResultCode(value, result_code, info);
+
+  SendResponse(success, result_code, info, true);
 }
 
 }  // namespace commands

@@ -40,8 +40,9 @@ namespace commands {
 CREATE_LOGGERPTR_GLOBAL(logger_, "RegisterServiceRequest")
 
 RegisterServiceRequest::RegisterServiceRequest(
-  const application_manager::MessagePtr& message)
-  : BaseCommandRequest(message) {
+      VRModule* parent,
+      const application_manager::MessagePtr& message)
+  : BaseCommandRequest(parent, message) {
 }
 
 RegisterServiceRequest::~RegisterServiceRequest() {

@@ -31,10 +31,12 @@
  */
 
 #include "vr_cooperation/mobile_command_factory.h"
+#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
 commands::Command* MobileCommandFactory::CreateCommand(
+    VRModule* parent,
     const application_manager::MessagePtr& msg) {
 
   switch (msg->function_id()) {
