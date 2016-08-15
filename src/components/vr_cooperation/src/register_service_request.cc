@@ -51,11 +51,20 @@ RegisterServiceRequest::~RegisterServiceRequest() {
 
 void RegisterServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-  SendNotification(functional_modules::hmi_api::on_register_service,
-                   MessageHelper::StringToValue(message_->json_message()));
   std::string result_code;
-  std::string info;
   bool success = true;
+// TODO(Thinh) This will be uncomment after support service implementation
+//  if (vr_module_->IsVRSupported()) {
+//    SendNotification(functional_modules::hmi_api::on_register_service,
+//                     MessageHelper::StringToValue(message_->json_message()));
+//    success = true;
+//    result_code = result_codes::kSuccess;
+//  } else {
+//    success = false;
+//    result_code = result_codes::kUnsupportedResource;
+//  }
+
+  std::string info;
   SendResponse(success, result_code.c_str(), info, true);
 }
 

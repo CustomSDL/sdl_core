@@ -267,6 +267,7 @@ void BaseCommandRequest::SendResponse(bool success,
 
 void BaseCommandRequest::SendNotification(const char* function_id,
                                           const Json::Value& message_params) {
+  LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg;
 
   msg[kId] = vr_module_->service()->GetNextCorrelationID();

@@ -33,6 +33,7 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_
 
+<<<<<<< 6cbd8167b6409f985ab2193e9e9e8c95cec29b52
 #include "application_manager/message.h"
 #include "application_manager/service.h"
 
@@ -42,6 +43,11 @@
 #include "vr_cooperation/event_engine/event_observer.h"
 #include "vr_cooperation/vr_module.h"
 #include "json/json.h"
+=======
+#include <string>
+#include "application_manager/message.h"
+#include "vr_cooperation/commands/command.h"
+>>>>>>> REVSDL-2384 RegisterService request implementation
 
 namespace vr_cooperation {
 
@@ -157,7 +163,7 @@ class BaseCommandRequest : public Command,
                     bool is_mob_response = false);
 
   /**
-   * @brief send request to HMI
+   * @brief send notification to HMI
    * @param function_id request ID
    * @param msg_params json with message params
    */

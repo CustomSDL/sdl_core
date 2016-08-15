@@ -122,6 +122,7 @@ class VRModule : public functional_modules::GenericModule {
 
   /**
    * @brief Send notification to HMI
+   * @param msg notification to HMI message
    */
   void SendNotificationToHMI(application_manager::MessagePtr msg);
 

@@ -66,9 +66,10 @@ class RegisterServiceRequest : public BaseCommandRequest {
 
   /**
    * @brief This method will be called whenever new event received
+   * @param event The received event
    */
-  virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
-                       std::string>& event);
+  virtual void OnEvent(const event_engine::Event<
+                       application_manager::MessagePtr, std::string>& event);
 };
 
 }  // namespace commands
