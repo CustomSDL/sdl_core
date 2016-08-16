@@ -312,6 +312,7 @@ void VRModule::ReceiveMessageFromHMI() {
 void VRModule::SendMessageToMobile(application_manager::MessagePtr msg) {
   LOG4CXX_DEBUG(logger_, "Message to mobile: " << msg->json_message());
   service()->SendMessageToMobile(msg);
+  request_controller_.DeleteRequest(msg->correlation_id());
 }
 void VRModule::ReceiveMessageFromMobile() {
   LOG4CXX_AUTO_TRACE(logger_);
@@ -321,6 +322,12 @@ void VRModule::ReceiveMessageFromMobile() {
 void VRModule::SendNotificationToHMI(application_manager::MessagePtr msg) {
   LOG4CXX_DEBUG(logger_, "Notification to HMI: " << msg->json_message());
   service()->SendMessageToHMI(msg);
+}
+
+bool VRModule::IsVRServiceSupported() {
+  // TODO(Thinh) This function will be implemented after
+  // support service implementation
+  return true;
 }
 
 }  //  namespace vr_cooperation

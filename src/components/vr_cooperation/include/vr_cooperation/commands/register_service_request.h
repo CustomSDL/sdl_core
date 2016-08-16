@@ -33,6 +33,7 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REGISTER_SERVICE_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REGISTER_SERVICE_REQUEST_H_
 
+#include <string>
 #include "vr_cooperation/commands/base_command_request.h"
 #include "vr_cooperation/vr_module.h"
 
@@ -69,7 +70,7 @@ class RegisterServiceRequest : public BaseCommandRequest {
    * @param event The received event
    */
   virtual void OnEvent(const event_engine::Event<
-                       application_manager::MessagePtr, const std::string&>& event);
+                       application_manager::MessagePtr, std::string>& event);
 };
 
 }  // namespace commands

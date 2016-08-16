@@ -53,12 +53,7 @@ namespace commands {
  * @brief Base command class for requests
  */
 class BaseCommandRequest : public Command,
-<<<<<<< 069d222a1de8630fd1a3b656d743032923bc0e01
   public event_engine::EventObserver<application_manager::MessagePtr, std::string> {
-=======
-  public event_engine::EventObserver<
-  application_manager::MessagePtr, const std::string&> {
->>>>>>> REVSDL-2384 RegisterService request implementation
  public:
   /**
    * @brief BaseCommandRequest class constructor

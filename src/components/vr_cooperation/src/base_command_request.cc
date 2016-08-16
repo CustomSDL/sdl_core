@@ -207,6 +207,7 @@ void BaseCommandRequest::PrepareRequestMessageForMobile(const char* function_id,
     msg[kParams] = message_params;
   }
 
+
   message = new application_manager::Message(
       protocol_handler::MessagePriority::kDefault);
   message->set_protocol_version(application_manager::ProtocolVersion::kV2);
@@ -259,9 +260,9 @@ void BaseCommandRequest::SendResponse(bool success,
   LOG4CXX_AUTO_TRACE(logger_);
   PrepareResponseMessageForHMI(success, result_code, info, message_);
   if (is_mob_response) {
-    parent_->SendResponseToHMI(message_);
+    parent_->SendMessageToHMI(message_);
   } else {
-    parent_->SendResponseToMobile(message_);
+    parent_->SendMessageToMobile(message_);
   }
 }
 
@@ -270,14 +271,17 @@ void BaseCommandRequest::SendNotification(const char* function_id,
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg;
 
-  msg[kId] = vr_module_->service()->GetNextCorrelationID();
+  msg[kId] = service_->GetNextCorrelationID();
 
-  msg[kJsonrpc] = "2.0";
   msg[kMethod] = function_id;
   if (!message_params.isNull()) {
     msg[kParams] = message_params;
   }
 
+  msg[kParams][json_keys::kService] = message_params[json_keys::kType];
+  // TODO(Thinh) This value will be checked after default
+  // service chosen implementation
+  msg[kParams][json_keys::kDefault] = true;
   msg[kParams][json_keys::kAppId] = app_->hmi_app_id();
 
   Json::FastWriter writer;
@@ -290,7 +294,8 @@ void BaseCommandRequest::SendNotification(const char* function_id,
   message_to_send->set_correlation_id(msg[kId].asInt());
   std::string json_msg = writer.write(msg);
   message_to_send->set_json_message(json_msg);
-  message_to_send->set_message_type(application_manager::MessageType::kNotification);
+  message_to_send->set_message_type(
+      application_manager::MessageType::kNotification);
 
   LOG4CXX_DEBUG(logger_, "Notify to HMI: " << json_msg);
   parent_->SendNotificationToHMI(message_to_send);
