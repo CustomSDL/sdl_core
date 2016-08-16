@@ -34,6 +34,7 @@
 
 #include "json/json.h"
 #include "utils/logger.h"
+#include "vr_cooperation/vr_module.h"
 #include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
@@ -56,8 +57,10 @@ void OnDefaultServiceChosen::Execute(
   if (value.isMember(json_keys::kParams)
       && value[json_keys::kParams].isMember(json_keys::kAppId)) {
     uint32_t app_id = value[json_keys::kParams][json_keys::kAppId].asUInt();
-    LOG4CXX_DEBUG(logger_, "hmi_app_id: " << app_id);
+    LOG4CXX_DEBUG(logger_, "Default app id for VR service: " << app_id);
     parent_->set_stored_app_id(app_id);
+  } else {
+    LOG4CXX_ERROR(logger_, "No app id found in HMI message");
   }
 }
 

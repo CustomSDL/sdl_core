@@ -34,9 +34,10 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_DEFAULT_SERVICE_CHOSEN_H_
 
 #include "utils/macro.h"
-#include "vr_cooperation/vr_module.h"
+#include "application_manager/message.h"
 
 namespace vr_cooperation {
+class VRModule;
 
 namespace commands {
 
