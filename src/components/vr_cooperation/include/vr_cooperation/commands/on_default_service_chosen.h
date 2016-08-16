@@ -33,8 +33,8 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_DEFAULT_SERVICE_CHOSEN_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_DEFAULT_SERVICE_CHOSEN_H_
 
-#include "utils/macro.h"
 #include "application_manager/message.h"
+#include "utils/macro.h"
 
 namespace vr_cooperation {
 class VRModule;

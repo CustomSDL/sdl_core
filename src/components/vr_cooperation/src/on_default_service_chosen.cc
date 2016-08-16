@@ -60,7 +60,8 @@ void OnDefaultServiceChosen::Execute(
     LOG4CXX_DEBUG(logger_, "Default app id for VR service: " << app_id);
     parent_->set_stored_app_id(app_id);
   } else {
-    LOG4CXX_ERROR(logger_, "No app id found in HMI message");
+    LOG4CXX_DEBUG(logger_, "No app id defined");
+    parent_->set_stored_app_id(0);
   }
 }
 
