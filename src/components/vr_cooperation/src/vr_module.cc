@@ -319,11 +319,6 @@ void VRModule::ReceiveMessageFromMobile() {
   // TODO(Giang):
 }
 
-void VRModule::SendNotificationToHMI(application_manager::MessagePtr msg) {
-  LOG4CXX_DEBUG(logger_, "Notification to HMI: " << msg->json_message());
-  service()->SendMessageToHMI(msg);
-}
-
 bool VRModule::IsVRServiceSupported() {
   // TODO(Thinh) This function will be implemented after
   // support service implementation

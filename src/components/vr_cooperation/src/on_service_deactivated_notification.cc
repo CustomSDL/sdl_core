@@ -47,7 +47,7 @@ OnServiceDeactivatedNotification::OnServiceDeactivatedNotification(
 void OnServiceDeactivatedNotification::Execute(
     const application_manager::MessagePtr& message) {
   LOG4CXX_AUTO_TRACE(logger_);
-  parent_->SendMessageToMobile(message);
+  parent_->service()->SendMessageToMobile(message);
 }
 
 }  // namespace commands

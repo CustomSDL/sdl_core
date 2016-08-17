@@ -115,12 +115,6 @@ class VRModule : public functional_modules::GenericModule {
   void ReceiveMessageFromMobile();
 
   /**
-   * @brief Send notification to HMI
-   * @param msg notification to HMI message
-   */
-  void SendNotificationToHMI(application_manager::MessagePtr msg);
-
-  /**
    * @brief check if VR Service support or not
    */
   bool IsVRServiceSupported();

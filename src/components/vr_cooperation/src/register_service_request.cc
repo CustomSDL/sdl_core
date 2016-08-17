@@ -61,7 +61,6 @@ void RegisterServiceRequest::Execute() {
   bool success = true;
   std::string info;
   if (parent_->IsVRServiceSupported()) {
-    SendNotification(functional_modules::hmi_api::on_register_service, params);
     success = true;
     result_code = GetHMIResultCode(result_codes::kSuccess);
   } else {

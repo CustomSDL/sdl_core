@@ -157,14 +157,6 @@ class BaseCommandRequest : public Command,
                     bool is_mob_response = false);
 
   /**
-   * @brief send notification to HMI
-   * @param function_id request ID
-   * @param msg_params json with message params
-   */
-  void SendNotification(const char* function_id,
-                        const Json::Value& message_params);
-
-  /**
    * @brief Interface method that is called whenever new event received
    */
   virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
@@ -180,7 +172,6 @@ class BaseCommandRequest : public Command,
 
  private:
   application_manager::ServicePtr service_;
-  application_manager::ApplicationSharedPtr app_;
 };
 
 }  // namespace commands

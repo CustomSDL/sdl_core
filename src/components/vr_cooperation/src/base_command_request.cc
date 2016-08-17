@@ -266,41 +266,6 @@ void BaseCommandRequest::SendResponse(bool success,
   }
 }
 
-void BaseCommandRequest::SendNotification(const char* function_id,
-                                          const Json::Value& message_params) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  Json::Value msg;
-
-  msg[kId] = service_->GetNextCorrelationID();
-
-  msg[kMethod] = function_id;
-  if (!message_params.isNull()) {
-    msg[kParams] = message_params;
-  }
-
-  msg[kParams][json_keys::kService] = message_params[json_keys::kType];
-  // TODO(Thinh) This value will be checked after default
-  // service chosen implementation
-  msg[kParams][json_keys::kDefault] = true;
-  msg[kParams][json_keys::kAppId] = app_->hmi_app_id();
-
-  Json::FastWriter writer;
-
-  application_manager::MessagePtr message_to_send(
-      new (std::nothrow) application_manager::Message(
-          protocol_handler::MessagePriority::kDefault));
-  message_to_send->set_protocol_version(
-      application_manager::ProtocolVersion::kHMI);
-  message_to_send->set_correlation_id(msg[kId].asInt());
-  std::string json_msg = writer.write(msg);
-  message_to_send->set_json_message(json_msg);
-  message_to_send->set_message_type(
-      application_manager::MessageType::kNotification);
-
-  LOG4CXX_DEBUG(logger_, "Notify to HMI: " << json_msg);
-  parent_->SendNotificationToHMI(message_to_send);
-}
-
 }  // namespace commands
 
 }  // namespace vr_cooperation
