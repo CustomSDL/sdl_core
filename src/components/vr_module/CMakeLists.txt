@@ -46,6 +46,7 @@ set (LIBRARIES
     FunctionalModule
     ConfigProfile
     Utils
+    Net
     protobuf
     MobileProto
     HmiProto
