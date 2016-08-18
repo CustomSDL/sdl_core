@@ -71,7 +71,6 @@ BaseCommandRequest::BaseCommandRequest(
 BaseCommandRequest::~BaseCommandRequest() {
 }
 
-
 void BaseCommandRequest::OnTimeout() {
 }
 
@@ -208,6 +207,7 @@ void BaseCommandRequest::PrepareRequestMessageForMobile(const char* function_id,
     msg[kParams] = message_params;
   }
 
+
   message = new application_manager::Message(
       protocol_handler::MessagePriority::kDefault);
   message->set_protocol_version(application_manager::ProtocolVersion::kV2);
@@ -260,7 +260,9 @@ void BaseCommandRequest::SendResponse(bool success,
   LOG4CXX_AUTO_TRACE(logger_);
   PrepareResponseMessageForHMI(success, result_code, info, message_);
   if (is_mob_response) {
-    parent_->SendResponseToHMI(message_);
+    parent_->SendMessageToHMI(message_);
+  } else {
+    parent_->SendMessageToMobile(message_);
   }
 }
 

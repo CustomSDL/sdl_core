@@ -45,6 +45,8 @@
 
 namespace vr_cooperation {
 
+class VRModule;
+
 namespace commands {
 
 /**
@@ -55,6 +57,7 @@ class BaseCommandRequest : public Command,
  public:
   /**
    * @brief BaseCommandRequest class constructor
+   * @param vr_module parent VRModule
    * @param message Message from mobile
    **/
   explicit BaseCommandRequest(VRModule* parent,
@@ -165,11 +168,10 @@ class BaseCommandRequest : public Command,
   virtual void Execute() = 0;
 
   application_manager::MessagePtr message_;
+  VRModule* parent_;
 
  private:
   application_manager::ServicePtr service_;
-
-  VRModule* parent_;
 };
 
 }  // namespace commands

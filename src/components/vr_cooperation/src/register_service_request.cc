@@ -30,7 +30,9 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "functional_module/function_ids.h"
 #include "vr_cooperation/commands/register_service_request.h"
+#include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
 
 namespace vr_cooperation {
@@ -50,9 +52,28 @@ RegisterServiceRequest::~RegisterServiceRequest() {
 
 void RegisterServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
+
+  Json::Value params;
+  Json::Reader reader;
+  reader.parse(message_->json_message(), params);
+
+  int result_code;
+  bool success = true;
+  std::string info;
+  if (parent_->IsVRServiceSupported()) {
+    success = true;
+    result_code = GetHMIResultCode(result_codes::kSuccess);
+  } else {
+    success = false;
+    result_code = GetHMIResultCode(result_codes::kUnsupportedResource);
+  }
+
+  SendResponse(success, result_code, info, true);
 }
 
-void RegisterServiceRequest::OnEvent() {
+void RegisterServiceRequest::OnEvent(
+    const event_engine::Event<application_manager::MessagePtr,
+    std::string>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
