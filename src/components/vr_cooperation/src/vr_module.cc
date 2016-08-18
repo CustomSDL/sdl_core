@@ -36,6 +36,7 @@
 #include "vr_cooperation/mobile_command_factory.h"
 #include "vr_cooperation/message_helper.h"
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
+#include "vr_cooperation/commands/on_default_service_chosen.h"
 #include "vr_cooperation/vr_module_event.h"
 #include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
@@ -58,7 +59,8 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "VRModule")
 
 VRModule::VRModule()
     : GenericModule(kVRModuleID),
-      proxy_(NULL) {
+      proxy_(NULL),
+      stored_app_id_(0) {
   plugin_info_.name = "VRModule";
   plugin_info_.version = 1;
   SubcribeToRPCMessage();
@@ -166,15 +168,12 @@ functional_modules::ProcessResult VRModule::HandleHMIMessage(
     case application_manager::MessageType::kNotification: {
       if (functional_modules::hmi_api::on_service_deactivated
           == msg->function_name()) {
-          commands::OnServiceDeactivatedNotification notification(this);
-          notification.Execute(msg);
-         // TODO(giang): Un-comment when OnDefaultServiceChosen
-         // notification was implemented
-         // } else if (functional_modules::hmi_api::on_default_service_chosen
-         // == function_name) {
-         //  commands::OnDefaultServiceChosen notification(msg);
-         //  notification.Execute();
-         //  }
+        commands::OnServiceDeactivatedNotification notification(this);
+        notification.Execute(msg);
+      } else if (functional_modules::hmi_api::on_default_service_chosen
+          == msg->function_name()) {
+        commands::OnDefaultServiceChosen notification(this);
+        notification.Execute(msg);
       }
       break;
     }

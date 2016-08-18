@@ -120,6 +120,20 @@ class VRModule : public functional_modules::GenericModule {
    */
   void SendResponseToHMI(application_manager::MessagePtr msg);
 
+  /**
+   * @brief stored_app_id getter for stored app ID
+   * @return id of default application for VR service
+   */
+  const uint32_t stored_app_id() const { return stored_app_id_; }
+
+  /**
+   * @brief set_stored_app_id setter for stored app Id
+   * @param app_id application id
+   */
+  void set_stored_app_id(const uint32_t app_id) {
+    stored_app_id_ = app_id;
+  }
+
  protected:
   /**
    * @brief Remove extension for all applications
@@ -163,6 +177,7 @@ class VRModule : public functional_modules::GenericModule {
   request_controller::RequestController request_controller_;
 
   VRProxy* proxy_;
+  uint32_t stored_app_id_;
 
   DISALLOW_COPY_AND_ASSIGN(VRModule);
 };
