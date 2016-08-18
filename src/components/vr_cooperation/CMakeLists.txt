@@ -58,7 +58,7 @@ set (LIBRARIES
     HMIProto
 )
 
-generate_proto(${CMAKE_CURRENT_SOURCE_DIR}/interface/hmi.proto HmiProto)
+generate_proto(${CMAKE_CURRENT_SOURCE_DIR}/interface/hmi.proto HMIProto)
 
 link_directories(${LINK_DIRECTORIES} ${GPB_LIBS_DIRECTORY})
 add_library(${target} SHARED ${SOURCES})
