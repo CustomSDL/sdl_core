@@ -35,15 +35,14 @@
 
 #include <queue>
 
-#include "utils/lock.h"
 #include "utils/threads/message_loop_thread.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 
-#include "vr_cooperation/vr_proxy_listener.h"
-
 namespace vr_cooperation {
 
-typedef std::queue<vr_hmi_api::Message> MessageQueue;
+class VRProxyListener;
+
+typedef std::queue<vr_hmi_api::ServiceMessage> MessageQueue;
 
 class VRProxy : public threads::MessageLoopThread<MessageQueue>::Handler {
  public:
@@ -61,22 +60,22 @@ class VRProxy : public threads::MessageLoopThread<MessageQueue>::Handler {
    * @brief Receives GPB message
    * @param message received message
    */
-  void OnReceived(const vr_hmi_api::Message& message);
+  void OnReceived(const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief Sends GPB message
    * @param message to send
    * @return true if success
    */
-   bool Send(const vr_hmi_api::Message& message);
+  bool Send(const vr_hmi_api::ServiceMessage& message);
 
  private:
-   void Handle(vr_hmi_api::Message message);
-   VRProxyListener *listener_;
+  void Handle(vr_hmi_api::ServiceMessage message);
+  VRProxyListener *listener_;
 
-   threads::MessageLoopThread<MessageQueue> incoming_;
+  threads::MessageLoopThread<MessageQueue> incoming_;
 
-   DISALLOW_COPY_AND_ASSIGN(VRProxy);
+  DISALLOW_COPY_AND_ASSIGN(VRProxy);
 };
 
 }  // namespace vr_cooperation
