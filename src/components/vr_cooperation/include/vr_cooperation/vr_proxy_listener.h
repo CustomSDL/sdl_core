@@ -35,7 +35,7 @@
 
 namespace vr_hmi_api {
 class ServiceMessage;
-}  // namespace hmi_api
+}  // namespace vr_hmi_api
 
 namespace vr_cooperation {
 
