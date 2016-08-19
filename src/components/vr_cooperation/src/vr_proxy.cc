@@ -37,19 +37,28 @@ namespace vr_cooperation {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRProxy")
 
-VRProxy::VRProxy() {
+VRProxy::VRProxy(VRProxyListener* listener)
+    : listener_(listener),
+      incoming_("VrIncoming", this){
 }
 
 VRProxy::~VRProxy() {
 }
 
-void VRProxy::OnReceived() {
+void VRProxy::OnReceived(const vr_hmi_api::Message& message) {
   LOG4CXX_AUTO_TRACE(logger_);
+  incoming_.PostMessage(message);
 }
 
-bool VRProxy::SendMessage() {
+void VRProxy::Handle(vr_hmi_api::Message message) {
   LOG4CXX_AUTO_TRACE(logger_);
-  return true;
+  listener_->OnReceived(message);
+}
+
+bool VRProxy::Send(const vr_hmi_api::Message& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  // TODO(KKarlash): should be implemented
+  return false;
 }
 
 }  //  namespace vr_cooperation
