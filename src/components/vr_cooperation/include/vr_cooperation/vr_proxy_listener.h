@@ -34,20 +34,21 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
 
 namespace vr_hmi_api {
-class Message;
-}  // namespace vr_hmi_api
+class ServiceMessage;
+}  // namespace hmi_api
 
 namespace vr_cooperation {
 
 class VRProxyListener {
-  public:
+ public:
   virtual ~VRProxyListener() {
   }
+
   /**
    * Handles receiving GPB message from HMI
    * @param message GPB message according with hmi.proto file
    */
-  virtual void OnReceived(const vr_hmi_api::Message& message) = 0;
+  virtual void OnReceived(const vr_hmi_api::ServiceMessage& message) = 0;
 };
 
 }  // namespace vr_cooperation

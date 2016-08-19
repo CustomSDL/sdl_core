@@ -30,12 +30,13 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/vr_module.h"
-#include "vr_cooperation/event_engine/event_dispatcher.h"
 #include "json/json.h"
+#include "vr_cooperation/vr_module.h"
+
+#include "vr_cooperation/commands/on_service_deactivated_notification.h"
+#include "vr_cooperation/event_engine/event_dispatcher.h"
 #include "vr_cooperation/mobile_command_factory.h"
 #include "vr_cooperation/message_helper.h"
-#include "vr_cooperation/commands/on_service_deactivated_notification.h"
 #include "vr_cooperation/vr_module_event.h"
 #include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
@@ -319,7 +320,7 @@ void VRModule::ReceiveMessageFromMobile() {
   // TODO(Giang):
 }
 
-void VRModule::OnReceived(const vr_hmi_api::Message& message) {
+void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   // TODO(KKarlash): Should be implemented
 }
