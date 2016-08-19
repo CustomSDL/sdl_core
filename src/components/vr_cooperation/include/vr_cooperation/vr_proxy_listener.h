@@ -30,56 +30,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_H_
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
 
-#include <queue>
-
-#include "utils/lock.h"
-#include "utils/threads/message_loop_thread.h"
-#include "vr_cooperation/interface/hmi.pb.h"
-
-#include "vr_cooperation/vr_proxy_listener.h"
+namespace vr_hmi_api {
+class Message;
+}  // namespace vr_hmi_api
 
 namespace vr_cooperation {
 
-typedef std::queue<vr_hmi_api::Message> MessageQueue;
-
-class VRProxy : public threads::MessageLoopThread<MessageQueue>::Handler {
- public:
+class VRProxyListener {
+  public:
+  virtual ~VRProxyListener() {
+  }
   /**
-   * @brief Constructor
+   * Handles receiving GPB message from HMI
+   * @param message GPB message according with hmi.proto file
    */
-  explicit VRProxy(VRProxyListener* listener);
-
-  /**
-   * @brief Destructor
-   */
-  ~VRProxy();
-
-  /**
-   * @brief Receives GPB message
-   * @param message received message
-   */
-  void OnReceived(const vr_hmi_api::Message& message);
-
-  /**
-   * @brief Sends GPB message
-   * @param message to send
-   * @return true if success
-   */
-   bool Send(const vr_hmi_api::Message& message);
-
- private:
-   void Handle(vr_hmi_api::Message message);
-   VRProxyListener *listener_;
-
-   threads::MessageLoopThread<MessageQueue> incoming_;
-
-   DISALLOW_COPY_AND_ASSIGN(VRProxy);
+  virtual void OnReceived(const vr_hmi_api::Message& message) = 0;
 };
 
 }  // namespace vr_cooperation
 
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_H_
-
+#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
