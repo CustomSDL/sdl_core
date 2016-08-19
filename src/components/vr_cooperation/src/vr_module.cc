@@ -30,12 +30,13 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/vr_module.h"
-#include "vr_cooperation/event_engine/event_dispatcher.h"
 #include "json/json.h"
+#include "vr_cooperation/vr_module.h"
+
+#include "vr_cooperation/commands/on_service_deactivated_notification.h"
+#include "vr_cooperation/event_engine/event_dispatcher.h"
 #include "vr_cooperation/mobile_command_factory.h"
 #include "vr_cooperation/message_helper.h"
-#include "vr_cooperation/commands/on_service_deactivated_notification.h"
 #include "vr_cooperation/vr_module_event.h"
 #include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
@@ -58,7 +59,7 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "VRModule")
 
 VRModule::VRModule()
     : GenericModule(kVRModuleID),
-      proxy_(NULL) {
+      proxy_(this) {
   plugin_info_.name = "VRModule";
   plugin_info_.version = 1;
   SubcribeToRPCMessage();
@@ -312,10 +313,16 @@ void VRModule::ReceiveMessageFromHMI() {
 void VRModule::SendMessageToMobile(application_manager::MessagePtr msg) {
   LOG4CXX_DEBUG(logger_, "Message to mobile: " << msg->json_message());
   service()->SendMessageToMobile(msg);
+  request_controller_.DeleteRequest(msg->correlation_id());
 }
 void VRModule::ReceiveMessageFromMobile() {
   LOG4CXX_AUTO_TRACE(logger_);
   // TODO(Giang):
+}
+
+void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  // TODO(KKarlash): Should be implemented
 }
 
 }  // namespace vr_cooperation

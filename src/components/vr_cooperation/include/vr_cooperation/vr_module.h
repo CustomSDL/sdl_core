@@ -36,14 +36,16 @@
 #include "functional_module/generic_module.h"
 #include "utils/macro.h"
 #include "vr_cooperation/request_controller.h"
+#include "vr_cooperation/vr_proxy.h"
+#include "vr_cooperation/vr_proxy_listener.h"
 
 namespace vr_cooperation {
-class VRProxy;
 
 /**
  * @brief VR Module plugin class
  */
-class VRModule : public functional_modules::GenericModule {
+class VRModule : public functional_modules::GenericModule,
+                 public VRProxyListener {
  public:
   VRModule();
   ~VRModule();
@@ -115,10 +117,10 @@ class VRModule : public functional_modules::GenericModule {
   void ReceiveMessageFromMobile();
 
   /**
-   * @brief Sends response to HMI
-   * @param msg response mesage
+   * Handles received message from HMI (Applink)
+   * @param message is GPB message according with protocol
    */
-  void SendResponseToHMI(application_manager::MessagePtr msg);
+  virtual void OnReceived(const vr_hmi_api::ServiceMessage& message);
 
  protected:
   /**
@@ -162,7 +164,7 @@ class VRModule : public functional_modules::GenericModule {
   functional_modules::PluginInfo plugin_info_;
   request_controller::RequestController request_controller_;
 
-  VRProxy* proxy_;
+  VRProxy proxy_;
 
   DISALLOW_COPY_AND_ASSIGN(VRModule);
 };

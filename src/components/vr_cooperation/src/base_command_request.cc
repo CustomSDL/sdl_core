@@ -260,7 +260,7 @@ void BaseCommandRequest::SendResponse(bool success,
   LOG4CXX_AUTO_TRACE(logger_);
   PrepareResponseMessageForHMI(success, result_code, info, message_);
   if (is_mob_response) {
-    parent_->SendResponseToHMI(message_);
+    parent_->SendMessageToHMI(message_);
   }
 }
 
