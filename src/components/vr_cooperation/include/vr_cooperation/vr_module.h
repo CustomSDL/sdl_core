@@ -41,7 +41,7 @@
 
 namespace vr_hmi_api {
 class ServiceMessage;
-}
+}  // namespace vr_hmi_api
 
 namespace vr_cooperation {
 
@@ -126,30 +126,31 @@ class VRModule : public functional_modules::GenericModule,
    * @brief Returns key of application that process VR requests.
    * @return mobile application connection key
    */
-  uint32_t activated_connection_key() const {
+  int32_t activated_connection_key() const {
     return activated_connection_key_;
   }
 
   /**
    * @brief Sets key of application that process VR requests. It happens
-   * when ActivateServiceRequest come from HU
+   *        when ActivateServiceRequest come from HU
+   * @param connection_key key of activate application
    */
-  void set_activated_connection_key(const uint32_t& connection_key) {
+  void set_activated_connection_key(int32_t connection_key) {
     activated_connection_key_ = connection_key;
   }
 
   /**
-   * @brief stored_app_id getter for stored app ID
-   * @return id of default application for VR service
+   * @brief default_app_id getter for default vr-service app id
+   * @return id of default vr-service app
    */
-  const uint32_t stored_app_id() const { return stored_app_id_; }
+  int32_t default_app_id() const { return default_app_id_; }
 
   /**
-   * @brief set_stored_app_id setter for stored app Id
-   * @param app_id application id
+   * @brief set_default_app_id setter for default vr-service app id
+   * @param app_id default vr-service app id
    */
-  void set_stored_app_id(const uint32_t app_id) {
-    stored_app_id_ = app_id;
+  void set_default_app_id(int32_t app_id) {
+    default_app_id_ = app_id;
   }
 
  protected:
@@ -175,15 +176,15 @@ class VRModule : public functional_modules::GenericModule,
    * @brief Set mobile message type
    * @param msg mobile message
    */
-  bool SetMessageType(application_manager::MessagePtr& msg) const;
+  bool SetMessageType(application_manager::MessagePtr msg) const;
 
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;
   request_controller::RequestController request_controller_;
 
   VRProxy proxy_;
-  uint32_t activated_connection_key_;
-  uint32_t stored_app_id_;
+  int32_t activated_connection_key_;
+  int32_t default_app_id_;
 
   DISALLOW_COPY_AND_ASSIGN(VRModule);
 };

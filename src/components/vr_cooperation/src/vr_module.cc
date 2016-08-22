@@ -62,8 +62,8 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "VRModule")
 VRModule::VRModule()
     : GenericModule(kVRModuleID),
       proxy_(this),
-      activated_connection_key_(0),
-      stored_app_id_(0) {
+      activated_connection_key_(-1),
+      default_app_id_(-1) {
   plugin_info_.name = "VRModule";
   plugin_info_.version = 1;
   SubcribeToRPCMessage();
@@ -93,7 +93,6 @@ void VRModule::SubcribeToRPCMessage() {
   plugin_info_.hmi_function_list.push_back(hmi_api::on_unregister_service);
   plugin_info_.hmi_function_list.push_back(hmi_api::on_service_deactivated);
   plugin_info_.hmi_function_list.push_back(hmi_api::on_default_service_chosen);
-  plugin_info_.hmi_function_list.push_back(hmi_api::process_data);
 }
 
 functional_modules::PluginInfo VRModule::GetPluginInfo() const {
@@ -161,7 +160,7 @@ functional_modules::ProcessResult VRModule::ProcessHMIMessage(
   return ProcessResult::PROCESSED;
 }
 
-bool VRModule::SetMessageType(application_manager::MessagePtr& msg) const {
+bool VRModule::SetMessageType(application_manager::MessagePtr msg) const {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value value;
   Json::Reader reader;
@@ -235,6 +234,10 @@ void VRModule::SendMessageToHMI(application_manager::MessagePtr msg) {
 }
 
 void VRModule::SendMessageToHMI(const vr_hmi_api::ServiceMessage& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  std::string str;
+  google::protobuf::TextFormat::PrintToString(message, &str);
+  LOG4CXX_DEBUG(logger_, "Protobuf message to HMI: " << str);
   proxy_.Send(message);
 }
 

@@ -81,7 +81,6 @@ const char on_register_service[] = "RC.OnRegisterService";
 const char on_unregister_service[] = "RC.OnUnregisterService";
 const char on_service_deactivated[] = "RC.OnServiceDeactivated";
 const char on_default_service_chosen[] = "RC.OnDefaultServiceChosen";
-const char process_data[] = "RC.ProcessData";
 
 }  // namespace hmi_api
 
