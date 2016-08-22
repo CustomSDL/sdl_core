@@ -32,8 +32,9 @@
 
 #include "vr_cooperation/vr_module.h"
 
-#include "json/json.h"
+#include "functional_module/function_ids.h"
 #include "google/protobuf/text_format.h"
+#include "json/json.h"
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
 #include "vr_cooperation/event_engine/event_dispatcher.h"
 #include "vr_cooperation/interface/hmi.pb.h"
@@ -157,7 +158,8 @@ functional_modules::ProcessResult VRModule::HandleMessage(
 functional_modules::ProcessResult VRModule::ProcessHMIMessage(
     application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
-  return ProcessResult::PROCESSED;
+  // Json message between plugin and hmi will not handle anymore
+  return ProcessResult::NONE;
 }
 
 bool VRModule::SetMessageType(application_manager::MessagePtr msg) const {
@@ -257,7 +259,7 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
     case vr_hmi_api::MessageType::NOTIFICATION: {
       if (vr_hmi_api::RPCName::ON_DEACTIVATED == message.rpc()) {
         commands::OnServiceDeactivatedNotification notification(this);
-        // TODO(Giang): Un-comment when OnDefaultServiceChosen implement
+        // TODO(Giang): Un-comment when OnServiceDeactivatedNotification implement
         // notification.Execute(message);
       }
       break;
