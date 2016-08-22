@@ -325,5 +325,10 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
   // TODO(KKarlash): Should be implemented
 }
 
+bool IsVRServiceSupported() {
+  // TODO(KKarlash): Should be implemented
+  return true;
+}
+
 }  // namespace vr_cooperation
 

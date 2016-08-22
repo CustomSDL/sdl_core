@@ -154,6 +154,13 @@ class BaseCommandRequest : public Command,
                     bool is_mob_response = false);
 
   /**
+   * @brief send notification to HMI or Mibile
+   * @param msg_params json with message params
+   * @param is_hmi_notification send notification to hmi or mobile
+   */
+  void SendNotification(bool is_hmi_notification = false);
+
+  /**
    * @brief Interface method that is called whenever new event received
    */
   virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
@@ -165,11 +172,10 @@ class BaseCommandRequest : public Command,
   virtual void Execute() = 0;
 
   application_manager::MessagePtr message_;
+  VRModule* parent_;
 
  private:
   application_manager::ServicePtr service_;
-
-  VRModule* parent_;
 };
 
 }  // namespace commands
