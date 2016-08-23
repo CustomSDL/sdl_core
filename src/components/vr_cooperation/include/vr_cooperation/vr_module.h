@@ -126,7 +126,7 @@ class VRModule : public functional_modules::GenericModule,
    * @brief check if VRService is supported or not
    * @return true if supported, false if not supported
    */
-  bool IsVRServiceSupported();
+  bool IsVRServiceSupported() const;
 
  protected:
   /**
