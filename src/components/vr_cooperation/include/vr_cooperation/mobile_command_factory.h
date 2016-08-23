@@ -42,14 +42,14 @@ namespace vr_cooperation {
 
 /**
  * @brief Factory class for command creation
- **/
+ */
 class MobileCommandFactory {
  public:
   /**
    * @brief Create command object and return pointer to it
    * @param  msg Message shared pointer.
    * @return Pointer to created command object.
-   **/
+   */
   static commands::Command* CreateCommand(
       VRModule* parent,
       const application_manager::MessagePtr& msg);

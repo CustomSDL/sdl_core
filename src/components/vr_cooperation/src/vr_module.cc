@@ -30,11 +30,14 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "json/json.h"
 #include "vr_cooperation/vr_module.h"
 
+#include "functional_module/function_ids.h"
+#include "google/protobuf/text_format.h"
+#include "json/json.h"
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
 #include "vr_cooperation/event_engine/event_dispatcher.h"
+#include "vr_cooperation/interface/hmi.pb.h"
 #include "vr_cooperation/mobile_command_factory.h"
 #include "vr_cooperation/message_helper.h"
 #include "vr_cooperation/vr_module_event.h"
@@ -55,11 +58,13 @@ using json_keys::kMethod;
 
 PLUGIN_FACTORY(VRModule)
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRModule")
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 VRModule::VRModule()
     : GenericModule(kVRModuleID),
-      proxy_(this) {
+      proxy_(this),
+      activated_connection_key_(-1),
+      default_app_id_(-1) {
   plugin_info_.name = "VRModule";
   plugin_info_.version = 1;
   SubcribeToRPCMessage();
@@ -78,6 +83,12 @@ void VRModule::SubcribeToRPCMessage() {
   plugin_info_.mobile_function_list.push_back(
       MobileFunctionID::ACTIVATE_SERVICE);
 
+  plugin_info_.mobile_function_list.push_back(
+      MobileFunctionID::ON_SERVICE_DEACTIVATED);
+
+  plugin_info_.mobile_function_list.push_back(
+      MobileFunctionID::PROCESS_DATA);
+
   plugin_info_.hmi_function_list.push_back(hmi_api::activate_service);
   plugin_info_.hmi_function_list.push_back(hmi_api::on_register_service);
   plugin_info_.hmi_function_list.push_back(hmi_api::on_unregister_service);
@@ -90,7 +101,8 @@ functional_modules::PluginInfo VRModule::GetPluginInfo() const {
   return plugin_info_;
 }
 
-ProcessResult VRModule::ProcessMessage(application_manager::MessagePtr msg) {
+functional_modules::ProcessResult VRModule::ProcessMessage(
+    application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
   DCHECK(msg);
 
@@ -104,17 +116,6 @@ ProcessResult VRModule::ProcessMessage(application_manager::MessagePtr msg) {
 
   LOG4CXX_DEBUG(logger_, "Mobile message: " << msg->json_message());
   return HandleMessage(msg);
-}
-
-ProcessResult VRModule::ProcessHMIMessage(application_manager::MessagePtr msg) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  DCHECK(msg);
-  if (!msg) {
-    LOG4CXX_ERROR(logger_, "Null pointer message received.");
-    return ProcessResult::FAILED;
-  }
-  LOG4CXX_DEBUG(logger_, "HMI message: " << msg->json_message());
-  return HandleHMIMessage(msg);
 }
 
 functional_modules::ProcessResult VRModule::HandleMessage(
@@ -154,49 +155,14 @@ functional_modules::ProcessResult VRModule::HandleMessage(
   return ProcessResult::PROCESSED;
 }
 
-functional_modules::ProcessResult VRModule::HandleHMIMessage(
-  application_manager::MessagePtr msg) {
+functional_modules::ProcessResult VRModule::ProcessHMIMessage(
+    application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
-
-  if (!SetHMIMessageType(msg)) {
-    return ProcessResult::FAILED;
-  }
-  msg->set_protocol_version(application_manager::ProtocolVersion::kV3);
-
-  switch (msg->type()) {
-    case application_manager::MessageType::kNotification: {
-      if (functional_modules::hmi_api::on_service_deactivated
-          == msg->function_name()) {
-          commands::OnServiceDeactivatedNotification notification(this);
-          notification.Execute(msg);
-         // TODO(giang): Un-comment when OnDefaultServiceChosen
-         // notification was implemented
-         // } else if (functional_modules::hmi_api::on_default_service_chosen
-         // == function_name) {
-         //  commands::OnDefaultServiceChosen notification(msg);
-         //  notification.Execute();
-         //  }
-      }
-      break;
-    }
-    case application_manager::MessageType::kRequest: {
-      commands::Command* command = MobileCommandFactory::CreateCommand(this, msg);
-      if (command) {
-        request_controller_.AddRequest(msg->correlation_id(), command);
-        command->Run();
-      } else {
-        return ProcessResult::CANNOT_PROCESS;
-      }
-      break;
-    }
-    default: {
-      return ProcessResult::FAILED;
-    }
-  }
-  return ProcessResult::PROCESSED;
+  // Json message between plugin and hmi will not handle anymore
+  return ProcessResult::NONE;
 }
 
-bool VRModule::SetMessageType(application_manager::MessagePtr& msg) const {
+bool VRModule::SetMessageType(application_manager::MessagePtr msg) const {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value value;
   Json::Reader reader;
@@ -214,44 +180,6 @@ bool VRModule::SetMessageType(application_manager::MessagePtr& msg) const {
              && value[json_keys::kError].isMember(json_keys::kData)
              && value[json_keys::kError][json_keys::kData].isMember(
                  json_keys::kMethod)) {
-    msg->set_message_type(application_manager::MessageType::kErrorResponse);
-  } else {
-    DCHECK(false);
-    result = false;
-  }
-
-  if (value.isMember(json_keys::kId)) {
-    msg->set_correlation_id(value[json_keys::kId].asInt());
-  } else if (application_manager::MessageType::kNotification != msg->type()) {
-    DCHECK(false);
-    result = false;
-  }
-  return result;
-}
-
-bool VRModule::SetHMIMessageType(application_manager::MessagePtr& msg) const {
-  LOG4CXX_AUTO_TRACE(logger_);
-  Json::Value value;
-  Json::Reader reader;
-  reader.parse(msg->json_message(), value);
-  bool result = true;
-
-  if (value.isMember(json_keys::kMethod)) {
-    msg->set_function_name(value[json_keys::kMethod].asString());
-    value.isMember(json_keys::kId) ?
-        msg->set_message_type(application_manager::MessageType::kRequest) :
-        msg->set_message_type(application_manager::MessageType::kNotification);
-  } else if (value.isMember(json_keys::kResult)
-             && value[json_keys::kResult].isMember(json_keys::kMethod)) {
-    msg->set_function_name(value[json_keys::kResult][json_keys::kMethod]
-                           .asString());
-    msg->set_message_type(application_manager::MessageType::kResponse);
-  } else if (value.isMember(json_keys::kError)
-             && value[json_keys::kError].isMember(json_keys::kData)
-             && value[json_keys::kError][json_keys::kData].isMember(
-                 json_keys::kMethod)) {
-    msg->set_function_name(value[json_keys::kError][json_keys::kData]
-                           [json_keys::kMethod].asString());
     msg->set_message_type(application_manager::MessageType::kErrorResponse);
   } else {
     DCHECK(false);
@@ -306,23 +234,41 @@ void VRModule::SendMessageToHMI(application_manager::MessagePtr msg) {
   service()->SendMessageToHMI(msg);
   request_controller_.DeleteRequest(msg->correlation_id());
 }
-void VRModule::ReceiveMessageFromHMI() {
+
+void VRModule::SendMessageToHMI(const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
-  // TODO(Giang):
+  std::string str;
+  google::protobuf::TextFormat::PrintToString(message, &str);
+  LOG4CXX_DEBUG(logger_, "Protobuf message to HMI: " << str);
+  proxy_.Send(message);
 }
+
 void VRModule::SendMessageToMobile(application_manager::MessagePtr msg) {
   LOG4CXX_DEBUG(logger_, "Message to mobile: " << msg->json_message());
   service()->SendMessageToMobile(msg);
   request_controller_.DeleteRequest(msg->correlation_id());
 }
-void VRModule::ReceiveMessageFromMobile() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  // TODO(Giang):
-}
 
 void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
-  // TODO(KKarlash): Should be implemented
+  std::string str;
+  google::protobuf::TextFormat::PrintToString(message, &str);
+  LOG4CXX_DEBUG(logger_, "Protobuf message: " << str);
+
+  if (vr_hmi_api::MessageType::RESPONSE == message.rpc_type()) {
+    if (vr_hmi_api::RPCName::SUPPORT_SERVICE == message.rpc()) {
+      // TODO(Giang): raise_event after VRModuleEvent for GPB implementation
+    }
+  } else {
+//    Should un-comment when HMICommandFactory implementation
+//    commands::Command* command = HMICommandFactory::CreateCommand(this, message);
+//    if (command) {
+//      if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
+//        request_controller_.AddRequest(message.correlation_id(), command);
+//      }
+//      command->Run();
+//    }
+  }
 }
 
 }  // namespace vr_cooperation
