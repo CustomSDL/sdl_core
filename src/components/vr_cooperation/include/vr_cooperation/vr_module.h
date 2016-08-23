@@ -178,6 +178,17 @@ class VRModule : public functional_modules::GenericModule,
    */
   bool SetMessageType(application_manager::MessagePtr msg) const;
 
+  /**
+   * @brief check if VRService is supported or not
+   * @return true if supported, false if not supported
+   */
+  bool IsVRServiceSupported() const;
+
+  /**
+   * @brief send response message to mobile in case VRService is not supported
+   */
+  void SendUnsupportedServiceResponse(application_manager::MessagePtr& msg);
+
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;
   request_controller::RequestController request_controller_;

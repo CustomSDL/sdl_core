@@ -36,6 +36,7 @@
 #include "vr_cooperation/message_helper.h"
 #include "vr_cooperation/vr_module.h"
 #include "vr_cooperation/vr_module_constants.h"
+#include "vr_cooperation/interface/hmi.pb.h"
 
 namespace vr_cooperation {
 
@@ -237,6 +238,26 @@ void BaseCommandRequest::PrepareResponseMessageForHMI(bool success,
   message->set_protocol_version(application_manager::ProtocolVersion::kHMI);
 }
 
+void BaseCommandRequest::PrepareResponseMessageForMobile(bool success,
+    const int& result_code,
+    const std::string& info,
+    application_manager::MessagePtr& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  Json::Value msg_params;
+  msg_params[kId] = service_->GetNextCorrelationID();
+  msg_params[kSuccess] = success;
+  msg_params[kResultCode] = result_code;
+  if (!info.empty()) {
+    msg_params[kInfo] = info;
+  }
+
+  message->set_message_type(application_manager::MessageType::kResponse);
+  Json::FastWriter writer;
+  message->set_json_message(writer.write(msg_params));
+  message->set_correlation_id(msg_params[kId].asInt());
+  message->set_protocol_version(application_manager::ProtocolVersion::kV2);
+}
+
 
 void BaseCommandRequest::SendRequest(const char* function_id,
     const Json::Value& message_params,
@@ -258,9 +279,38 @@ void BaseCommandRequest::SendResponse(bool success,
     const std::string& info,
     bool is_mob_response/* = false*/) {
   LOG4CXX_AUTO_TRACE(logger_);
-  PrepareResponseMessageForHMI(success, result_code, info, message_);
   if (is_mob_response) {
+    PrepareResponseMessageForHMI(success, result_code, info, message_);
     parent_->SendMessageToHMI(message_);
+  } else {
+    PrepareResponseMessageForMobile(success, result_code, info, message_);
+    parent_->SendMessageToMobile(message_);
+  }
+}
+
+void BaseCommandRequest::SendNotification(
+    bool is_hmi_notification/* = false*/) {
+  LOG4CXX_AUTO_TRACE(logger_);
+
+  if (is_hmi_notification) {
+    vr_hmi_api::ServiceMessage service_message;
+    service_message.set_rpc(vr_hmi_api::ON_REGISTER);
+    service_message.set_rpc_type(vr_hmi_api::NOTIFICATION);
+    service_message.set_correlation_id(service_->GetNextCorrelationID());
+    vr_hmi_api::OnRegisterServiceNotification onregister_notification;
+    int32_t app_id = message_->connection_key();
+    // TODO(Thinh): Uncomment after vr module GPB functionality implementation
+//    app_id == parent_->default_app_id() ?
+//        onregister_notification.set_default(true) :
+    onregister_notification.set_default_(false);
+    onregister_notification.set_appid(app_id);
+
+    std::string str;
+    onregister_notification.SerializeToString(&str);
+
+    service_message.set_params(str);
+    // TODO(Thinh): Uncomment after vr module GPB functionality implementation
+//    parent_->SendMessageToHMI(service_message);
   }
 }
 
