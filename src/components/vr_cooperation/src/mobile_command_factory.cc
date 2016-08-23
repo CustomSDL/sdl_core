@@ -32,15 +32,18 @@
 
 #include "vr_cooperation/mobile_command_factory.h"
 
+#include "utils/logger.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 #include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
+
 commands::Command* MobileCommandFactory::CreateCommand(
     VRModule* parent,
     const application_manager::MessagePtr& msg) {
-
+  LOG4CXX_AUTO_TRACE(logger_);
   switch (msg->function_id()) {
     default: {
       return NULL;
@@ -51,7 +54,7 @@ commands::Command* MobileCommandFactory::CreateCommand(
 commands::Command* MobileCommandFactory::CreateCommand(
     VRModule* parent,
     const vr_hmi_api::ServiceMessage& msg) {
-
+  LOG4CXX_AUTO_TRACE(logger_);
   switch (msg.rpc()) {
     default: {
       return NULL;

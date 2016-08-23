@@ -58,7 +58,7 @@ using json_keys::kMethod;
 
 PLUGIN_FACTORY(VRModule)
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRModule")
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 VRModule::VRModule()
     : GenericModule(kVRModuleID),
@@ -255,25 +255,12 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
   google::protobuf::TextFormat::PrintToString(message, &str);
   LOG4CXX_DEBUG(logger_, "Protobuf message: " << str);
 
-  switch (message.rpc_type()) {
-    case vr_hmi_api::MessageType::NOTIFICATION: {
-      commands::Command* command = MobileCommandFactory::CreateCommand(this, message);
-      if (command) {
-        command->Run();
-      }
-      break;
+  commands::Command* command = MobileCommandFactory::CreateCommand(this, message);
+  if (command) {
+    if(vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
+      request_controller_.AddRequest(message.correlation_id(), command);
     }
-    case vr_hmi_api::MessageType::REQUEST: {
-      commands::Command* command = MobileCommandFactory::CreateCommand(this, message);
-      if (command) {
-        request_controller_.AddRequest(message.correlation_id(), command);
-        command->Run();
-      }
-      break;
-    }
-    default: {
-      break;
-    }
+    command->Run();
   }
 }
 
