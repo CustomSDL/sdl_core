@@ -102,7 +102,7 @@ class VRModule : public functional_modules::GenericModule,
    * @brief send message to HMI
    * @param msg message that will be sent to HMI
    */
-  void SendMessageToHMI(application_manager::MessagePtr msg);
+  void SendMessageToHMI(const vr_hmi_api::ServiceMessage& msg);
 
   /**
    * @brief send gpb message to HMI

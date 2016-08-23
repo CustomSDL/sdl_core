@@ -48,11 +48,11 @@ class ActivateServiceRequest : public BaseCommandRequest {
   /**
    * @brief ActivateServiceRequest class constructor
    * @param parent pointer to VRModule
-   * @param message Message from mobile
+   * @param message Message from HMI
    **/
   explicit ActivateServiceRequest(
       VRModule* parent,
-      const application_manager::MessagePtr& message);
+      const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief ActivateServiceRequest class destructor
@@ -68,7 +68,29 @@ class ActivateServiceRequest : public BaseCommandRequest {
    * @brief This method will be called whenever new event received
    */
   virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
-      std::string>& event);
+      int>& event);
+
+  /**
+   * @brief Send request to Mobile
+   * @param message gpb message from HMI
+   */
+  void SendRequest(const vr_hmi_api::ServiceMessage& message);
+
+ private:
+  /**
+   * @brief Gets params from json value
+   * @param value json value
+   * @returns strings with params for GPB message
+   */
+  std::string GetParams(const Json::Value& value);
+
+  /**
+   * @brief Prepares GPB message for HMI
+   * @param message GPB message for HMI
+   * @param value from json message
+   */
+  void PrepareGpbMessage(vr_hmi_api::ServiceMessage& message,
+                         const Json::Value& value);
 };
 
 }  // namespace commands
