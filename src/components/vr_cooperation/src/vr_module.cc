@@ -255,12 +255,18 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
   google::protobuf::TextFormat::PrintToString(message, &str);
   LOG4CXX_DEBUG(logger_, "Protobuf message: " << str);
 
-  commands::Command* command = MobileCommandFactory::CreateCommand(this, message);
-  if (command) {
-    if(vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
-      request_controller_.AddRequest(message.correlation_id(), command);
+  if (vr_hmi_api::MessageType::RESPONSE == message.rpc_type()) {
+    if (vr_hmi_api::RPCName::SUPPORT_SERVICE == message.rpc()) {
+      // TODO (Giang): raise_event after HMI factory for GPB implementation
     }
-    command->Run();
+  } else {
+    commands::Command* command = MobileCommandFactory::CreateCommand(this, message);
+    if (command) {
+      if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
+        request_controller_.AddRequest(message.correlation_id(), command);
+      }
+      command->Run();
+    }
   }
 }
 
