@@ -31,6 +31,8 @@
  */
 
 #include "vr_cooperation/mobile_command_factory.h"
+
+#include "vr_cooperation/interface/hmi.pb.h"
 #include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
@@ -40,6 +42,17 @@ commands::Command* MobileCommandFactory::CreateCommand(
     const application_manager::MessagePtr& msg) {
 
   switch (msg->function_id()) {
+    default: {
+      return NULL;
+    }
+  }
+}
+
+commands::Command* MobileCommandFactory::CreateCommand(
+    VRModule* parent,
+    const vr_hmi_api::ServiceMessage& msg) {
+
+  switch (msg.rpc()) {
     default: {
       return NULL;
     }

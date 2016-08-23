@@ -257,15 +257,18 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
 
   switch (message.rpc_type()) {
     case vr_hmi_api::MessageType::NOTIFICATION: {
-      if (vr_hmi_api::RPCName::ON_DEACTIVATED == message.rpc()) {
-        commands::OnServiceDeactivatedNotification notification(this);
-        // TODO(Giang): Un-comment when OnServiceDeactivatedNotification implement
-        // notification.Execute(message);
+      commands::Command* command = MobileCommandFactory::CreateCommand(this, message);
+      if (command) {
+        command->Run();
       }
       break;
     }
     case vr_hmi_api::MessageType::REQUEST: {
-      // TODO(KKarlash): ActivateService request
+      commands::Command* command = MobileCommandFactory::CreateCommand(this, message);
+      if (command) {
+        request_controller_.AddRequest(message.correlation_id(), command);
+        command->Run();
+      }
       break;
     }
     default: {

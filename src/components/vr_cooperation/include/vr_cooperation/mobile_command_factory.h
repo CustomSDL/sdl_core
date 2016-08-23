@@ -38,6 +38,10 @@
 #include "vr_cooperation/commands/command.h"
 #include "vr_cooperation/vr_module.h"
 
+namespace vr_hmi_api {
+class ServiceMessage;
+}  // namespace vr_hmi_api
+
 namespace vr_cooperation {
 
 /**
@@ -53,6 +57,15 @@ class MobileCommandFactory {
   static commands::Command* CreateCommand(
       VRModule* parent,
       const application_manager::MessagePtr& msg);
+
+  /**
+   * @brief Create command object and return pointer to it
+   * @param  msg GPB Message.
+   * @return Pointer to created command object.
+   **/
+  static commands::Command* CreateCommand(
+      VRModule* parent,
+      const vr_hmi_api::ServiceMessage& msg);
 
  private:
   MobileCommandFactory();
