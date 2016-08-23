@@ -257,16 +257,17 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
 
   if (vr_hmi_api::MessageType::RESPONSE == message.rpc_type()) {
     if (vr_hmi_api::RPCName::SUPPORT_SERVICE == message.rpc()) {
-      // TODO (Giang): raise_event after HMI factory for GPB implementation
+      // TODO(Giang): raise_event after VRModuleEvent for GPB implementation
     }
   } else {
-    commands::Command* command = MobileCommandFactory::CreateCommand(this, message);
-    if (command) {
-      if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
-        request_controller_.AddRequest(message.correlation_id(), command);
-      }
-      command->Run();
-    }
+//    Should un-comment when HMICommandFactory implementation
+//    commands::Command* command = HMICommandFactory::CreateCommand(this, message);
+//    if (command) {
+//      if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
+//        request_controller_.AddRequest(message.correlation_id(), command);
+//      }
+//      command->Run();
+//    }
   }
 }
 
