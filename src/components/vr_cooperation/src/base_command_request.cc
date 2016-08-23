@@ -238,6 +238,28 @@ void BaseCommandRequest::PrepareResponseMessageForHMI(bool success,
   message->set_protocol_version(application_manager::ProtocolVersion::kHMI);
 }
 
+void BaseCommandRequest::PrepareResponseMessageForMobile(bool success,
+    const int& result_code,
+    const std::string& info,
+    application_manager::MessagePtr& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  Json::Value msg_params;
+  msg_params[kId] = service_->GetNextCorrelationID();
+  msg_params[kSuccess] = success;
+  msg_params[kResultCode] = result_code;
+  if (!info.empty()) {
+    msg_params[kInfo] = info;
+  }
+
+  message->set_message_type(application_manager::MessageType::kResponse);
+  Json::FastWriter writer;
+  message->set_json_message(writer.write(msg_params));
+  message->set_correlation_id(msg_params[kId].asInt());
+  message->set_function_id(message_->function_id());
+  message->set_connection_key(message_->connection_key());
+  message->set_protocol_version(application_manager::ProtocolVersion::kV2);
+}
+
 
 void BaseCommandRequest::SendRequest(const char* function_id,
     const Json::Value& message_params,
@@ -259,10 +281,11 @@ void BaseCommandRequest::SendResponse(bool success,
     const std::string& info,
     bool is_mob_response/* = false*/) {
   LOG4CXX_AUTO_TRACE(logger_);
-  PrepareResponseMessageForHMI(success, result_code, info, message_);
   if (is_mob_response) {
+    PrepareResponseMessageForHMI(success, result_code, info, message_);
     parent_->SendMessageToHMI(message_);
   } else {
+    PrepareResponseMessageForMobile(success, result_code, info, message_);
     parent_->SendMessageToMobile(message_);
   }
 }

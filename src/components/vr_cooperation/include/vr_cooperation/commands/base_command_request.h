@@ -98,6 +98,12 @@ class BaseCommandRequest : public Command,
       const std::string& mobile_code) const;
 
   /**
+   * @brief Get VRModule pointer
+   * @return VRModule pointer
+   */
+  VRModule* GetVRModule() const { return parent_; }
+
+  /**
    * @brief Parse result code from response
    *
    * @param value message in response from Mobile
@@ -132,6 +138,18 @@ class BaseCommandRequest : public Command,
                                     application_manager::MessagePtr& message);
 
   /**
+   * @brief Prepares response message for Mobile
+   * @param success true if successful; false, if failed
+   * @param result_code Mobile result codes
+   * @param info Provides additional human readable info regarding the result(may be empty)
+   * @param message that will be sent to Mobile
+   */
+  void PrepareResponseMessageForMobile(bool success,
+                                    const int& result_code,
+                                    const std::string& info,
+                                    application_manager::MessagePtr& message);
+
+  /**
    * @brief send request to HMI or Mobile
    * @param function_id request ID
    * @param msg_params json with message params
@@ -154,7 +172,7 @@ class BaseCommandRequest : public Command,
                     bool is_mob_response = false);
 
   /**
-   * @brief send notification to HMI or Mibile
+   * @brief send notification to HMI or Mobile
    * @param msg_params json with message params
    * @param is_hmi_notification send notification to hmi or mobile
    */
@@ -172,10 +190,11 @@ class BaseCommandRequest : public Command,
   virtual void Execute() = 0;
 
   application_manager::MessagePtr message_;
-  VRModule* parent_;
 
  private:
   application_manager::ServicePtr service_;
+
+  VRModule* parent_;
 };
 
 }  // namespace commands

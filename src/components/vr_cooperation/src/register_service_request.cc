@@ -60,7 +60,8 @@ void RegisterServiceRequest::Execute() {
   int result_code;
   bool success = true;
   std::string info;
-  if (parent_->IsVRServiceSupported()) {
+  VRModule* parent = GetVRModule();
+  if (parent->IsVRServiceSupported()) {
     success = true;
     result_code = GetHMIResultCode(result_codes::kSuccess);
   } else {
