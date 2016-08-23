@@ -98,12 +98,6 @@ class BaseCommandRequest : public Command,
       const std::string& mobile_code) const;
 
   /**
-   * @brief Get VRModule pointer
-   * @return VRModule pointer
-   */
-  VRModule* GetVRModule() const { return parent_; }
-
-  /**
    * @brief Parse result code from response
    *
    * @param value message in response from Mobile
@@ -144,10 +138,11 @@ class BaseCommandRequest : public Command,
    * @param info Provides additional human readable info regarding the result(may be empty)
    * @param message that will be sent to Mobile
    */
-  void PrepareResponseMessageForMobile(bool success,
-                                    const int& result_code,
-                                    const std::string& info,
-                                    application_manager::MessagePtr& message);
+  void PrepareResponseMessageForMobile(
+      bool success,
+      const int& result_code,
+      const std::string& info,
+      application_manager::MessagePtr& message);
 
   /**
    * @brief send request to HMI or Mobile

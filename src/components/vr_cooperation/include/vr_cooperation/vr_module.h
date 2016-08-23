@@ -122,12 +122,6 @@ class VRModule : public functional_modules::GenericModule,
    */
   virtual void OnReceived(const vr_hmi_api::ServiceMessage& message);
 
-  /**
-   * @brief check if VRService is supported or not
-   * @return true if supported, false if not supported
-   */
-  bool IsVRServiceSupported() const;
-
  protected:
   /**
    * @brief Remove extension for all applications
@@ -165,6 +159,17 @@ class VRModule : public functional_modules::GenericModule,
    * @param msg hmi message
    */
   bool SetHMIMessageType(application_manager::MessagePtr& msg) const;
+
+  /**
+   * @brief check if VRService is supported or not
+   * @return true if supported, false if not supported
+   */
+  bool IsVRServiceSupported() const;
+
+  /**
+   * @brief send response message to mobile in case VRService is not supported
+   */
+  void SendUnsupportedServiceResponse(application_manager::MessagePtr& msg);
 
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;

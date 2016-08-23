@@ -52,6 +52,8 @@ namespace hmi_api = functional_modules::hmi_api;
 
 using json_keys::kId;
 using json_keys::kMethod;
+using json_keys::kSuccess;
+using json_keys::kResultCode;
 
 PLUGIN_FACTORY(VRModule)
 
@@ -97,6 +99,11 @@ ProcessResult VRModule::ProcessMessage(application_manager::MessagePtr msg) {
   if (!msg) {
     LOG4CXX_ERROR(logger_, "Null pointer message received.");
     return ProcessResult::FAILED;
+  }
+
+  if (!IsVRServiceSupported()) {
+    SendUnsupportedServiceResponse(msg);
+    return ProcessResult::PROCESSED;
   }
 
   msg->set_function_name(MessageHelper::GetMobileAPIName(
@@ -328,6 +335,22 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
 bool IsVRServiceSupported() {
   // TODO(KKarlash): Should be implemented
   return true;
+}
+
+void VRModule::SendUnsupportedServiceResponse(
+    application_manager::MessagePtr& msg) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  Json::Value msg_params;
+  msg_params[kId] = service()->GetNextCorrelationID();
+  msg_params[kSuccess] = false;
+  msg_params[kResultCode] = hmi_apis::Common_Result::UNSUPPORTED_RESOURCE;
+
+  msg->set_message_type(application_manager::MessageType::kResponse);
+  Json::FastWriter writer;
+  msg->set_json_message(writer.write(msg_params));
+  msg->set_correlation_id(msg_params[kId].asInt());
+  msg->set_protocol_version(application_manager::ProtocolVersion::kV2);
+  SendMessageToMobile(msg);
 }
 
 }  // namespace vr_cooperation

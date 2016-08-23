@@ -57,18 +57,11 @@ void RegisterServiceRequest::Execute() {
   Json::Reader reader;
   reader.parse(message_->json_message(), params);
 
-  int result_code;
+  int result_code = GetHMIResultCode(result_codes::kSuccess);
   bool success = true;
   std::string info;
-  VRModule* parent = GetVRModule();
-  if (parent->IsVRServiceSupported()) {
-    success = true;
-    result_code = GetHMIResultCode(result_codes::kSuccess);
-  } else {
-    success = false;
-    result_code = GetHMIResultCode(result_codes::kUnsupportedResource);
-  }
-  // TODO(Thinh): check to return other results code
+
+  // TODO(Thinh): check to return results code
 
   SendResponse(success, result_code, info, false);
   if (success) {

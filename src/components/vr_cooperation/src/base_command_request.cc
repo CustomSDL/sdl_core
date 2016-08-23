@@ -255,8 +255,6 @@ void BaseCommandRequest::PrepareResponseMessageForMobile(bool success,
   Json::FastWriter writer;
   message->set_json_message(writer.write(msg_params));
   message->set_correlation_id(msg_params[kId].asInt());
-  message->set_function_id(message_->function_id());
-  message->set_connection_key(message_->connection_key());
   message->set_protocol_version(application_manager::ProtocolVersion::kV2);
 }
 
