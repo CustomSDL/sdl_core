@@ -43,8 +43,9 @@ class VRModule;
 
 namespace commands {
 
-class RequestFromHMI: public Command,
-  public event_engine::EventObserver<vr_hmi_api::ServiceMessage, int> {
+class RequestFromHMI : public Command,
+  public event_engine::EventObserver<vr_hmi_api::ServiceMessage,
+                                     vr_hmi_api::RPCName> {
  public:
   /**
    * @brief RequestFromHMI class constructor
@@ -82,21 +83,20 @@ class RequestFromHMI: public Command,
   /**
    * @brief SendResponse allows to send response to hmi
    */
-
   void SendResponse();
+
   /**
    * @brief executes specific logic of children classes
    */
-  void virtual Execute() = 0;
+  virtual void Execute() = 0;
 
   /**
    * @brief Interface method that is called whenever new event received
    */
-  void virtual OnEvent() = 0;
-
-  vr_hmi_api::ServiceMessage message_;
+  virtual void OnEvent() = 0;
 
  private:
+  vr_hmi_api::ServiceMessage message_;
   VRModule* parent_;
   DISALLOW_COPY_AND_ASSIGN(RequestFromHMI);
 };

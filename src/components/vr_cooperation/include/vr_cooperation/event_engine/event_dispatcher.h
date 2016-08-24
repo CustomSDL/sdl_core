@@ -133,7 +133,7 @@ void EventDispatcher<EventMessage, EventID>::raise_event(
       }
     }
 
-    if ((MessageType::kResponse  == event.event_message_type())) {
+    if (MessageType::kResponse  == event.event_message_type()) {
       list = observers_[event.id()][event.event_message_correlation_id()];
     }
   }

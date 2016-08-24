@@ -39,9 +39,8 @@ namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-RequestFromHMI::RequestFromHMI(
-    VRModule* parent,
-    const vr_hmi_api::ServiceMessage& message)
+RequestFromHMI::RequestFromHMI(VRModule* parent,
+                               const vr_hmi_api::ServiceMessage& message)
     : message_(message),
       parent_(parent) {
 }
