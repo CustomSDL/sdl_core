@@ -57,6 +57,7 @@ using json_keys::kId;
 using json_keys::kMethod;
 using json_keys::kSuccess;
 using json_keys::kResultCode;
+using json_keys::kInfo;
 
 PLUGIN_FACTORY(VRModule)
 
@@ -289,7 +290,8 @@ void VRModule::SendUnsupportedServiceResponse(
   Json::Value msg_params;
   msg_params[kId] = service()->GetNextCorrelationID();
   msg_params[kSuccess] = false;
-  msg_params[kResultCode] = hmi_apis::Common_Result::UNSUPPORTED_RESOURCE;
+  msg_params[kResultCode] = mobile_apis::Result::UNSUPPORTED_RESOURCE;
+  msg_params[kInfo] = "VR Service is not supported";
 
   msg->set_message_type(application_manager::MessageType::kResponse);
   Json::FastWriter writer;

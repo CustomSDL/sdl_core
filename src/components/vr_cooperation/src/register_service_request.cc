@@ -57,7 +57,7 @@ void RegisterServiceRequest::Execute() {
   Json::Reader reader;
   reader.parse(message_->json_message(), params);
 
-  int result_code = GetHMIResultCode(result_codes::kSuccess);
+  int result_code = mobile_apis::Result::SUCCESS;
   bool success = true;
   std::string info;
 
