@@ -51,9 +51,8 @@ class RegisterServiceRequest : public BaseCommandRequest {
    * @param parent pointer to VRModule
    * @param message Message from mobile
    **/
-  RegisterServiceRequest(
-      VRModule* parent,
-      const application_manager::MessagePtr& message);
+  RegisterServiceRequest(VRModule* parent,
+                         const application_manager::MessagePtr& message);
 
   /**
    * @brief RegisterServiceRequest class destructor

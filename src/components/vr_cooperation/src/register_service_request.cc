@@ -30,10 +30,11 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "functional_module/function_ids.h"
 #include "vr_cooperation/commands/register_service_request.h"
-#include "vr_cooperation/vr_module_constants.h"
+
+#include "functional_module/function_ids.h"
 #include "utils/logger.h"
+#include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
 
