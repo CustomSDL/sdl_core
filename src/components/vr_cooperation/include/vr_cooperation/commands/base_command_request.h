@@ -62,7 +62,6 @@ class BaseCommandRequest : public Command,
 
   /**
    * @brief BaseCommandRequest class constructor
-   * @param parent pointer to VRModule
    * @param message Message from HMI
    **/
   BaseCommandRequest(VRModule* parent,
@@ -180,7 +179,7 @@ class BaseCommandRequest : public Command,
   /**
    * @brief Returns service
    */
-  application_manager::ServicePtr service() {
+  application_manager::ServicePtr service() const{
     return service_;
   }
 

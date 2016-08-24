@@ -70,12 +70,6 @@ class ActivateServiceRequest : public BaseCommandRequest {
   virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
       int>& event);
 
-  /**
-   * @brief Send request to Mobile
-   * @param message gpb message from HMI
-   */
-  void SendRequest(const vr_hmi_api::ServiceMessage& message);
-
  private:
   /**
    * @brief Gets params from json value
@@ -89,8 +83,8 @@ class ActivateServiceRequest : public BaseCommandRequest {
    * @param message GPB message for HMI
    * @param value from json message
    */
-  void PrepareGpbMessage(vr_hmi_api::ServiceMessage& message,
-                         const Json::Value& value);
+  void PrepareGpbMessage(const Json::Value& value,
+                         vr_hmi_api::ServiceMessage& message);
 };
 
 }  // namespace commands

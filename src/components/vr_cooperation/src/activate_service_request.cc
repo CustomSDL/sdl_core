@@ -63,16 +63,9 @@ void ActivateServiceRequest::OnEvent(
   reader.parse(event.event_message()->json_message(), value);
 
   vr_hmi_api::ServiceMessage message_to_hmi;
-  PrepareGpbMessage(message_to_hmi, value);
+  PrepareGpbMessage(value, message_to_hmi);
 
   SendResponseToHMI(message_to_hmi);
-}
-
-void ActivateServiceRequest::SendRequest(
-    const vr_hmi_api::ServiceMessage& message) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  Json::Value params;
-  Json::FastWriter reader;
 }
 
 std::string ActivateServiceRequest::GetParams(
@@ -89,8 +82,8 @@ std::string ActivateServiceRequest::GetParams(
 }
 
 void ActivateServiceRequest::PrepareGpbMessage(
-    vr_hmi_api::ServiceMessage& message,
-    const Json::Value& value) {
+    const Json::Value& value,
+    vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   message.set_rpc(vr_hmi_api::ACTIVATE);
   message.set_rpc_type(vr_hmi_api::RESPONSE);

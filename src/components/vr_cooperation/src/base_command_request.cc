@@ -76,7 +76,7 @@ BaseCommandRequest::BaseCommandRequest(
     : json_message_(),
       gpb_message_(message),
       parent_(parent) {
-service_ = parent_->service();
+  service_ = parent_->service();
 }
 
 BaseCommandRequest::~BaseCommandRequest() {
