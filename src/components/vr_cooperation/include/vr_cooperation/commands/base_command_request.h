@@ -179,7 +179,7 @@ class BaseCommandRequest : public Command,
   /**
    * @brief Returns service
    */
-  application_manager::ServicePtr service() const{
+  application_manager::ServicePtr service() const {
     return service_;
   }
 
