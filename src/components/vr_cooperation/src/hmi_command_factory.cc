@@ -30,52 +30,31 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
+#include "vr_cooperation/hmi_command_factory.h"
 
-#include "application_manager/message.h"
-#include "functional_module/function_ids.h"
-#include "utils/macro.h"
-#include "vr_cooperation/event_engine/event.h"
+#include "utils/logger.h"
+#include "vr_cooperation/interface/hmi.pb.h"
+#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/commands/on_service_deactivated_notification.h"
 
 namespace vr_cooperation {
 
-class VRModuleEvent : public event_engine::Event<
-    application_manager::MessagePtr, functional_modules::MobileFunctionID> {
- public:
-  /**
-   * @brief Constructor with parameters
-   *
-   * @param id Event ID. (mobile function name)
-   * @param message Params in mobile response
-   */
-  VRModuleEvent(const application_manager::MessagePtr& message,
-                const functional_modules::MobileFunctionID& id);
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-  /**
-   * @brief Destructor
-   */
-  virtual ~VRModuleEvent();
-
-  /*
-   * @brief Retrieves event message request ID
-   */
-  virtual int32_t event_message_function_id() const;
-
-  /*
-   * @brief Retrieves event message correlation ID
-   */
-  virtual int32_t event_message_correlation_id() const;
-
-  /*
-   * @brief Retrieves event message response type
-   */
-  virtual event_engine::MessageType event_message_type() const;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(VRModuleEvent);
-};
+commands::Command* HMICommandFactory::CreateCommand(
+    VRModule* parent,
+    const vr_hmi_api::ServiceMessage& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  switch (message.rpc()) {
+// TODO(Giang): Uncomment when OnServiceDeactivatedNotification implementation
+//    case vr_hmi_api::RPCName::ON_DEACTIVATED: {
+//      return new commands::OnServiceDeactivatedNotification(parent, message);
+//    }
+    default: {
+      return NULL;
+    }
+  }
+}
 
 }  // namespace vr_cooperation
 
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_

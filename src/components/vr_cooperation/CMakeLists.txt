@@ -40,10 +40,13 @@ set (SOURCES
     ./src/gpb_data_sender_receiver.cc
     ./src/mobile_command_factory.cc
     ./src/base_command_request.cc
+    ./src/hmi_command_factory.cc
+    ./src/request_from_hmi.cc
     ./src/register_service_request.cc
     ./src/unregister_service_request.cc
     ./src/activate_service_request.cc
     ./src/vr_module_event.cc
+    ./src/vr_module_event_gpb.cc
     ./src/message_helper.cc
     ./src/on_service_deactivated_notification.cc
 )

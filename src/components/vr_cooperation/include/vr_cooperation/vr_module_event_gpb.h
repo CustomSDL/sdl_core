@@ -30,32 +30,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_GPB_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_GPB_H_
 
-#include "application_manager/message.h"
 #include "functional_module/function_ids.h"
 #include "utils/macro.h"
 #include "vr_cooperation/event_engine/event.h"
+#include "vr_cooperation/interface/hmi.pb.h"
 
 namespace vr_cooperation {
 
-class VRModuleEvent : public event_engine::Event<
-    application_manager::MessagePtr, functional_modules::MobileFunctionID> {
+class VRModuleEventGPB :
+  public event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName> {
  public:
   /**
    * @brief Constructor with parameters
-   *
-   * @param id Event ID. (mobile function name)
    * @param message Params in mobile response
    */
-  VRModuleEvent(const application_manager::MessagePtr& message,
-                const functional_modules::MobileFunctionID& id);
+  explicit VRModuleEventGPB(const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief Destructor
    */
-  virtual ~VRModuleEvent();
+  virtual ~VRModuleEventGPB();
 
   /*
    * @brief Retrieves event message request ID
@@ -73,9 +70,9 @@ class VRModuleEvent : public event_engine::Event<
   virtual event_engine::MessageType event_message_type() const;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(VRModuleEvent);
+  DISALLOW_COPY_AND_ASSIGN(VRModuleEventGPB);
 };
 
 }  // namespace vr_cooperation
 
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_GPB_H_

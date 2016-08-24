@@ -30,52 +30,40 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_HMI_COMMAND_FACTORY_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_HMI_COMMAND_FACTORY_H_
 
 #include "application_manager/message.h"
-#include "functional_module/function_ids.h"
 #include "utils/macro.h"
-#include "vr_cooperation/event_engine/event.h"
+#include "vr_cooperation/commands/command.h"
+
+namespace vr_hmi_api {
+class ServiceMessage;
+}  // namespace vr_hmi_api
 
 namespace vr_cooperation {
+class VRModule;
 
-class VRModuleEvent : public event_engine::Event<
-    application_manager::MessagePtr, functional_modules::MobileFunctionID> {
+/**
+ * @brief Factory class for command creation
+ */
+class HMICommandFactory {
  public:
   /**
-   * @brief Constructor with parameters
-   *
-   * @param id Event ID. (mobile function name)
-   * @param message Params in mobile response
+   * @brief Create command object and return pointer to it
+   * @param parent pointer to VRmodule
+   * @param  message Message shared pointer.
+   * @return Pointer to created command object.
    */
-  VRModuleEvent(const application_manager::MessagePtr& message,
-                const functional_modules::MobileFunctionID& id);
-
-  /**
-   * @brief Destructor
-   */
-  virtual ~VRModuleEvent();
-
-  /*
-   * @brief Retrieves event message request ID
-   */
-  virtual int32_t event_message_function_id() const;
-
-  /*
-   * @brief Retrieves event message correlation ID
-   */
-  virtual int32_t event_message_correlation_id() const;
-
-  /*
-   * @brief Retrieves event message response type
-   */
-  virtual event_engine::MessageType event_message_type() const;
+  static commands::Command* CreateCommand(
+      VRModule* parent,
+      const vr_hmi_api::ServiceMessage& message);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(VRModuleEvent);
+  HMICommandFactory();
+  DISALLOW_COPY_AND_ASSIGN(HMICommandFactory);
 };
 
 }  // namespace vr_cooperation
 
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_HMI_COMMAND_FACTORY_H_

@@ -126,18 +126,14 @@ void EventDispatcher<EventMessage, EventID>::raise_event(
   {
     sync_primitives::AutoLock auto_lock(state_lock_);
     // check if event is notification
-    if (hmi_apis::messageType::notification ==
-        event.event_message_type()) {
+    if (MessageType::kNotification == event.event_message_type()) {
       typename ObserversMap::iterator it = observers_[event.id()].begin();
       for (; observers_[event.id()].end() != it; ++it) {
         list = it->second;
       }
     }
 
-    if ((hmi_apis::messageType::response  ==
-        event.event_message_type())
-        || (hmi_apis::messageType::error_response ==
-            event.event_message_type())) {
+    if ((MessageType::kResponse  == event.event_message_type())) {
       list = observers_[event.id()][event.event_message_correlation_id()];
     }
   }
@@ -198,4 +194,4 @@ void EventDispatcher<EventMessage, EventID>::remove_observer(
 
 }  // namespace event_engine
 
-#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_EVENT_ENGINE_EVENT_DISPATCHER_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_EVENT_ENGINE_EVENT_DISPATCHER_H_

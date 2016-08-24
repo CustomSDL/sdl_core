@@ -30,52 +30,47 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
-
-#include "application_manager/message.h"
-#include "functional_module/function_ids.h"
-#include "utils/macro.h"
-#include "vr_cooperation/event_engine/event.h"
+#include "vr_cooperation/commands/request_from_hmi.h"
+#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
-class VRModuleEvent : public event_engine::Event<
-    application_manager::MessagePtr, functional_modules::MobileFunctionID> {
- public:
-  /**
-   * @brief Constructor with parameters
-   *
-   * @param id Event ID. (mobile function name)
-   * @param message Params in mobile response
-   */
-  VRModuleEvent(const application_manager::MessagePtr& message,
-                const functional_modules::MobileFunctionID& id);
+namespace commands {
 
-  /**
-   * @brief Destructor
-   */
-  virtual ~VRModuleEvent();
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-  /*
-   * @brief Retrieves event message request ID
-   */
-  virtual int32_t event_message_function_id() const;
+RequestFromHMI::RequestFromHMI(
+    VRModule* parent,
+    const vr_hmi_api::ServiceMessage& message)
+    : message_(message),
+      parent_(parent) {
+}
 
-  /*
-   * @brief Retrieves event message correlation ID
-   */
-  virtual int32_t event_message_correlation_id() const;
+RequestFromHMI::~RequestFromHMI() {
+}
 
-  /*
-   * @brief Retrieves event message response type
-   */
-  virtual event_engine::MessageType event_message_type() const;
+void RequestFromHMI::OnTimeout() {
+  LOG4CXX_AUTO_TRACE(logger_);
+}
 
- private:
-  DISALLOW_COPY_AND_ASSIGN(VRModuleEvent);
-};
+void RequestFromHMI::Run() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  Execute();    // run child's logic
+}
 
+void RequestFromHMI::on_event() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  OnEvent();  // run child's logic
+}
+
+void RequestFromHMI::SendRequest() {
+  LOG4CXX_AUTO_TRACE(logger_);
+}
+
+void RequestFromHMI::SendResponse() {
+  LOG4CXX_AUTO_TRACE(logger_);
+}
+
+}  // namespace  commands
 }  // namespace vr_cooperation
 
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
