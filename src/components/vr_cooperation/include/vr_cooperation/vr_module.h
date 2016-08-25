@@ -117,6 +117,12 @@ class VRModule : public functional_modules::GenericModule,
   virtual void OnReceived(const vr_hmi_api::ServiceMessage& message);
 
   /**
+   * Removed request from request controller
+   * @param correlation_id request id
+   */
+  void UnregisterRequest(uint32_t correlation_id);
+
+  /**
    * @brief Returns key of application that process VR requests.
    * @return mobile application connection key
    */
@@ -145,6 +151,21 @@ class VRModule : public functional_modules::GenericModule,
    */
   void set_default_app_id(int32_t app_id) {
     default_app_id_ = app_id;
+  }
+
+  /**
+   * @brief set_default_app_id setter for default vr-service app id
+   * @param app_id default vr-service app id
+   */
+  void set_supported(bool supported) {
+    supported_ = supported;
+  }
+
+  /**
+   * @brief Returns unique correlation ID for next HMI request
+   */
+  uint32_t GetNextCorrelationID() {
+    return service()->GetNextCorrelationID();
   }
 
  protected:
@@ -190,6 +211,7 @@ class VRModule : public functional_modules::GenericModule,
   VRProxy proxy_;
   int32_t activated_connection_key_;
   int32_t default_app_id_;
+  bool supported_;
 
   DISALLOW_COPY_AND_ASSIGN(VRModule);
 };
