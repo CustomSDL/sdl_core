@@ -33,6 +33,7 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REGISTER_SERVICE_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REGISTER_SERVICE_REQUEST_H_
 
+#include <string>
 #include "vr_cooperation/commands/base_command_request.h"
 #include "vr_cooperation/vr_module.h"
 
@@ -50,9 +51,8 @@ class RegisterServiceRequest : public BaseCommandRequest {
    * @param parent pointer to VRModule
    * @param message Message from mobile
    **/
-  explicit RegisterServiceRequest(
-      VRModule* parent,
-      const application_manager::MessagePtr& message);
+  RegisterServiceRequest(VRModule* parent,
+                         const application_manager::MessagePtr& message);
 
   /**
    * @brief RegisterServiceRequest class destructor
@@ -66,8 +66,10 @@ class RegisterServiceRequest : public BaseCommandRequest {
 
   /**
    * @brief This method will be called whenever new event received
+   * @param event The received event
    */
-  virtual void OnEvent();
+  virtual void OnEvent(const event_engine::Event<
+                       application_manager::MessagePtr, std::string>& event);
 };
 
 }  // namespace commands
