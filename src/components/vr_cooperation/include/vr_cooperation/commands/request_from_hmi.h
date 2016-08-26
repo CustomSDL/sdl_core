@@ -72,8 +72,7 @@ class RequestFromHMI : public Command,
   /**
    * @brief Interface method that is called whenever new event received
    */
-  virtual void on_event(const event_engine::Event<
-                        vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event);
+  virtual void on_event();
 
  protected:
   /**
@@ -94,12 +93,7 @@ class RequestFromHMI : public Command,
   /**
    * @brief Interface method that is called whenever new event received
    */
-  virtual void OnEvent(
-      const event_engine::Event<
-      vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) = 0;
-
-  const vr_hmi_api::ServiceMessage& GetMessage() const { return message_; }
-  VRModule* GetVRModule() const { return parent_; }
+  virtual void OnEvent() = 0;
 
  protected:
   VRModule* parent() const {

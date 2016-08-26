@@ -35,6 +35,7 @@
 #include "functional_module/function_ids.h"
 #include "utils/logger.h"
 #include "vr_cooperation/vr_module_constants.h"
+#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
@@ -43,34 +44,31 @@ namespace commands {
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 OnDefaultServiceChosenNotification::OnDefaultServiceChosenNotification(
-      VRModule* parent,
-      const vr_hmi_api::ServiceMessage& message)
-  : RequestFromHMI(parent, message) {
+    VRModule* parent, const vr_hmi_api::ServiceMessage& message)
+    : message_(message),
+      parent_(parent) {
 }
 
 OnDefaultServiceChosenNotification::~OnDefaultServiceChosenNotification() {
 }
 
-void OnDefaultServiceChosenNotification::Execute() {
+void OnDefaultServiceChosenNotification::Run() {
   LOG4CXX_AUTO_TRACE(logger_);
 
   int32_t app_id = -1;
-  vr_hmi_api::ServiceMessage message = GetMessage();
   vr_hmi_api::OnDefaultServiceChosenNotification params;
-  if (message.has_params()) {
-    bool ret = params.ParseFromString(message.params());
+  if (message_.has_params()) {
+    bool ret = params.ParseFromString(message_.params());
     if (ret) {
       app_id = params.has_appid() ? params.appid() : -1;
-      GetVRModule()->set_default_app_id(app_id);
+      parent_->set_default_app_id(app_id);
     } else {
       LOG4CXX_WARN(logger_, "Could not parse params");
     }
   }
 }
 
-void OnDefaultServiceChosenNotification::OnEvent(
-    const event_engine::Event<
-    vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
+void OnDefaultServiceChosenNotification::OnTimeout() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 

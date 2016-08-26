@@ -34,24 +34,25 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_DEFAULT_SERVICE_CHOSEN_NOTIFICATION_H_
 
 #include <string>
-#include "vr_cooperation/commands/request_from_hmi.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/commands/command.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 
 namespace vr_cooperation {
+
+class VRModule;
 
 namespace commands {
 
 /**
  * @brief OnDefaultServiceChosenNotification command class
  */
-class OnDefaultServiceChosenNotification : public RequestFromHMI {
+class OnDefaultServiceChosenNotification : public Command {
  public:
   /**
    * @brief OnDefaultServiceChosenNotification class constructor
    * @param parent pointer to VRModule
    * @param message Message from HMI
-   **/
+   */
   OnDefaultServiceChosenNotification(
       VRModule* parent,
       const vr_hmi_api::ServiceMessage& message);
@@ -62,17 +63,18 @@ class OnDefaultServiceChosenNotification : public RequestFromHMI {
   virtual ~OnDefaultServiceChosenNotification();
 
   /**
-   * @brief Execute command
-   */
-  virtual void Execute();
+     * @brief run command
+     */
+    virtual void Run();
 
   /**
-   * @brief This method will be called whenever new event received
-   * @param event The received event
+   * @brief on timeout reaction
    */
-  virtual void OnEvent(
-      const event_engine::Event<
-      vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event);
+  virtual void OnTimeout();
+
+ private:
+  vr_hmi_api::ServiceMessage message_;
+  VRModule* parent_;
 };
 
 }  // namespace commands
