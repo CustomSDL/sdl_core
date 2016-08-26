@@ -37,6 +37,12 @@
 
 namespace event_engine {
 
+enum MessageType {
+  kRequest,
+  kResponse,
+  kNotification
+};
+
 template<typename EventMessage, typename EventID>
 class Event {
  public:
@@ -85,7 +91,7 @@ class Event {
   /*
    * @brief Retrieves event message response type
    */
-  virtual int32_t event_message_type() const = 0;
+  virtual MessageType event_message_type() const = 0;
 
  protected:
   EventMessage event_message_;
@@ -105,11 +111,12 @@ const EventMessage& Event<EventMessage, EventID>::event_message() const {
 }
 
 template<typename EventMessage, typename EventID>
-Event<EventMessage, EventID>::Event(const EventMessage& message, const EventID& id)
-: event_message_(message),
-  id_(id) {
+Event<EventMessage, EventID>::Event(const EventMessage& message,
+                                    const EventID& id)
+    : event_message_(message),
+      id_(id) {
 }
 
 }  // namespace event_engine
 
-#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_EVENT_ENGINE_EVENT_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_EVENT_ENGINE_EVENT_H_

@@ -30,52 +30,78 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REQUEST_FROM_HMI_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REQUEST_FROM_HMI_H_
 
-#include "application_manager/message.h"
-#include "functional_module/function_ids.h"
 #include "utils/macro.h"
-#include "vr_cooperation/event_engine/event.h"
+#include "vr_cooperation/commands/command.h"
+#include "vr_cooperation/event_engine/event_observer.h"
+#include "vr_cooperation/interface/hmi.pb.h"
 
 namespace vr_cooperation {
+class VRModule;
 
-class VRModuleEvent : public event_engine::Event<
-    application_manager::MessagePtr, functional_modules::MobileFunctionID> {
+namespace commands {
+
+class RequestFromHMI : public Command,
+  public event_engine::EventObserver<vr_hmi_api::ServiceMessage,
+                                     vr_hmi_api::RPCName> {
  public:
   /**
-   * @brief Constructor with parameters
-   *
-   * @param id Event ID. (mobile function name)
-   * @param message Params in mobile response
+   * @brief RequestFromHMI class constructor
+   * @param parent pointer to VRmodule
+   * @param message Message from HMI
    */
-  VRModuleEvent(const application_manager::MessagePtr& message,
-                const functional_modules::MobileFunctionID& id);
+  RequestFromHMI(VRModule* parent, const vr_hmi_api::ServiceMessage& message);
 
   /**
-   * @brief Destructor
+   * @brief RequestFromHMI class destructor
    */
-  virtual ~VRModuleEvent();
+  virtual ~RequestFromHMI();
 
-  /*
-   * @brief Retrieves event message request ID
+  /**
+   * @brief on timeout reaction
    */
-  virtual int32_t event_message_function_id() const;
+  virtual void OnTimeout();
 
-  /*
-   * @brief Retrieves event message correlation ID
+  /**
+   * @brief run command
    */
-  virtual int32_t event_message_correlation_id() const;
+  virtual void Run();
 
-  /*
-   * @brief Retrieves event message response type
+  /**
+   * @brief Interface method that is called whenever new event received
    */
-  virtual event_engine::MessageType event_message_type() const;
+  virtual void on_event();
+
+ protected:
+  /**
+   * @brief Sends request to mobile
+   */
+  void SendRequest();
+
+  /**
+   * @brief SendResponse allows to send response to hmi
+   */
+  void SendResponse();
+
+  /**
+   * @brief executes specific logic of children classes
+   */
+  virtual void Execute() = 0;
+
+  /**
+   * @brief Interface method that is called whenever new event received
+   */
+  virtual void OnEvent() = 0;
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(VRModuleEvent);
+  vr_hmi_api::ServiceMessage message_;
+  VRModule* parent_;
+  DISALLOW_COPY_AND_ASSIGN(RequestFromHMI);
 };
 
+}  // namespace commands
 }  // namespace vr_cooperation
 
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_EVENT_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REQUEST_FROM_HMI_H_

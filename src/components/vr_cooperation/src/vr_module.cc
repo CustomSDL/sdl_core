@@ -37,10 +37,12 @@
 #include "json/json.h"
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
 #include "vr_cooperation/event_engine/event_dispatcher.h"
+#include "vr_cooperation/hmi_command_factory.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 #include "vr_cooperation/mobile_command_factory.h"
 #include "vr_cooperation/message_helper.h"
 #include "vr_cooperation/vr_module_event.h"
+#include "vr_cooperation/vr_module_event_gpb.h"
 #include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
 
@@ -74,6 +76,7 @@ VRModule::~VRModule() {
 }
 
 void VRModule::SubcribeToRPCMessage() {
+  LOG4CXX_AUTO_TRACE(logger_);
   plugin_info_.mobile_function_list.push_back(
       MobileFunctionID::REGISTER_SERVICE);
 
@@ -257,17 +260,18 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
 
   if (vr_hmi_api::MessageType::RESPONSE == message.rpc_type()) {
     if (vr_hmi_api::RPCName::SUPPORT_SERVICE == message.rpc()) {
-      // TODO(Giang): raise_event after VRModuleEvent for GPB implementation
+      VRModuleEventGPB event(message);
+      EventDispatcher<vr_hmi_api::ServiceMessage,
+                      vr_hmi_api::RPCName>::instance()->raise_event(event);
     }
   } else {
-//    Should un-comment when HMICommandFactory implementation
-//    commands::Command* command = HMICommandFactory::CreateCommand(this, message);
-//    if (command) {
-//      if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
-//        request_controller_.AddRequest(message.correlation_id(), command);
-//      }
-//      command->Run();
-//    }
+    commands::Command* command = HMICommandFactory::CreateCommand(this, message);
+    if (command) {
+      if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
+        request_controller_.AddRequest(message.correlation_id(), command);
+      }
+      command->Run();
+    }
   }
 }
 
