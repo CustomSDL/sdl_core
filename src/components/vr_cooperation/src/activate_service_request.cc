@@ -56,7 +56,7 @@ void ActivateServiceRequest::Execute() {
 
 void ActivateServiceRequest::OnEvent(
     const event_engine::Event<application_manager::MessagePtr,
-    int>& event) {
+                              vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value value;
   Json::Reader reader;

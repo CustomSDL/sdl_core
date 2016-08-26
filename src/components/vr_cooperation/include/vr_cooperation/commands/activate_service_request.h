@@ -49,10 +49,9 @@ class ActivateServiceRequest : public BaseCommandRequest {
    * @brief ActivateServiceRequest class constructor
    * @param parent pointer to VRModule
    * @param message Message from HMI
-   **/
-  explicit ActivateServiceRequest(
-      VRModule* parent,
-      const vr_hmi_api::ServiceMessage& message);
+   */
+  ActivateServiceRequest(VRModule* parent,
+                         const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief ActivateServiceRequest class destructor
@@ -67,8 +66,9 @@ class ActivateServiceRequest : public BaseCommandRequest {
   /**
    * @brief This method will be called whenever new event received
    */
-  virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
-      int>& event);
+  virtual void OnEvent(
+      const event_engine::Event<application_manager::MessagePtr,
+                                vr_hmi_api::RPCName>& event);
 
  private:
   /**
