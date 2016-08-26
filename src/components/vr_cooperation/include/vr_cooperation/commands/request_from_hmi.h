@@ -95,6 +95,15 @@ class RequestFromHMI : public Command,
    */
   virtual void OnEvent() = 0;
 
+ protected:
+  VRModule* parent() const {
+    return parent_;
+  }
+
+  vr_hmi_api::ServiceMessage& gpb_message() {
+    return message_;
+  }
+
  private:
   vr_hmi_api::ServiceMessage message_;
   VRModule* parent_;

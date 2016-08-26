@@ -278,9 +278,9 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
   }
 }
 
-bool IsVRServiceSupported() {
-  // TODO(KKarlash): Should be implemented
-  return true;
+bool VRModule::IsVRServiceSupported() const {
+  LOG4CXX_DEBUG(logger_, "VR supported: " << static_cast<int32_t>(supported_));
+  return supported_;
 }
 
 void VRModule::SendUnsupportedServiceResponse(

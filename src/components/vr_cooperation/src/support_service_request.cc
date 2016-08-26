@@ -39,8 +39,10 @@ namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "SupportServiceRequest")
 
-SupportServiceRequest::SupportServiceRequest(VRModule* parent)
-  : message_() {
+SupportServiceRequest::SupportServiceRequest(VRModule* parent,
+    const vr_hmi_api::ServiceMessage& message)
+  : RequestFromHMI(parent, message),
+    message_(message) {
 }
 
 SupportServiceRequest::~SupportServiceRequest() {
@@ -51,17 +53,14 @@ void SupportServiceRequest::Execute() {
 
   message_.set_rpc(vr_hmi_api::SUPPORT_SERVICE);
   message_.set_rpc_type(vr_hmi_api::REQUEST);
-  //TODO(KKarlash): uncomment after HMI factory implementation
-  //message_.set_correlation_id(parent_->GetNextCorrelationID());
-  //parent_->SendMessageToHMI();
+  message_.set_correlation_id(parent()->GetNextCorrelationID());
+  parent()->SendMessageToHMI(message_);
 }
 
-void SupportServiceRequest::OnEvent(/*
+void SupportServiceRequest::OnEvent(
     const event_engine::Event<vr_hmi_api::ServiceMessage,
-    vr_hmi_api::RPCName>& event*/) {
+    vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
-  //TODO(KKarlash): Uncomment after HMI factory implementation
-  /*
   const vr_hmi_api::ServiceMessage message = event.event_message();
   if (!message.has_params()) {
     LOG4CXX_WARN(logger_, "Message does not contain params");
@@ -70,12 +69,11 @@ void SupportServiceRequest::OnEvent(/*
   vr_hmi_api::SupportServiceResponse response;
   if (response.ParseFromString(message.params())) {
     const bool supported = vr_hmi_api::SUCCESS == response.result();
-    parent_->set_supported(supported);
-    parent_->UnregisterRequest(message.correlation_id());
+    parent()->set_supported(supported);
+    parent()->UnregisterRequest(message.correlation_id());
   } else {
     LOG4CXX_WARN(logger_, "Could not parse params");
   }
-  */
 }
 
 }  // namespace commands
