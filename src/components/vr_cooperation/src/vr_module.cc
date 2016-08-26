@@ -240,18 +240,12 @@ void VRModule::OnDeviceRemoved(const connection_handler::DeviceHandle& device) {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-void VRModule::SendMessageToHMI(application_manager::MessagePtr msg) {
-  LOG4CXX_DEBUG(logger_, "Message to HMI: " << msg->json_message());
-  service()->SendMessageToHMI(msg);
-  request_controller_.DeleteRequest(msg->correlation_id());
-}
-
-void VRModule::SendMessageToHMI(const vr_hmi_api::ServiceMessage& message) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  std::string str;
-  google::protobuf::TextFormat::PrintToString(message, &str);
-  LOG4CXX_DEBUG(logger_, "Protobuf message to HMI: " << str);
-  proxy_.Send(message);
+void VRModule::SendMessageToHMI(const vr_hmi_api::ServiceMessage& msg) {
+  LOG4CXX_DEBUG(logger_, "Message to HMI: " << msg.DebugString());
+  if (!proxy_.Send(msg)) {
+    LOG4CXX_ERROR(logger_, "Couldn't send GPB message");
+  }
+  request_controller_.DeleteRequest(msg.correlation_id());
 }
 
 void VRModule::SendMessageToMobile(application_manager::MessagePtr msg) {

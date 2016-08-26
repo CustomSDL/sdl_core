@@ -42,7 +42,7 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "ActivateServiceRequest")
 
 ActivateServiceRequest::ActivateServiceRequest(
       VRModule* parent,
-      const application_manager::MessagePtr& message)
+      const vr_hmi_api::ServiceMessage& message)
   : BaseCommandRequest(parent, message) {
 }
 
@@ -51,27 +51,44 @@ ActivateServiceRequest::~ActivateServiceRequest() {
 
 void ActivateServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-  Json::Value params;
-  Json::Reader reader;
-  reader.parse(message_->json_message(), params);
-
-  SendRequest(
-      functional_modules::hmi_api::activate_service,
-      params, true);
+  SendRequestToMobile();
 }
 
-void ActivateServiceRequest::OnEvent(const event_engine::Event<application_manager::MessagePtr,
-    std::string>& event) {
+void ActivateServiceRequest::OnEvent(
+    const event_engine::Event<application_manager::MessagePtr,
+                              vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value value;
   Json::Reader reader;
   reader.parse(event.event_message()->json_message(), value);
 
-  int result_code;
-  std::string info;
-  bool success = ParseMobileResultCode(value, result_code, info);
+  vr_hmi_api::ServiceMessage message_to_hmi;
+  PrepareGpbMessage(value, message_to_hmi);
 
-  SendResponse(success, result_code, info, true);
+  SendResponseToHMI(message_to_hmi);
+}
+
+std::string ActivateServiceRequest::GetParams(
+    const Json::Value& value) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  vr_hmi_api::ResultCode result_code;
+  ParseMobileResultCode(value, result_code);
+  vr_hmi_api::ActivateServiceResponse response;
+  response.set_result(result_code);
+  std::string params;
+  response.SerializeToString(&params);
+
+  return params;
+}
+
+void ActivateServiceRequest::PrepareGpbMessage(
+    const Json::Value& value,
+    vr_hmi_api::ServiceMessage& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  message.set_rpc(vr_hmi_api::ACTIVATE);
+  message.set_rpc_type(vr_hmi_api::RESPONSE);
+  message.set_correlation_id(service()->GetNextCorrelationID());
+  message.set_params(GetParams(value));
 }
 
 }  // namespace commands

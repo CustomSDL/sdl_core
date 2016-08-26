@@ -51,14 +51,22 @@ namespace commands {
  * @brief Base command class for requests
  */
 class BaseCommandRequest : public Command,
-  public event_engine::EventObserver<application_manager::MessagePtr, std::string> {
+  public event_engine::EventObserver<application_manager::MessagePtr,
+                                     vr_hmi_api::RPCName> {
  public:
   /**
    * @brief BaseCommandRequest class constructor
    * @param message Message from mobile
    **/
-  explicit BaseCommandRequest(VRModule* parent,
-                              const application_manager::MessagePtr& message);
+  BaseCommandRequest(VRModule* parent,
+                     const application_manager::MessagePtr& message);
+
+  /**
+   * @brief BaseCommandRequest class constructor
+   * @param message Message from HMI
+   **/
+  BaseCommandRequest(VRModule* parent,
+                     const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief BaseCommandRequest class destructor
@@ -85,16 +93,16 @@ class BaseCommandRequest : public Command,
    *
    * @param event The received event
    */
-  virtual void on_event(const event_engine::Event<application_manager::MessagePtr,
-      std::string>& event);
+  virtual void on_event(const event_engine::Event<
+      application_manager::MessagePtr, vr_hmi_api::RPCName>& event);
 
  protected:
   /**
    * @brief Converts Mobile string result code to HMI code
    * @param mobile_code Mobile result code
-   * @return eType value with HMI result code
+   * @return ResultCode value with HMI result code
    */
-  const hmi_apis::Common_Result::eType GetHMIResultCode(
+  vr_hmi_api::ResultCode GetHMIResultCode(
       const std::string& mobile_code) const;
 
   /**
@@ -102,34 +110,19 @@ class BaseCommandRequest : public Command,
    *
    * @param value message in response from Mobile
    * @param result_code Outgoing param with result code
-   * @param info Outgoing param with additional human readable info regarding the result(may be empty)
-   * @return true if it is success response? otherwise false
    */
-  bool ParseMobileResultCode(const Json::Value& value,
-                             int&  result_code,
-                             std::string& info);
+  void ParseMobileResultCode(const Json::Value& value,
+                             vr_hmi_api::ResultCode& result_code);
 
   /**
    * @brief Prepares request message for Mobile
    * @param function_id request ID
-   * @param msg_params json with message params
+   * @param msg_params params from gpb message
    * @param message that will be sent to mobile
    */
-  void PrepareRequestMessageForMobile(const char* function_id,
-      const Json::Value& message_params,
-      application_manager::MessagePtr& message);
-
-  /**
-   * @brief Prepares response message for HMI
-   * @param success true if successful; false, if failed
-   * @param result_code Mobile result codes
-   * @param info Provides additional human readable info regarding the result(may be empty)
-   * @param message that will be sent to HMI
-   */
-  void PrepareResponseMessageForHMI(bool success,
-                                    const int& result_code,
-                                    const std::string& info,
-                                    application_manager::MessagePtr& message);
+  void PrepareRequestMessageForMobile(vr_hmi_api::RPCName function_id,
+                                      const std::string& message_params,
+                                      application_manager::MessagePtr& message);
 
   /**
    * @brief Prepares response message for Mobile
@@ -140,31 +133,30 @@ class BaseCommandRequest : public Command,
    */
   void PrepareResponseMessageForMobile(
       bool success,
-      const int& result_code,
+      const std::string& result_code,
       const std::string& info,
       application_manager::MessagePtr& message);
 
   /**
-   * @brief send request to HMI or Mobile
-   * @param function_id request ID
-   * @param msg_params json with message params
-   * @param is_hmi_request send request to hmi or mobile
+   * @brief send request to Mobile
    */
-  void SendRequest(const char* function_id,
-                   const Json::Value& message_params,
-                   bool is_hmi_request = false);
+  void SendRequestToMobile();
 
   /**
-   * @brief Send response to HMI or Mobile
+   * @brief Sends response to Mobile
    * @param success true if successful; false, if failed
-   * @param result_code Mobile result codes
-   * @param info Provides additional human readable info regarding the result(may be empty)
-   * @param is_mob_response true response for mobile; false - for HMI
+   * @param result_code Mobile result code in string
+   * @param info Provides additional human readable info
    */
-  void SendResponse(bool success,
-                    const int& result_code,
-                    const std::string& info,
-                    bool is_mob_response = false);
+  void SendResponseToMobile(bool success,
+                            const std::string& result_code,
+                            const std::string& info);
+
+  /**
+   * @brief Send response to HMI
+   * @param message GPB message for HMI
+   */
+  void SendResponseToHMI(const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief send notification to HMI or Mobile
@@ -176,17 +168,29 @@ class BaseCommandRequest : public Command,
   /**
    * @brief Interface method that is called whenever new event received
    */
-  virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
-      std::string>& event) = 0;
+  virtual void OnEvent(
+      const event_engine::Event<application_manager::MessagePtr,
+                                vr_hmi_api::RPCName>& event) = 0;
 
   /**
    * @brief Interface method that executes specific logic of children classes
    */
   virtual void Execute() = 0;
 
-  application_manager::MessagePtr message_;
+ protected:
+  /**
+   * @brief Returns service
+   */
+  application_manager::ServicePtr service() const {
+    return service_;
+  }
+
+ protected:
+  application_manager::MessagePtr json_message_;
 
  private:
+  vr_hmi_api::ServiceMessage gpb_message_;
+
   application_manager::ServicePtr service_;
 
   VRModule* parent_;

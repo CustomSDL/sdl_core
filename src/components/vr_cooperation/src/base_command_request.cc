@@ -64,7 +64,17 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 BaseCommandRequest::BaseCommandRequest(
     VRModule* parent,
     const application_manager::MessagePtr& message)
-    : message_(message),
+    : json_message_(message),
+      gpb_message_(),
+      parent_(parent) {
+  service_ = parent_->service();
+}
+
+BaseCommandRequest::BaseCommandRequest(
+    VRModule* parent,
+    const vr_hmi_api::ServiceMessage& message)
+    : json_message_(),
+      gpb_message_(message),
       parent_(parent) {
   service_ = parent_->service();
 }
@@ -85,101 +95,41 @@ void BaseCommandRequest::Run() {
   Execute();  // run child's logic
 }
 
-void BaseCommandRequest::on_event(const event_engine::Event<application_manager::MessagePtr,
-    std::string>& event) {
+void BaseCommandRequest::on_event(
+    const event_engine::Event<application_manager::MessagePtr,
+    vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
   OnEvent(event);  // run child's logic
 }
 
-const hmi_apis::Common_Result::eType BaseCommandRequest::GetHMIResultCode(
+vr_hmi_api::ResultCode BaseCommandRequest::GetHMIResultCode(
     const std::string& mobile_code) const {
-  hmi_apis::Common_Result::eType hmiResCode = hmi_apis::Common_Result::GENERIC_ERROR;
+  vr_hmi_api::ResultCode hmiResCode = vr_hmi_api::INVALID_DATA;
 
   if (result_codes::kSuccess == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::SUCCESS;
-  }
-  else if (result_codes::kUnsupportedRequest == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::UNSUPPORTED_REQUEST;
-  }
-  else if (result_codes::kUnsupportedResource == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::UNSUPPORTED_RESOURCE;
-  }
-  else if (result_codes::kDisallowed == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::DISALLOWED;
-  }
-  else if (result_codes::kRejected == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::REJECTED;
-  }
-  else if (result_codes::kAborted == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::ABORTED;
-  }
-  else if (result_codes::kIgnored == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::IGNORED;
-  }
-  else if (result_codes::kRetry == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::RETRY;
-  }
-  else if (result_codes::kInUse == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::IN_USE;
-  }
-  else if (result_codes::kVehicleDataNotAvailable == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::DATA_NOT_AVAILABLE;
-  }
-  else if (result_codes::kTimedOut == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::TIMED_OUT;
-  }
-  else if (result_codes::kInvalidData == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::INVALID_DATA;
-  }
-  else if (result_codes::kCharLimitExceeded == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::CHAR_LIMIT_EXCEEDED;
-  }
-  else if (result_codes::kInvalidId == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::INVALID_ID;
-  }
-  else if (result_codes::kDuplicateName == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::DUPLICATE_NAME;
-  }
-  else if (result_codes::kApplicationNotRegistered == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::APPLICATION_NOT_REGISTERED;
-  }
-  else if (result_codes::kWrongLanguage == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::WRONG_LANGUAGE;
-  }
-  else if (result_codes::kOutOfMemory == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::OUT_OF_MEMORY;
-  }
-  else if (result_codes::kTooManyPendingRequests == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::TOO_MANY_PENDING_REQUESTS;
-  }
-  else if (result_codes::kApplicationNotRegistered == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::NO_APPS_REGISTERED;
-  }
-  else if (result_codes::kApplicationNotRegistered == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::NO_DEVICES_CONNECTED;
-  }
-  else if (result_codes::kWarnings == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::WARNINGS;
+    hmiResCode = vr_hmi_api::SUCCESS;
   }
   else if (result_codes::kGenericError == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::GENERIC_ERROR;
+    hmiResCode = vr_hmi_api::GENERIC_ERROR;
   }
-  else if (result_codes::kUserDisallowed == mobile_code) {
-    hmiResCode = hmi_apis::Common_Result::USER_DISALLOWED;
+  else if (result_codes::kUnsupportedResource == mobile_code) {
+    hmiResCode = vr_hmi_api::UNSUPPORTED_RESOURCE;
+  }
+  else if (result_codes::kWarnings == mobile_code) {
+    hmiResCode = vr_hmi_api::WARNINGS;
+  }
+  else if (result_codes::kRejected == mobile_code) {
+    hmiResCode = vr_hmi_api::REJECTED;
   }
   else {
     LOG4CXX_ERROR(logger_, "Unknown Mobile result code ");
-    hmiResCode = hmi_apis::Common_Result::GENERIC_ERROR;
+    hmiResCode = vr_hmi_api::INVALID_DATA;
   }
   return hmiResCode;
 }
 
-bool BaseCommandRequest::ParseMobileResultCode(const Json::Value& value,
-    int& result_code,
-    std::string& info) {
-  result_code = -1;
-  info = "";
-
+void BaseCommandRequest::ParseMobileResultCode(const Json::Value& value,
+    vr_hmi_api::ResultCode& result_code) {
   std::string mobile_result_code;
   if (IsMember(value, kResult) && IsMember(value[kResult], kCode)) {
     mobile_result_code = value[kResult][kCode].asString();
@@ -188,58 +138,33 @@ bool BaseCommandRequest::ParseMobileResultCode(const Json::Value& value,
   }
 
   result_code = GetHMIResultCode(mobile_result_code);
-  if (IsMember(value[kError], kMessage)) {
-    info = value[kError][kMessage].asString();
-  }
-
-  // TODO (KKarlash) compare result_code with HMI result code values
-
-  return result_code != -1;
 }
 
-void BaseCommandRequest::PrepareRequestMessageForMobile(const char* function_id,
-    const Json::Value& message_params,
+void BaseCommandRequest::PrepareRequestMessageForMobile(
+    vr_hmi_api::RPCName function_id,
+    const std::string& message_params,
     application_manager::MessagePtr& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg;
   msg[kId] = service_->GetNextCorrelationID();
   msg[kJsonrpc] = kJsonRpc;
   msg[kMethod] = function_id;
-  if (!message_params.isNull()) {
+  if (!message_params.empty()) {
     msg[kParams] = message_params;
   }
 
   message = new application_manager::Message(
       protocol_handler::MessagePriority::kDefault);
   message->set_protocol_version(application_manager::ProtocolVersion::kV2);
-  message->set_connection_key(message_->connection_key());
+  //TODO(KKarlash): add app id which will be saved in VR Module
   message->set_correlation_id(msg[kId].asInt());
   Json::FastWriter writer;
   message->set_json_message(writer.write(msg));
   message->set_message_type(application_manager::MessageType::kRequest);
 }
 
-void BaseCommandRequest::PrepareResponseMessageForHMI(bool success,
-    const int& result_code,
-    const std::string& info,
-    application_manager::MessagePtr& message) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  Json::Value msg_params;
-  msg_params[kSuccess] = success;
-  msg_params[kResultCode] = result_code;
-  if (!info.empty()) {
-    msg_params[kInfo] = info;
-  }
-
-  message->set_message_type(application_manager::MessageType::kResponse);
-  Json::FastWriter writer;
-  message->set_json_message(writer.write(msg_params));
-  message->set_correlation_id(msg_params[kId].asInt());
-  message->set_protocol_version(application_manager::ProtocolVersion::kHMI);
-}
-
 void BaseCommandRequest::PrepareResponseMessageForMobile(bool success,
-    const int& result_code,
+    const std::string& result_code,
     const std::string& info,
     application_manager::MessagePtr& message) {
   LOG4CXX_AUTO_TRACE(logger_);
@@ -248,7 +173,7 @@ void BaseCommandRequest::PrepareResponseMessageForMobile(bool success,
   msg_params[kSuccess] = success;
   msg_params[kResultCode] = result_code;
   if (!info.empty()) {
-    msg_params[kInfo] = info;
+   msg_params[kInfo] = info;
   }
 
   message->set_message_type(application_manager::MessageType::kResponse);
@@ -258,34 +183,32 @@ void BaseCommandRequest::PrepareResponseMessageForMobile(bool success,
   message->set_protocol_version(application_manager::ProtocolVersion::kV2);
 }
 
-
-void BaseCommandRequest::SendRequest(const char* function_id,
-    const Json::Value& message_params,
-    bool is_hmi_request/* = false*/) {
+void BaseCommandRequest::SendRequestToMobile() {
   LOG4CXX_AUTO_TRACE(logger_);
-
-  if (is_hmi_request) {
-    application_manager::MessagePtr message_to_send;
-    PrepareRequestMessageForMobile(function_id, message_params, message_to_send);
-    EventDispatcher<application_manager::MessagePtr, std::string>::instance()->
-        add_observer(function_id, message_to_send->correlation_id(), this);
-    LOG4CXX_DEBUG(logger_, "Request to HMI: " << message_to_send->json_message());
-    service_->SendMessageToMobile(message_to_send);
-  }
+  application_manager::MessagePtr message_to_send;
+  PrepareRequestMessageForMobile(gpb_message_.rpc(),
+                                 gpb_message_.params(), message_to_send);
+  EventDispatcher<application_manager::MessagePtr,
+                  vr_hmi_api::RPCName>::instance()
+                  ->add_observer(gpb_message_.rpc(),
+                                 message_to_send->correlation_id(), this);
+  LOG4CXX_DEBUG(logger_, "Request to Mob: " << message_to_send->json_message());
+  service_->SendMessageToMobile(message_to_send);
 }
 
-void BaseCommandRequest::SendResponse(bool success,
-    const int& result_code,
-    const std::string& info,
-    bool is_mob_response/* = false*/) {
+void BaseCommandRequest::SendResponseToMobile(bool success,
+                                              const std::string& result_code,
+                                              const std::string& info) {
   LOG4CXX_AUTO_TRACE(logger_);
-  if (is_mob_response) {
-    PrepareResponseMessageForHMI(success, result_code, info, message_);
-    parent_->SendMessageToHMI(message_);
-  } else {
-    PrepareResponseMessageForMobile(success, result_code, info, message_);
-    parent_->SendMessageToMobile(message_);
-  }
+
+  PrepareResponseMessageForMobile(success, result_code, info, json_message_);
+  parent_->SendMessageToMobile(json_message_);
+}
+
+void BaseCommandRequest::SendResponseToHMI(
+    const vr_hmi_api::ServiceMessage& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  parent_->SendMessageToHMI(message);
 }
 
 void BaseCommandRequest::SendNotification(
@@ -298,7 +221,7 @@ void BaseCommandRequest::SendNotification(
     service_message.set_rpc_type(vr_hmi_api::NOTIFICATION);
     service_message.set_correlation_id(service_->GetNextCorrelationID());
     vr_hmi_api::OnRegisterServiceNotification onregister_notification;
-    int32_t app_id = message_->connection_key();
+    int32_t app_id = json_message_->connection_key();
     // TODO(Thinh): Uncomment after vr module GPB functionality implementation
 //    app_id == parent_->default_app_id() ?
 //        onregister_notification.set_default(true) :
