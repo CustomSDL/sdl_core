@@ -35,6 +35,12 @@
 
 namespace vr_cooperation {
 
+enum ServiceType {
+  kVoiceRecognition,
+  kConnectionManager,
+  kNavigation
+};
+
 namespace result_codes {
 const char kSuccess[] = "SUCCESS";
 const char kUnsupportedRequest[] = "UNSUPPORTED_REQUEST";
@@ -75,6 +81,7 @@ const char kMessage[] = "message";
 const char kData[] = "data";
 const char kAppId[] = "appID";
 const char kCode[] = "code";
+const char kService[] = "service";
 }  // namespace json_keys
 
 }  // namespace vr_cooperation

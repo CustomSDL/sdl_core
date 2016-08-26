@@ -46,10 +46,9 @@ commands::Command* HMICommandFactory::CreateCommand(
     const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   switch (message.rpc()) {
-// TODO(Giang): Uncomment when OnServiceDeactivatedNotification implementation
-//    case vr_hmi_api::RPCName::ON_DEACTIVATED: {
-//      return new commands::OnServiceDeactivatedNotification(parent, message);
-//    }
+    case vr_hmi_api::RPCName::ON_DEACTIVATED: {
+      return new commands::OnServiceDeactivatedNotification(parent, message);
+    }
     default: {
       return NULL;
     }
