@@ -69,7 +69,8 @@ VRModule::VRModule()
     : GenericModule(kVRModuleID),
       proxy_(this),
       activated_connection_key_(-1),
-      default_app_id_(-1) {
+      default_app_id_(-1),
+      supported_(false) {
   plugin_info_.name = "VRModule";
   plugin_info_.version = 1;
   SubcribeToRPCMessage();
@@ -277,9 +278,9 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
   }
 }
 
-bool IsVRServiceSupported() {
-  // TODO(KKarlash): Should be implemented
-  return true;
+bool VRModule::IsVRServiceSupported() const {
+  LOG4CXX_DEBUG(logger_, "VR supported: " << static_cast<int32_t>(supported_));
+  return supported_;
 }
 
 void VRModule::SendUnsupportedServiceResponse(
@@ -297,6 +298,11 @@ void VRModule::SendUnsupportedServiceResponse(
   msg->set_correlation_id(msg_params[kId].asInt());
   msg->set_protocol_version(application_manager::ProtocolVersion::kV2);
   SendMessageToMobile(msg);
+}
+
+void VRModule::UnregisterRequest(uint32_t correlation_id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  request_controller_.DeleteRequest(correlation_id);
 }
 
 }  // namespace vr_cooperation
