@@ -51,7 +51,8 @@ namespace commands {
  * @brief Base command class for requests
  */
 class BaseCommandRequest : public Command,
-  public event_engine::EventObserver<application_manager::MessagePtr, int> {
+  public event_engine::EventObserver<application_manager::MessagePtr,
+                                     vr_hmi_api::RPCName> {
  public:
   /**
    * @brief BaseCommandRequest class constructor
@@ -93,7 +94,7 @@ class BaseCommandRequest : public Command,
    * @param event The received event
    */
   virtual void on_event(const event_engine::Event<
-      application_manager::MessagePtr, int>& event);
+      application_manager::MessagePtr, vr_hmi_api::RPCName>& event);
 
  protected:
   /**
@@ -132,7 +133,7 @@ class BaseCommandRequest : public Command,
    */
   void PrepareResponseMessageForMobile(
       bool success,
-      const int& result_code,
+      const std::string& result_code,
       const std::string& info,
       application_manager::MessagePtr& message);
 
@@ -148,7 +149,7 @@ class BaseCommandRequest : public Command,
    * @param info Provides additional human readable info
    */
   void SendResponseToMobile(bool success,
-                            const char* result_code,
+                            const std::string& result_code,
                             const std::string& info);
 
   /**
@@ -167,8 +168,9 @@ class BaseCommandRequest : public Command,
   /**
    * @brief Interface method that is called whenever new event received
    */
-  virtual void OnEvent(const event_engine::Event<application_manager::MessagePtr,
-      int>& event) = 0;
+  virtual void OnEvent(
+      const event_engine::Event<application_manager::MessagePtr,
+                                vr_hmi_api::RPCName>& event) = 0;
 
   /**
    * @brief Interface method that executes specific logic of children classes
@@ -183,10 +185,10 @@ class BaseCommandRequest : public Command,
     return service_;
   }
 
- private:
-
+ protected:
   application_manager::MessagePtr json_message_;
 
+ private:
   vr_hmi_api::ServiceMessage gpb_message_;
 
   application_manager::ServicePtr service_;

@@ -95,8 +95,9 @@ void BaseCommandRequest::Run() {
   Execute();  // run child's logic
 }
 
-void BaseCommandRequest::on_event(const event_engine::Event<application_manager::MessagePtr,
-    int>& event) {
+void BaseCommandRequest::on_event(
+    const event_engine::Event<application_manager::MessagePtr,
+    vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
   OnEvent(event);  // run child's logic
 }
@@ -163,7 +164,7 @@ void BaseCommandRequest::PrepareRequestMessageForMobile(
 }
 
 void BaseCommandRequest::PrepareResponseMessageForMobile(bool success,
-    const int& result_code,
+    const std::string& result_code,
     const std::string& info,
     application_manager::MessagePtr& message) {
   LOG4CXX_AUTO_TRACE(logger_);
@@ -187,26 +188,27 @@ void BaseCommandRequest::SendRequestToMobile() {
   application_manager::MessagePtr message_to_send;
   PrepareRequestMessageForMobile(gpb_message_.rpc(),
                                  gpb_message_.params(), message_to_send);
-  EventDispatcher<application_manager::MessagePtr, int>::instance()->
-      add_observer(static_cast<int>(gpb_message_.rpc()),
-                   message_to_send->correlation_id(), this);
+  EventDispatcher<application_manager::MessagePtr,
+                  vr_hmi_api::RPCName>::instance()
+                  ->add_observer(gpb_message_.rpc(),
+                                 message_to_send->correlation_id(), this);
   LOG4CXX_DEBUG(logger_, "Request to Mob: " << message_to_send->json_message());
   service_->SendMessageToMobile(message_to_send);
 }
 
 void BaseCommandRequest::SendResponseToMobile(bool success,
-                                              const char* result_code,
+                                              const std::string& result_code,
                                               const std::string& info) {
   LOG4CXX_AUTO_TRACE(logger_);
 
-  PrepareResponseMessageForMobile(success, result_code, info, message_);
-  parent_->SendMessageToMobile(message_);
+  PrepareResponseMessageForMobile(success, result_code, info, json_message_);
+  parent_->SendMessageToMobile(json_message_);
 }
 
 void BaseCommandRequest::SendResponseToHMI(
     const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
-  parent_->SendMessageToMobile(message);
+  parent_->SendMessageToHMI(message);
 }
 
 void BaseCommandRequest::SendNotification(
@@ -219,7 +221,7 @@ void BaseCommandRequest::SendNotification(
     service_message.set_rpc_type(vr_hmi_api::NOTIFICATION);
     service_message.set_correlation_id(service_->GetNextCorrelationID());
     vr_hmi_api::OnRegisterServiceNotification onregister_notification;
-    int32_t app_id = message_->connection_key();
+    int32_t app_id = json_message_->connection_key();
     // TODO(Thinh): Uncomment after vr module GPB functionality implementation
 //    app_id == parent_->default_app_id() ?
 //        onregister_notification.set_default(true) :

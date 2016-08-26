@@ -248,14 +248,6 @@ void VRModule::SendMessageToHMI(const vr_hmi_api::ServiceMessage& msg) {
   request_controller_.DeleteRequest(msg.correlation_id());
 }
 
-void VRModule::SendMessageToHMI(const vr_hmi_api::ServiceMessage& message) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  std::string str;
-  google::protobuf::TextFormat::PrintToString(message, &str);
-  LOG4CXX_DEBUG(logger_, "Protobuf message to HMI: " << str);
-  proxy_.Send(message);
-}
-
 void VRModule::SendMessageToMobile(application_manager::MessagePtr msg) {
   LOG4CXX_DEBUG(logger_, "Message to mobile: " << msg->json_message());
   service()->SendMessageToMobile(msg);

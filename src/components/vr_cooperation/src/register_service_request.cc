@@ -56,15 +56,15 @@ void RegisterServiceRequest::Execute() {
 
   Json::Value params;
   Json::Reader reader;
-  reader.parse(message_->json_message(), params);
+  reader.parse(json_message_->json_message(), params);
 
-  int result_code = mobile_apis::Result::SUCCESS;
+  std::string result_code = result_codes::kSuccess;
   bool success = true;
   std::string info;
 
   // TODO(Thinh): check to return results code
 
-  SendResponse(success, result_code, info, false);
+  SendResponseToMobile(success, result_code, info);
   if (success) {
     SendNotification(true);
   }

@@ -99,12 +99,6 @@ class VRModule : public functional_modules::GenericModule,
   void OnDeviceRemoved(const connection_handler::DeviceHandle& device);
 
   /**
-   * @brief send message to HMI
-   * @param msg message that will be sent to HMI
-   */
-  void SendMessageToHMI(const vr_hmi_api::ServiceMessage& msg);
-
-  /**
    * @brief send gpb message to HMI
    * @param message gpb message that will be sent to HMI
    */
