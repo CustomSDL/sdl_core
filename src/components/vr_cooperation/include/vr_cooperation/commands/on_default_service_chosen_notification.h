@@ -53,9 +53,8 @@ class OnDefaultServiceChosenNotification : public Command {
    * @param parent pointer to VRModule
    * @param message Message from HMI
    */
-  OnDefaultServiceChosenNotification(
-      VRModule* parent,
-      const vr_hmi_api::ServiceMessage& message);
+  OnDefaultServiceChosenNotification(VRModule* parent,
+                                     const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief OnDefaultServiceChosenNotification class destructor
@@ -63,9 +62,9 @@ class OnDefaultServiceChosenNotification : public Command {
   virtual ~OnDefaultServiceChosenNotification();
 
   /**
-     * @brief run command
-     */
-    virtual void Run();
+   * @brief run command
+   */
+  virtual void Run();
 
   /**
    * @brief on timeout reaction

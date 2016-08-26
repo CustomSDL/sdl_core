@@ -274,6 +274,9 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
         request_controller_.AddRequest(message.correlation_id(), command);
       }
       command->Run();
+      if (vr_hmi_api::MessageType::NOTIFICATION == message.rpc_type()) {
+        delete command;
+      }
     }
   }
 }

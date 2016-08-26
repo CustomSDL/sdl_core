@@ -55,16 +55,12 @@ OnDefaultServiceChosenNotification::~OnDefaultServiceChosenNotification() {
 void OnDefaultServiceChosenNotification::Run() {
   LOG4CXX_AUTO_TRACE(logger_);
 
-  int32_t app_id = -1;
   vr_hmi_api::OnDefaultServiceChosenNotification params;
-  if (message_.has_params()) {
-    bool ret = params.ParseFromString(message_.params());
-    if (ret) {
-      app_id = params.has_appid() ? params.appid() : -1;
-      parent_->set_default_app_id(app_id);
-    } else {
-      LOG4CXX_WARN(logger_, "Could not parse params");
-    }
+  if (message_.has_params() && params.ParseFromString(message_.params())) {
+    int32_t app_id = params.has_appid() ? params.appid() : -1;
+    parent_->set_default_app_id(app_id);
+  } else {
+    LOG4CXX_WARN(logger_, "Could not get result from message");
   }
 }
 
