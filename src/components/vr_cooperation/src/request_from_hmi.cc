@@ -57,9 +57,11 @@ void RequestFromHMI::Run() {
   Execute();    // run child's logic
 }
 
-void RequestFromHMI::on_event() {
+void RequestFromHMI::on_event(
+    const event_engine::Event<
+    vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
-  OnEvent();  // run child's logic
+  OnEvent(event);  // run child's logic
 }
 
 void RequestFromHMI::SendRequest() {

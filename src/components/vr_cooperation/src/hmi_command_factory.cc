@@ -35,6 +35,7 @@
 #include "utils/logger.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 #include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/commands/on_default_service_chosen_notification.h"
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
 
 namespace vr_cooperation {
@@ -46,9 +47,10 @@ commands::Command* HMICommandFactory::CreateCommand(
     const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   switch (message.rpc()) {
-    case vr_hmi_api::RPCName::ON_DEACTIVATED: {
+    case vr_hmi_api::RPCName::ON_DEACTIVATED:
       return new commands::OnServiceDeactivatedNotification(parent, message);
-    }
+    case vr_hmi_api::ON_DEFAULT_CHOSEN:
+      return new commands::OnDefaultServiceChosenNotification(parent, message);
     default: {
       return NULL;
     }
