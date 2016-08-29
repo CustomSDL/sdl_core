@@ -52,7 +52,7 @@ OnServiceDeactivatedNotification::OnServiceDeactivatedNotification(
 void OnServiceDeactivatedNotification::Run() {
   LOG4CXX_AUTO_TRACE(logger_);
   application_manager::MessagePtr mobile_msg = new application_manager::Message(
-        protocol_handler::MessagePriority::kDefault);
+      protocol_handler::MessagePriority::kDefault);
   mobile_msg->set_function_id(
       functional_modules::MobileFunctionID::ON_SERVICE_DEACTIVATED);
   mobile_msg->set_connection_key(parent_->activated_connection_key());
