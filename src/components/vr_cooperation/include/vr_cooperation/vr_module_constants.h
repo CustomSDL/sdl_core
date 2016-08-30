@@ -76,6 +76,7 @@ const char kData[] = "data";
 const char kAppId[] = "appID";
 const char kCode[] = "code";
 const char kService[] = "service";
+const char kText[] = "text";
 }  // namespace json_keys
 
 }  // namespace vr_cooperation
