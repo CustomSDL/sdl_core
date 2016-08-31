@@ -36,39 +36,28 @@
 #include "json/json.h"
 #include "utils/logger.h"
 #include "vr_cooperation/vr_module_constants.h"
+#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
 namespace commands {
+const int kVoiceRecognition = 0;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 OnServiceDeactivatedNotification::OnServiceDeactivatedNotification(
     VRModule* parent, const vr_hmi_api::ServiceMessage& message)
-    : parent_(parent),
-      message_(message) {
+    : BaseCommandNotification(parent, message) {
 }
 
-void OnServiceDeactivatedNotification::Run() {
+void OnServiceDeactivatedNotification::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-  application_manager::MessagePtr mobile_msg = new application_manager::Message(
-      protocol_handler::MessagePriority::kDefault);
-  mobile_msg->set_function_id(
-      functional_modules::MobileFunctionID::ON_SERVICE_DEACTIVATED);
-  mobile_msg->set_connection_key(parent_->activated_connection_key());
-  mobile_msg->set_message_type(application_manager::MessageType::kNotification);
-  mobile_msg->set_correlation_id(message_.correlation_id());
-  mobile_msg->set_protocol_version(application_manager::ProtocolVersion::kV3);
 
   Json::Value msg_params;
   msg_params[json_keys::kService] = kVoiceRecognition;
-  Json::FastWriter writer;
-  mobile_msg->set_json_message(writer.write(msg_params));
-  parent_->service()->SendMessageToMobile(mobile_msg);
-  parent_->set_activated_connection_key(-1);
-}
-
-void OnServiceDeactivatedNotification::OnTimeout() {
+  SendNotification(functional_modules::MobileFunctionID::ON_SERVICE_DEACTIVATED,
+                   msg_params);
+  parent()->set_activated_connection_key(-1);
 }
 
 }  // namespace commands

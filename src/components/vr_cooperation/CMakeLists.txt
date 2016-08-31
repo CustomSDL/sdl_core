@@ -48,6 +48,7 @@ set (SOURCES
     ./src/vr_module_event.cc
     ./src/vr_module_event_gpb.cc
     ./src/message_helper.cc
+    ./src/base_command_notification.cc
     ./src/on_service_deactivated_notification.cc
 )
 

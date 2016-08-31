@@ -35,12 +35,6 @@
 
 namespace vr_cooperation {
 
-enum ServiceType {
-  kVoiceRecognition,
-  kConnectionManager,
-  kNavigation
-};
-
 namespace result_codes {
 const char kSuccess[] = "SUCCESS";
 const char kUnsupportedRequest[] = "UNSUPPORTED_REQUEST";

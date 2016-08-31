@@ -34,14 +34,15 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_SERVICE_DEACTIVATED_NOTIFICATION_H_
 
 #include "utils/macro.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/commands/base_command_notification.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 
 namespace vr_cooperation {
+class VRModule;
 
 namespace commands {
 
-class OnServiceDeactivatedNotification: public Command {
+class OnServiceDeactivatedNotification: public BaseCommandNotification {
  public:
   /**
    * @brief OnServiceDeactivatedNotification class constructor
@@ -52,19 +53,11 @@ class OnServiceDeactivatedNotification: public Command {
                                    const vr_hmi_api::ServiceMessage& message);
 
   /**
-   * @brief run command
+   * @brief Execute command
    */
-  virtual void Run();
-
-  /**
-   * @brief on timeout reaction
-   */
-  virtual void OnTimeout();
+  virtual void Execute();
 
  private:
-  VRModule* parent_;
-  vr_hmi_api::ServiceMessage message_;
-
   DISALLOW_COPY_AND_ASSIGN(OnServiceDeactivatedNotification);
 };
 
