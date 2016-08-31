@@ -51,6 +51,7 @@ set (SOURCES
     ./src/base_command_notification.cc
     ./src/on_service_deactivated_notification.cc
     ./src/support_service_request.cc
+    ./src/on_default_service_chosen_notification.cc
 )
 
 set (LIBRARIES
