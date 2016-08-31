@@ -34,7 +34,7 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_DEFAULT_SERVICE_CHOSEN_NOTIFICATION_H_
 
 #include <string>
-#include "vr_cooperation/commands/command.h"
+#include "vr_cooperation/commands/base_command_notification.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 
 namespace vr_cooperation {
@@ -46,7 +46,7 @@ namespace commands {
 /**
  * @brief OnDefaultServiceChosenNotification command class
  */
-class OnDefaultServiceChosenNotification : public Command {
+class OnDefaultServiceChosenNotification : public BaseCommandNotification {
  public:
   /**
    * @brief OnDefaultServiceChosenNotification class constructor
@@ -62,18 +62,9 @@ class OnDefaultServiceChosenNotification : public Command {
   virtual ~OnDefaultServiceChosenNotification();
 
   /**
-   * @brief run command
+   * @brief execute command
    */
-  virtual void Run();
-
-  /**
-   * @brief on timeout reaction
-   */
-  virtual void OnTimeout();
-
- private:
-  vr_hmi_api::ServiceMessage message_;
-  VRModule* parent_;
+  virtual void Execute();
 };
 
 }  // namespace commands

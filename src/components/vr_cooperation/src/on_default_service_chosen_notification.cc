@@ -45,27 +45,23 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 OnDefaultServiceChosenNotification::OnDefaultServiceChosenNotification(
     VRModule* parent, const vr_hmi_api::ServiceMessage& message)
-    : message_(message),
-      parent_(parent) {
+    : BaseCommandNotification(parent, message) {
 }
 
 OnDefaultServiceChosenNotification::~OnDefaultServiceChosenNotification() {
 }
 
-void OnDefaultServiceChosenNotification::Run() {
+void OnDefaultServiceChosenNotification::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
 
   vr_hmi_api::OnDefaultServiceChosenNotification params;
-  if (message_.has_params() && params.ParseFromString(message_.params())) {
+  vr_hmi_api::ServiceMessage message = message();
+  if (message.has_params() && params.ParseFromString(message.params())) {
     int32_t app_id = params.has_appid() ? params.appid() : -1;
-    parent_->set_default_app_id(app_id);
+    parent()->set_default_app_id(app_id);
   } else {
     LOG4CXX_WARN(logger_, "Could not get result from message");
   }
-}
-
-void OnDefaultServiceChosenNotification::OnTimeout() {
-  LOG4CXX_AUTO_TRACE(logger_);
 }
 
 }  // namespace commands
