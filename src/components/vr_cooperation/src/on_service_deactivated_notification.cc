@@ -31,23 +31,33 @@
  */
 
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
+
+#include "functional_module/function_ids.h"
+#include "json/json.h"
 #include "utils/logger.h"
+#include "vr_cooperation/vr_module_constants.h"
+#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
 namespace commands {
+const int kVoiceRecognition = 0;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 OnServiceDeactivatedNotification::OnServiceDeactivatedNotification(
-    VRModule* parent)
-    : parent_(parent) {
+    VRModule* parent, const vr_hmi_api::ServiceMessage& message)
+    : BaseCommandNotification(parent, message) {
 }
 
-void OnServiceDeactivatedNotification::Execute(
-    const application_manager::MessagePtr& message) {
+void OnServiceDeactivatedNotification::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-  parent_->SendMessageToMobile(message);
+
+  Json::Value msg_params;
+  msg_params[json_keys::kService] = kVoiceRecognition;
+  SendNotification(functional_modules::MobileFunctionID::ON_SERVICE_DEACTIVATED,
+                   msg_params);
+  parent()->set_activated_connection_key(-1);
 }
 
 }  // namespace commands

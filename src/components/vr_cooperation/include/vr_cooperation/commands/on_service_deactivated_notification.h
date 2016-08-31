@@ -34,29 +34,30 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_SERVICE_DEACTIVATED_NOTIFICATION_H_
 
 #include "utils/macro.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/commands/base_command_notification.h"
+#include "vr_cooperation/interface/hmi.pb.h"
 
 namespace vr_cooperation {
+class VRModule;
 
 namespace commands {
 
-class OnServiceDeactivatedNotification {
+class OnServiceDeactivatedNotification: public BaseCommandNotification {
  public:
   /**
    * @brief OnServiceDeactivatedNotification class constructor
-   * @param parent VRModule parent
+   * @param parent VRModule parent pointer
+   * @param message GPB message
    */
-  explicit OnServiceDeactivatedNotification(VRModule* parent);
+  OnServiceDeactivatedNotification(VRModule* parent,
+                                   const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief Execute command
-   * @param message message to be sent to mobile
    */
-  void Execute(const application_manager::MessagePtr& message);
+  virtual void Execute();
 
  private:
-  VRModule* parent_;
-
   DISALLOW_COPY_AND_ASSIGN(OnServiceDeactivatedNotification);
 };
 
