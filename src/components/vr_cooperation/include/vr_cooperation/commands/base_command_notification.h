@@ -77,10 +77,18 @@ class BaseCommandNotification : public Command {
   virtual void Run();
 
  protected:
-  vr_hmi_api::ServiceMessage message() {
+  /**
+   * @brief getter for GPB message
+   * @return GPB message
+   */
+  vr_hmi_api::ServiceMessage& message() {
     return message_;
   }
 
+  /**
+   * @brief getter return pointer to VRModule
+   * @return pointer to VRModule
+   */
   VRModule* parent() {
     return parent_;
   }
