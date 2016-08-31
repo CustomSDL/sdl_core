@@ -34,9 +34,10 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_PROCESS_DATA_REQUEST_H_
 
 #include "vr_cooperation/commands/base_command_request.h"
-#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
+
+class VRModule;
 
 namespace commands {
 
@@ -51,7 +52,7 @@ class ProcessDataRequest : public BaseCommandRequest {
    * @param message Message from HMI
    */
   ProcessDataRequest(VRModule* parent,
-                         const vr_hmi_api::ServiceMessage& message);
+                     const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief ProcessDataRequest class destructor

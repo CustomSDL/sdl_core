@@ -30,19 +30,23 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "functional_module/function_ids.h"
-#include "vr_cooperation/commands/activate_service_request.h"
+#include "vr_cooperation/commands/process_data_request.h"
+#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
 
 namespace vr_cooperation {
 
 namespace commands {
 
+using json_keys::kText;
+using json_keys::kInfo;
+
 CREATE_LOGGERPTR_GLOBAL(logger_, "ProcessDataRequest")
 
 ProcessDataRequest::ProcessDataRequest(
-      VRModule* parent,
-      const vr_hmi_api::ServiceMessage& message)
+    VRModule* parent,
+    const vr_hmi_api::ServiceMessage& message)
   : BaseCommandRequest(parent, message) {
 }
 
@@ -68,15 +72,14 @@ void ProcessDataRequest::OnEvent(
   SendResponseToHMI(message_to_hmi);
 }
 
-std::string ProcessDataRequest::GetParams(
-    const Json::Value& value) {
+std::string ProcessDataRequest::GetParams(const Json::Value& value) {
   LOG4CXX_AUTO_TRACE(logger_);
   vr_hmi_api::ResultCode result_code;
   ParseMobileResultCode(value, result_code);
   vr_hmi_api::ProcessDataResponse response;
   response.set_result(result_code);
-  response.set_allocated_text(value[kText]);
-  response.set_allocated_info(value[kInfo]);
+  response.set_text(value[kText].asString());
+  response.set_info(value[kInfo].asString());
   std::string params;
   response.SerializeToString(&params);
 
@@ -85,7 +88,7 @@ std::string ProcessDataRequest::GetParams(
 
 void ProcessDataRequest::PrepareGpbMessage(
     const Json::Value& value,
-    vr_hmi_api::ServiceMessage& message) {
+    vr_hmi_api::ServiceMessage& message){
   LOG4CXX_AUTO_TRACE(logger_);
   message.set_rpc(vr_hmi_api::PROCESS_DATA);
   message.set_rpc_type(vr_hmi_api::RESPONSE);
