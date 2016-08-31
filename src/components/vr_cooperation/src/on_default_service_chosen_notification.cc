@@ -55,8 +55,8 @@ void OnDefaultServiceChosenNotification::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
 
   vr_hmi_api::OnDefaultServiceChosenNotification params;
-  vr_hmi_api::ServiceMessage message = message();
-  if (message.has_params() && params.ParseFromString(message.params())) {
+  vr_hmi_api::ServiceMessage msg = message();
+  if (msg.has_params() && params.ParseFromString(msg.params())) {
     int32_t app_id = params.has_appid() ? params.appid() : -1;
     parent()->set_default_app_id(app_id);
   } else {
