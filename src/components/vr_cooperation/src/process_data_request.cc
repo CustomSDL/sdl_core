@@ -45,8 +45,8 @@ using json_keys::kInfo;
 CREATE_LOGGERPTR_GLOBAL(logger_, "ProcessDataRequest")
 
 ProcessDataRequest::ProcessDataRequest(
-    VRModule* parent,
-    const vr_hmi_api::ServiceMessage& message)
+      VRModule* parent,
+      const vr_hmi_api::ServiceMessage& message)
   : BaseCommandRequest(parent, message) {
 }
 
@@ -88,7 +88,7 @@ std::string ProcessDataRequest::GetParams(const Json::Value& value) {
 
 void ProcessDataRequest::PrepareGpbMessage(
     const Json::Value& value,
-    vr_hmi_api::ServiceMessage& message){
+    vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   message.set_rpc(vr_hmi_api::PROCESS_DATA);
   message.set_rpc_type(vr_hmi_api::RESPONSE);
