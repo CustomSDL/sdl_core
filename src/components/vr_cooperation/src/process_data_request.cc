@@ -45,9 +45,8 @@ using json_keys::kInfo;
 CREATE_LOGGERPTR_GLOBAL(logger_, "ProcessDataRequest")
 
 ProcessDataRequest::ProcessDataRequest(
-      VRModule* parent,
-      const vr_hmi_api::ServiceMessage& message)
-  : BaseCommandRequest(parent, message) {
+    VRModule* parent, const vr_hmi_api::ServiceMessage& message)
+    : BaseCommandRequest(parent, message) {
 }
 
 ProcessDataRequest::~ProcessDataRequest() {
@@ -60,7 +59,7 @@ void ProcessDataRequest::Execute() {
 
 void ProcessDataRequest::OnEvent(
     const event_engine::Event<application_manager::MessagePtr,
-                              vr_hmi_api::RPCName>& event) {
+        vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value value;
   Json::Reader reader;
@@ -78,17 +77,21 @@ std::string ProcessDataRequest::GetParams(const Json::Value& value) {
   ParseMobileResultCode(value, result_code);
   vr_hmi_api::ProcessDataResponse response;
   response.set_result(result_code);
-  response.set_text(value[kText].asString());
-  response.set_info(value[kInfo].asString());
+  const std::string text = value[kText].asString();
+  if (!text.empty()) {
+    response.set_text(text);
+  }
+  const std::string info = value[kInfo].asString();
+  if (!info.empty()) {
+    response.set_info(info);
+  }
   std::string params;
   response.SerializeToString(&params);
-
   return params;
 }
 
 void ProcessDataRequest::PrepareGpbMessage(
-    const Json::Value& value,
-    vr_hmi_api::ServiceMessage& message) {
+    const Json::Value& value, vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   message.set_rpc(vr_hmi_api::PROCESS_DATA);
   message.set_rpc_type(vr_hmi_api::RESPONSE);
