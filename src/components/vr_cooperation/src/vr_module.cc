@@ -32,7 +32,6 @@
 
 #include "vr_cooperation/vr_module.h"
 
-#include "../include/vr_cooperation/command_factory.h"
 #include "functional_module/function_ids.h"
 #include "google/protobuf/text_format.h"
 #include "json/json.h"
@@ -43,6 +42,7 @@
 #include "vr_cooperation/vr_module_event.h"
 #include "vr_cooperation/vr_module_event_gpb.h"
 #include "vr_cooperation/vr_module_constants.h"
+#include "vr_cooperation/command_factory.h"
 #include "utils/logger.h"
 
 namespace vr_cooperation {
