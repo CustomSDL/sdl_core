@@ -36,9 +36,11 @@ include_directories (
 set (SOURCES
     ./src/command/activate_service_request.cc
     ./src/command/json_notification.cc
+    ./src/command/gpb_notification.cc
     ./src/command/base_command_request.cc
     ./src/command/on_default_service_chosen_notification.cc
     ./src/command/on_service_deactivated_notification.cc
+    ./src/command/on_register_service_notification.cc
     ./src/command/process_data_request.cc
 #    ./src/command/register_service_request.cc
     ./src/command/request_from_hmi.cc
