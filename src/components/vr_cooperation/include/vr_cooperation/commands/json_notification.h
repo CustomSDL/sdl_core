@@ -30,8 +30,8 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_NOTIFICATION_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_NOTIFICATION_H_
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_JSON_NOTIFICATION_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_JSON_NOTIFICATION_H_
 
 #include "application_manager/service.h"
 #include "functional_module/function_ids.h"
@@ -51,23 +51,22 @@ namespace commands {
 /**
  * @brief Base command class for notifications
  */
-class BaseCommandNotification : public Command {
+class JSONNotification : public Command {
  public:
   /**
    * @brief BaseCommandNotification class constructor
    * @param parent pointer to VRModule
    * @param message Message from HMI
    */
-  BaseCommandNotification(VRModule* parent,
-                          const vr_hmi_api::ServiceMessage& message);
+  JSONNotification(VRModule* parent, const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief BaseCommandNotification class destructor
    */
-  virtual ~BaseCommandNotification();
+  virtual ~JSONNotification();
 
   /**
-   * @brief BaseCommandNotification on timeout reaction
+   * @brief JSONNotification on timeout reaction
    */
   virtual void OnTimeout() {}
 
@@ -116,4 +115,4 @@ class BaseCommandNotification : public Command {
 
 }  // namespace vr_cooperation
 
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_NOTIFICATION_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_JSON_NOTIFICATION_H_

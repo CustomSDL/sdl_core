@@ -35,7 +35,7 @@ include_directories (
 
 set (SOURCES
     ./src/command/activate_service_request.cc
-    ./src/command/base_command_notification.cc
+    ./src/command/json_notification.cc
     ./src/command/base_command_request.cc
     ./src/command/on_default_service_chosen_notification.cc
     ./src/command/on_service_deactivated_notification.cc
@@ -45,9 +45,8 @@ set (SOURCES
     ./src/command/support_service_request.cc
 #    ./src/command/unregister_service_request.cc
     ./src/gpb_data_sender_receiver.cc
-    ./src/hmi_command_factory.cc
     ./src/message_helper.cc
-    ./src/mobile_command_factory.cc
+    ./src/command_factory.cc
     ./src/request_controller.cc
     ./src/vr_module_event_gpb.cc
     ./src/vr_module_event.cc

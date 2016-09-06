@@ -30,24 +30,49 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/mobile_command_factory.h"
-
+#include "vr_cooperation/commands/json_notification.h"
+#include "json/json.h"
 #include "utils/logger.h"
+#include "vr_cooperation/message_helper.h"
 #include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
 
+namespace commands {
+
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-commands::Command* MobileCommandFactory::CreateCommand(
-    VRModule* parent,
-    const application_manager::MessagePtr& msg) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  switch (msg->function_id()) {
-    default: {
-      return NULL;
-    }
-  }
+ JSONNotification::JSONNotification(
+    VRModule* parent, const vr_hmi_api::ServiceMessage& message)
+    : message_(message),
+      parent_(parent) {
+  service_ = parent_->service();
 }
+
+JSONNotification::~JSONNotification() {
+}
+
+void JSONNotification::Run() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  Execute();
+}
+
+void JSONNotification::SendNotification(
+    functional_modules::MobileFunctionID function_id,
+    const Json::Value& msg_params) {
+  application_manager::MessagePtr mobile_msg = new application_manager::Message(
+      protocol_handler::MessagePriority::kDefault);
+  mobile_msg->set_function_id(function_id);
+  mobile_msg->set_connection_key(parent_->activated_connection_key());
+  mobile_msg->set_message_type(application_manager::MessageType::kNotification);
+  mobile_msg->set_correlation_id(message_.correlation_id());
+  mobile_msg->set_protocol_version(application_manager::ProtocolVersion::kV2);
+
+  mobile_msg->set_json_message(MessageHelper::ValueToString(msg_params));
+  service_->SendMessageToMobile(mobile_msg);
+}
+
+}  // namespace commands
 
 }  // namespace vr_cooperation

@@ -30,50 +30,42 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/commands/base_command_notification.h"
+#include "vr_cooperation/command_factory.h"
 
-#include "json/json.h"
 #include "utils/logger.h"
-#include "vr_cooperation/message_helper.h"
 #include "vr_cooperation/vr_module.h"
-#include "vr_cooperation/vr_module_constants.h"
+#include "vr_cooperation/interface/hmi.pb.h"
+#include "vr_cooperation/commands/on_default_service_chosen_notification.h"
+#include "vr_cooperation/commands/on_service_deactivated_notification.h"
 
 namespace vr_cooperation {
 
-namespace commands {
-
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-BaseCommandNotification::BaseCommandNotification(
-    VRModule* parent, const vr_hmi_api::ServiceMessage& message)
-    : message_(message),
-      parent_(parent) {
-  service_ = parent_->service();
-}
-
-BaseCommandNotification::~BaseCommandNotification() {
-}
-
-void BaseCommandNotification::Run() {
+commands::Command* CommandFactory::CreateCommand(
+    VRModule* parent,
+    const application_manager::MessagePtr& msg) {
   LOG4CXX_AUTO_TRACE(logger_);
-  Execute();
+  switch (msg->function_id()) {
+    default: {
+      return NULL;
+    }
+  }
 }
 
-void BaseCommandNotification::SendNotification(
-    functional_modules::MobileFunctionID function_id,
-    const Json::Value& msg_params) {
-  application_manager::MessagePtr mobile_msg = new application_manager::Message(
-      protocol_handler::MessagePriority::kDefault);
-  mobile_msg->set_function_id(function_id);
-  mobile_msg->set_connection_key(parent_->activated_connection_key());
-  mobile_msg->set_message_type(application_manager::MessageType::kNotification);
-  mobile_msg->set_correlation_id(message_.correlation_id());
-  mobile_msg->set_protocol_version(application_manager::ProtocolVersion::kV2);
-
-  mobile_msg->set_json_message(MessageHelper::ValueToString(msg_params));
-  service_->SendMessageToMobile(mobile_msg);
+commands::Command* CommandFactory::CreateCommand(
+    VRModule* parent,
+    const vr_hmi_api::ServiceMessage& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  switch (message.rpc()) {
+    case vr_hmi_api::RPCName::ON_DEACTIVATED:
+      return new commands::OnServiceDeactivatedNotification(parent, message);
+    case vr_hmi_api::ON_DEFAULT_CHOSEN:
+      return new commands::OnDefaultServiceChosenNotification(parent, message);
+    default: {
+      return NULL;
+    }
+  }
 }
-
-}  // namespace commands
 
 }  // namespace vr_cooperation

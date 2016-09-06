@@ -34,7 +34,7 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_SERVICE_DEACTIVATED_NOTIFICATION_H_
 
 #include "utils/macro.h"
-#include "vr_cooperation/commands/base_command_notification.h"
+#include "vr_cooperation/commands/json_notification.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 
 namespace vr_cooperation {
@@ -42,7 +42,7 @@ class VRModule;
 
 namespace commands {
 
-class OnServiceDeactivatedNotification: public BaseCommandNotification {
+class OnServiceDeactivatedNotification: public JSONNotification {
  public:
   /**
    * @brief OnServiceDeactivatedNotification class constructor

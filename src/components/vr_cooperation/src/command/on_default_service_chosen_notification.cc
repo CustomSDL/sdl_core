@@ -45,7 +45,7 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 OnDefaultServiceChosenNotification::OnDefaultServiceChosenNotification(
     VRModule* parent, const vr_hmi_api::ServiceMessage& message)
-    : BaseCommandNotification(parent, message) {
+    : JSONNotification(parent, message) {
 }
 
 OnDefaultServiceChosenNotification::~OnDefaultServiceChosenNotification() {

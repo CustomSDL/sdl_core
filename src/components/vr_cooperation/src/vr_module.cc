@@ -32,14 +32,13 @@
 
 #include "vr_cooperation/vr_module.h"
 
+#include "../include/vr_cooperation/command_factory.h"
 #include "functional_module/function_ids.h"
 #include "google/protobuf/text_format.h"
 #include "json/json.h"
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
 #include "vr_cooperation/event_engine/event_dispatcher.h"
-#include "vr_cooperation/hmi_command_factory.h"
 #include "vr_cooperation/interface/hmi.pb.h"
-#include "vr_cooperation/mobile_command_factory.h"
 #include "vr_cooperation/message_helper.h"
 #include "vr_cooperation/vr_module_event.h"
 #include "vr_cooperation/vr_module_event_gpb.h"
@@ -151,7 +150,7 @@ functional_modules::ProcessResult VRModule::HandleMessage(
       break;
     }
     case application_manager::MessageType::kRequest: {
-      commands::Command* command = MobileCommandFactory::CreateCommand(this, msg);
+      commands::Command* command = CommandFactory::CreateCommand(this, msg);
       if (command) {
         request_controller_.AddRequest(msg->correlation_id(), command);
         command->Run();
@@ -268,7 +267,7 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
                       vr_hmi_api::RPCName>::instance()->raise_event(event);
     }
   } else {
-    commands::Command* command = HMICommandFactory::CreateCommand(this, message);
+    commands::Command* command = CommandFactory::CreateCommand(this, message);
     if (command) {
       if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
         request_controller_.AddRequest(message.correlation_id(), command);
