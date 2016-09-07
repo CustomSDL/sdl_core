@@ -45,23 +45,22 @@ namespace commands {
 /**
  * @brief GPB message command class for notifications
  */
-class GPBNotification : public Command {
+class GpbNotification : public Command {
  public:
   /**
-   * @brief GPBNotification class constructor
+   * @brief GpbNotification class constructor
    * @param parent VRModule pointer
    * @param message Message from mobile
    **/
-  GPBNotification(VRModule* parent,
-                  const application_manager::MessagePtr& message);
+  GpbNotification(VRModule* parent, application_manager::MessagePtr message);
 
   /**
-   * @brief GPBNotification class destructor
+   * @brief GpbNotification class destructor
    */
-  virtual ~GPBNotification();
+  virtual ~GpbNotification();
 
   /**
-   * @brief GPBNotification on timeout reaction
+   * @brief GpbNotification on timeout reaction
    */
   virtual void OnTimeout();
 
@@ -85,12 +84,12 @@ class GPBNotification : public Command {
   /**
    * @brief Returns parent VRModule
    */
-  VRModule* parent() { return parent_; }
+  VRModule* parent() const { return parent_; }
 
   /**
    * @brief Returns JSON message
    */
-  const application_manager::MessagePtr& message() { return message_; }
+  application_manager::MessagePtr json_message() const { return message_; }
 
  private:
   application_manager::MessagePtr message_;

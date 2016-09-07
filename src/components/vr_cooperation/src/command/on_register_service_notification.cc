@@ -42,8 +42,8 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 OnRegisterServiceNotification::OnRegisterServiceNotification(
       VRModule* parent,
-      const application_manager::MessagePtr& message)
-  : GPBNotification(parent, message) {
+      application_manager::MessagePtr message)
+  : GpbNotification(parent, message) {
 }
 
 OnRegisterServiceNotification::~OnRegisterServiceNotification() {
@@ -56,11 +56,8 @@ void OnRegisterServiceNotification::Execute() {
   service_message.set_rpc(vr_hmi_api::ON_REGISTER);
 
   vr_hmi_api::OnRegisterServiceNotification onregister_notification;
-  int32_t app_id = message()->connection_key();
-  app_id == parent()->default_app_id() ?
-      onregister_notification.set_default_(true) :
-      onregister_notification.set_default_(false);
-  onregister_notification.set_appid(app_id);
+  int32_t app_id = json_message()->connection_key();
+  onregister_notification.set_appid(app_id == parent()->default_app_id());
 
   std::string params;
   if (onregister_notification.SerializeToString(&params)) {

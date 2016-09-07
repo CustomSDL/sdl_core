@@ -41,29 +41,27 @@ namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-GPBNotification::GPBNotification(
-    VRModule* parent,
-    const application_manager::MessagePtr& message)
+GpbNotification::GpbNotification(VRModule* parent,
+                                 application_manager::MessagePtr message)
     : message_(message),
       parent_(parent) {
 }
 
-GPBNotification::~GPBNotification() {
+GpbNotification::~GpbNotification() {
 }
 
 
-void GPBNotification::OnTimeout() {
+void GpbNotification::OnTimeout() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-void GPBNotification::Run() {
+void GpbNotification::Run() {
   LOG4CXX_AUTO_TRACE(logger_);
   Execute();  // run child's logic
 }
 
-void GPBNotification::SendNotification(vr_hmi_api::ServiceMessage& message) {
+void GpbNotification::SendNotification(vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
-
   message.set_rpc_type(vr_hmi_api::NOTIFICATION);
   message.set_correlation_id(parent_->GetNextCorrelationID());
   parent_->SendMessageToHMI(message);

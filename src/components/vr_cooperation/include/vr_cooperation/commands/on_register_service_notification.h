@@ -43,7 +43,7 @@ namespace commands {
 /**
  * @brief RegisterServiceRequest command class
  */
-class OnRegisterServiceNotification : public GPBNotification {
+class OnRegisterServiceNotification : public GpbNotification {
  public:
   /**
    * @brief RegisterServiceRequest class constructor
@@ -51,7 +51,7 @@ class OnRegisterServiceNotification : public GPBNotification {
    * @param message Message from mobile
    **/
   OnRegisterServiceNotification(VRModule* parent,
-                         const application_manager::MessagePtr& message);
+                                application_manager::MessagePtr message);
 
   /**
    * @brief RegisterServiceRequest class destructor
