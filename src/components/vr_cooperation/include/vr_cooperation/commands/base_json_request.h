@@ -54,7 +54,7 @@ class BaseJsonRequest : public BaseCommandRequest,
    * @brief BaseJsonRequest class constructor
    * @param parent pointer to VRModule
    * @param message Message from HMI
-   **/
+   */
   BaseJsonRequest(VRModule* parent, const vr_hmi_api::ServiceMessage& message);
 
   /**
