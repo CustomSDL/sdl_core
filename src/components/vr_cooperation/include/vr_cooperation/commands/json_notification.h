@@ -49,24 +49,24 @@ class VRModule;
 namespace commands {
 
 /**
- * @brief Base command class for notifications
+ * @brief Base class for json notifications
  */
-class JSONNotification : public Command {
+class JsonNotification : public Command {
  public:
   /**
-   * @brief BaseCommandNotification class constructor
+   * @brief JsonNotification class constructor
    * @param parent pointer to VRModule
    * @param message Message from HMI
    */
-  JSONNotification(VRModule* parent, const vr_hmi_api::ServiceMessage& message);
+  JsonNotification(VRModule* parent, const vr_hmi_api::ServiceMessage& message);
 
   /**
-   * @brief BaseCommandNotification class destructor
+   * @brief JsonNotification class destructor
    */
-  virtual ~JSONNotification();
+  virtual ~JsonNotification();
 
   /**
-   * @brief JSONNotification on timeout reaction
+   * @brief JsonNotification on timeout reaction
    */
   virtual void OnTimeout() {}
 

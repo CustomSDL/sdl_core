@@ -55,7 +55,7 @@ class CommandFactory {
    * @param  msg Message shared pointer.
    * @return Pointer to created command object.
    */
-  static commands::Command* CreateCommand(
+  static commands::Command* Create(
       VRModule* parent, const application_manager::MessagePtr& msg);
 
   /**
@@ -64,7 +64,7 @@ class CommandFactory {
    * @param  message Message shared pointer.
    * @return Pointer to created command object.
    */
-  static commands::Command* CreateCommand(
+  static commands::Command* Create(
       VRModule* parent, const vr_hmi_api::ServiceMessage& message);
 
  private:

@@ -43,22 +43,22 @@ namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-JSONNotification::JSONNotification(
+JsonNotification::JsonNotification(
     VRModule* parent, const vr_hmi_api::ServiceMessage& message)
     : message_(message),
       parent_(parent) {
   service_ = parent_->service();
 }
 
-JSONNotification::~JSONNotification() {
+JsonNotification::~JsonNotification() {
 }
 
-void JSONNotification::Run() {
+void JsonNotification::Run() {
   LOG4CXX_AUTO_TRACE(logger_);
   Execute();
 }
 
-void JSONNotification::SendNotification(
+void JsonNotification::SendNotification(
     functional_modules::MobileFunctionID function_id,
     const Json::Value& msg_params) {
   application_manager::MessagePtr mobile_msg = new application_manager::Message(

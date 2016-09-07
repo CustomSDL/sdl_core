@@ -150,7 +150,7 @@ functional_modules::ProcessResult VRModule::HandleMessage(
       break;
     }
     case application_manager::MessageType::kRequest: {
-      commands::Command* command = CommandFactory::CreateCommand(this, msg);
+      commands::Command* command = CommandFactory::Create(this, msg);
       if (command) {
         request_controller_.AddRequest(msg->correlation_id(), command);
         command->Run();
@@ -267,7 +267,7 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
                       vr_hmi_api::RPCName>::instance()->raise_event(event);
     }
   } else {
-    commands::Command* command = CommandFactory::CreateCommand(this, message);
+    commands::Command* command = CommandFactory::Create(this, message);
     if (command) {
       if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
         request_controller_.AddRequest(message.correlation_id(), command);

@@ -42,7 +42,7 @@ namespace vr_cooperation {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-commands::Command* CommandFactory::CreateCommand(
+commands::Command* CommandFactory::Create(
     VRModule* parent,
     const application_manager::MessagePtr& msg) {
   LOG4CXX_AUTO_TRACE(logger_);
@@ -53,7 +53,7 @@ commands::Command* CommandFactory::CreateCommand(
   }
 }
 
-commands::Command* CommandFactory::CreateCommand(
+commands::Command* CommandFactory::Create(
     VRModule* parent,
     const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);

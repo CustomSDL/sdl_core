@@ -46,7 +46,7 @@ namespace commands {
 /**
  * @brief OnDefaultServiceChosenNotification command class
  */
-class OnDefaultServiceChosenNotification : public JSONNotification {
+class OnDefaultServiceChosenNotification : public JsonNotification {
  public:
   /**
    * @brief OnDefaultServiceChosenNotification class constructor

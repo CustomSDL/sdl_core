@@ -42,7 +42,7 @@ class VRModule;
 
 namespace commands {
 
-class OnServiceDeactivatedNotification: public JSONNotification {
+class OnServiceDeactivatedNotification: public JsonNotification {
  public:
   /**
    * @brief OnServiceDeactivatedNotification class constructor
