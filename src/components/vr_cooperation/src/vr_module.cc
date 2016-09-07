@@ -118,7 +118,10 @@ functional_modules::ProcessResult VRModule::ProcessMessage(
   }
 
   if (!IsVRServiceSupported()) {
-    SendUnsupportedServiceResponse(msg);
+    bool success = false;
+    mobile_apis::Result::eType result = mobile_apis::Result::UNSUPPORTED_RESOURCE;
+    std::string info = "VR Service is not supported";
+    SendResponseToMobile(msg, success, result, info);
     return ProcessResult::PROCESSED;
   }
 
@@ -269,7 +272,7 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
   } else {
     commands::Command* command = CommandFactory::Create(this, message);
     if (command) {
-      if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
+     if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
         request_controller_.AddRequest(message.correlation_id(), command);
       }
       command->Run();
@@ -285,14 +288,15 @@ bool VRModule::IsVRServiceSupported() const {
   return supported_;
 }
 
-void VRModule::SendUnsupportedServiceResponse(
-    application_manager::MessagePtr& msg) {
+void VRModule::SendResponseToMobile(application_manager::MessagePtr msg,
+                                    bool success, mobile_apis::Result::eType result,
+                                    std::string& info) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg_params;
   msg_params[kId] = service()->GetNextCorrelationID();
-  msg_params[kSuccess] = false;
-  msg_params[kResultCode] = mobile_apis::Result::UNSUPPORTED_RESOURCE;
-  msg_params[kInfo] = "VR Service is not supported";
+  msg_params[kSuccess] = success;
+  msg_params[kResultCode] = result;
+  msg_params[kInfo] = info;
 
   msg->set_message_type(application_manager::MessageType::kResponse);
   Json::FastWriter writer;

@@ -168,6 +168,11 @@ class VRModule : public functional_modules::GenericModule,
     return service()->GetNextCorrelationID();
   }
 
+  /**
+   * @brief Registers service
+   */
+  void RegisterService(application_manager::MessagePtr& msg);
+
  protected:
   /**
    * @brief Remove extension for all applications
@@ -200,9 +205,14 @@ class VRModule : public functional_modules::GenericModule,
   bool IsVRServiceSupported() const;
 
   /**
-   * @brief send response message to mobile in case VRService is not supported
+   * @brief send response message to mobile
+   * @param msg
+   * @param success true if successful; false, if failed
+   * @param result Mobile result
+   * @param info Provides additional human readable info regarding the result(may be empty)
    */
-  void SendUnsupportedServiceResponse(application_manager::MessagePtr& msg);
+  void SendResponseToMobile(application_manager::MessagePtr msg, bool success,
+                            mobile_apis::Result::eType result, std::string& info);
 
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;
