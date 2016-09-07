@@ -42,9 +42,8 @@ namespace vr_cooperation {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-commands::Command* CommandFactory::Create(
-    VRModule* parent,
-    const application_manager::MessagePtr& msg) {
+commands::Command* CommandFactory::Create(VRModule* parent,
+                                          application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
   switch (msg->function_id()) {
     default: {
@@ -54,8 +53,7 @@ commands::Command* CommandFactory::Create(
 }
 
 commands::Command* CommandFactory::Create(
-    VRModule* parent,
-    const vr_hmi_api::ServiceMessage& message) {
+    VRModule* parent, const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   switch (message.rpc()) {
     case vr_hmi_api::RPCName::ON_DEACTIVATED:

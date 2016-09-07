@@ -36,7 +36,6 @@
 #include "application_manager/message.h"
 #include "utils/macro.h"
 #include "vr_cooperation/commands/command.h"
-#include "vr_cooperation/vr_module.h"
 
 namespace vr_hmi_api {
 class ServiceMessage;
@@ -56,7 +55,7 @@ class CommandFactory {
    * @return Pointer to created command object.
    */
   static commands::Command* Create(
-      VRModule* parent, const application_manager::MessagePtr& msg);
+      VRModule* parent, application_manager::MessagePtr msg);
 
   /**
    * @brief Create command object and return pointer to it

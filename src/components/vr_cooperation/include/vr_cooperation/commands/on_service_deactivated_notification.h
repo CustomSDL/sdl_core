@@ -35,7 +35,10 @@
 
 #include "utils/macro.h"
 #include "vr_cooperation/commands/json_notification.h"
-#include "vr_cooperation/interface/hmi.pb.h"
+
+namespace vr_hmi_api {
+class ServiceMessage;
+}  // namespace vr_hmi_api
 
 namespace vr_cooperation {
 class VRModule;

@@ -37,6 +37,7 @@
 #include "utils/logger.h"
 #include "vr_cooperation/vr_module_constants.h"
 #include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/interface/hmi.pb.h"
 
 namespace vr_cooperation {
 

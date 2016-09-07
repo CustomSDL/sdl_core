@@ -88,7 +88,7 @@ class JsonNotification : public Command {
    * @brief getter return pointer to VRModule
    * @return pointer to VRModule
    */
-  VRModule* parent() {
+  VRModule* parent() const {
     return parent_;
   }
 

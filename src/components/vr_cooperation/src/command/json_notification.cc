@@ -31,11 +31,11 @@
  */
 
 #include "vr_cooperation/commands/json_notification.h"
+
 #include "json/json.h"
 #include "utils/logger.h"
 #include "vr_cooperation/message_helper.h"
 #include "vr_cooperation/vr_module.h"
-#include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
 
