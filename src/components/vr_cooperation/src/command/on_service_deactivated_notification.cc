@@ -35,6 +35,7 @@
 #include "functional_module/function_ids.h"
 #include "json/json.h"
 #include "utils/logger.h"
+#include "vr_cooperation/message_helper.h"
 #include "vr_cooperation/vr_module_constants.h"
 #include "vr_cooperation/vr_module.h"
 #include "vr_cooperation/interface/hmi.pb.h"
@@ -56,8 +57,13 @@ void OnServiceDeactivatedNotification::Execute() {
 
   Json::Value msg_params;
   msg_params[json_keys::kService] = kVoiceRecognition;
-  SendNotification(functional_modules::MobileFunctionID::ON_SERVICE_DEACTIVATED,
-                   msg_params);
+
+  application_manager::MessagePtr mobile_msg = new application_manager::Message(
+      protocol_handler::MessagePriority::kDefault);
+  mobile_msg->set_function_id(
+      functional_modules::MobileFunctionID::ON_SERVICE_DEACTIVATED);
+  mobile_msg->set_json_message(MessageHelper::ValueToString(msg_params));
+  SendNotification(mobile_msg);
   parent()->set_activated_connection_key(-1);
 }
 

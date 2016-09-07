@@ -34,7 +34,6 @@
 
 #include "json/json.h"
 #include "utils/logger.h"
-#include "vr_cooperation/message_helper.h"
 #include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
@@ -59,17 +58,12 @@ void JsonNotification::Run() {
 }
 
 void JsonNotification::SendNotification(
-    functional_modules::MobileFunctionID function_id,
-    const Json::Value& msg_params) {
-  application_manager::MessagePtr mobile_msg = new application_manager::Message(
-      protocol_handler::MessagePriority::kDefault);
-  mobile_msg->set_function_id(function_id);
+    application_manager::MessagePtr mobile_msg) {
+  LOG4CXX_AUTO_TRACE(logger_);
   mobile_msg->set_connection_key(parent_->activated_connection_key());
   mobile_msg->set_message_type(application_manager::MessageType::kNotification);
   mobile_msg->set_correlation_id(message_.correlation_id());
   mobile_msg->set_protocol_version(application_manager::ProtocolVersion::kV2);
-
-  mobile_msg->set_json_message(MessageHelper::ValueToString(msg_params));
   service_->SendMessageToMobile(mobile_msg);
 }
 

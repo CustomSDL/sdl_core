@@ -34,7 +34,6 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_JSON_NOTIFICATION_H_
 
 #include "application_manager/service.h"
-#include "functional_module/function_ids.h"
 #include "utils/macro.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 #include "vr_cooperation/commands/command.h"
@@ -94,11 +93,9 @@ class JsonNotification : public Command {
 
   /**
    * @brief send notification to Mobile
-   * @param function_id mobile function id
-   * @param msg_params json with message params
+   * @param mobile_msg message to mobile
    */
-  void SendNotification(functional_modules::MobileFunctionID function_id,
-                        const Json::Value& msg_params);
+  void SendNotification(application_manager::MessagePtr mobile_msg);
 
   /**
    * @brief Interface method that executes specific logic of children classes
