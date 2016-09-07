@@ -170,8 +170,9 @@ class VRModule : public functional_modules::GenericModule,
 
   /**
    * @brief Registers service
+   * @param msg Json message form mobile
    */
-  void RegisterService(application_manager::MessagePtr& msg);
+  void RegisterService(application_manager::MessagePtr msg);
 
  protected:
   /**
