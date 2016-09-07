@@ -33,7 +33,7 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
 
-#include "vr_cooperation/commands/base_command_request.h"
+#include "vr_cooperation/commands/base_json_request.h"
 #include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
@@ -43,7 +43,7 @@ namespace commands {
 /**
  * @brief ActivateServiceRequest command class
  */
-class ActivateServiceRequest : public BaseCommandRequest {
+class ActivateServiceRequest : public BaseJsonRequest {
  public:
   /**
    * @brief ActivateServiceRequest class constructor

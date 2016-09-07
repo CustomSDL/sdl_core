@@ -30,64 +30,41 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_
-
-#include "application_manager/message.h"
-#include "vr_cooperation/commands/command.h"
-#include "vr_cooperation/interface/hmi.pb.h"
+#include "utils/logger.h"
+#include "vr_cooperation/commands/base_json_request.h"
+#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
 namespace commands {
 
-/**
- * @brief Base command class for requests
- */
-class BaseCommandRequest : public Command {
- public:
-  /**
-   * @brief BaseCommandRequest class constructor
-   **/
-  BaseCommandRequest();
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-  /**
-   * @brief BaseCommandRequest class destructor
-   */
-  virtual ~BaseCommandRequest();
+BaseGpbRequest::BaseGpbRequest(VRModule* parent)
+    : parent_(parent),
+      json_message_() {
+}
 
-  /**
-   * @brief BaseCommandRequest on timeout reaction
-   */
-  virtual void OnTimeout() = 0;
+BaseGpbRequest::BaseGpbRequest(VRModule* parent,
+                               const application_manager::MessagePtr& message)
+    : parent_(parent),
+      json_message_(message) {
+}
 
-  /**
-   * @brief run request
-   */
-  virtual void Run();
+BaseGpbRequest::~BaseGpbRequest() {
+}
 
-  /**
-   * @brief send message (request/response) to HMI
-   * @param message gpb message for HMI
-   */
-  virtual void SendMessageToHMI(const vr_hmi_api::ServiceMessage& message) = 0;
+void BaseGpbRequest::Execute() {
+  LOG4CXX_AUTO_TRACE(logger_);
+}
 
-  /**
-   * @brief send message (request/response) to HMI
-   * @param message json message for Mobile
-   */
-  virtual void SendMessageToMobile(
-      const application_manager::MessagePtr& message) = 0;
+void BaseGpbRequest::on_event(
+    const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  OnEvent(event);  //runs child's logic
 
-  /**
-   * @brief Interface method that executes specific logic of children classes
-   */
-  virtual void Execute() = 0;
-
-};
+}
 
 }  // namespace commands
 
 }  // namespace vr_cooperation
-
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_

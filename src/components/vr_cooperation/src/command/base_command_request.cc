@@ -30,50 +30,24 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/commands/support_service_request.h"
 #include "utils/logger.h"
+#include "vr_cooperation/commands/base_command_request.h"
 
 namespace vr_cooperation {
 
 namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "SupportServiceRequest")
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-SupportServiceRequest::SupportServiceRequest(VRModule* parent,
-    const vr_hmi_api::ServiceMessage& message)
-  : RequestFromHMI(parent, message),
-    message_(message) {
+BaseCommandRequest::BaseCommandRequest() {
 }
 
-SupportServiceRequest::~SupportServiceRequest() {
+BaseCommandRequest::~BaseCommandRequest() {
 }
 
-void SupportServiceRequest::Execute() {
+void BaseCommandRequest::Run() {
   LOG4CXX_AUTO_TRACE(logger_);
-
-  message_.set_rpc(vr_hmi_api::SUPPORT_SERVICE);
-  message_.set_rpc_type(vr_hmi_api::REQUEST);
-  message_.set_correlation_id(parent()->GetNextCorrelationID());
-  parent()->SendMessageToHMI(message_);
-}
-
-void SupportServiceRequest::OnEvent(
-    const event_engine::Event<vr_hmi_api::ServiceMessage,
-    vr_hmi_api::RPCName>& event) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  const vr_hmi_api::ServiceMessage message = event.event_message();
-  if (!message.has_params()) {
-    LOG4CXX_WARN(logger_, "Message does not contain params");
-    return;
-  }
-  vr_hmi_api::SupportServiceResponse response;
-  if (response.ParseFromString(message.params())) {
-    const bool supported = vr_hmi_api::SUCCESS == response.result();
-    parent()->set_supported(supported);
-    parent()->UnregisterRequest(message.correlation_id());
-  } else {
-    LOG4CXX_WARN(logger_, "Could not parse params");
-  }
+  Execute();  // run child's logic
 }
 
 }  // namespace commands

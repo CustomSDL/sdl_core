@@ -34,25 +34,25 @@ include_directories (
 )
 
 set (SOURCES
-    ./src/vr_module.cc
-    ./src/request_controller.cc
-    ./src/vr_proxy.cc
+    ./src/command/activate_service_request.cc
+    ./src/command/base_command_notification.cc
+    ./src/command/base_command_request.cc
+    ./src/command/on_default_service_chosen_notification.cc
+    ./src/command/on_service_deactivated_notification.cc
+    ./src/command/process_data_request.cc
+#    ./src/command/register_service_request.cc
+    ./src/command/request_from_hmi.cc
+    ./src/command/support_service_request.cc
+#    ./src/command/unregister_service_request.cc
     ./src/gpb_data_sender_receiver.cc
-    ./src/mobile_command_factory.cc
-    ./src/base_command_request.cc
     ./src/hmi_command_factory.cc
-    ./src/request_from_hmi.cc
-    ./src/register_service_request.cc
-    ./src/unregister_service_request.cc
-    ./src/activate_service_request.cc
-    ./src/vr_module_event.cc
-    ./src/vr_module_event_gpb.cc
     ./src/message_helper.cc
-    ./src/base_command_notification.cc
-    ./src/on_service_deactivated_notification.cc
-    ./src/support_service_request.cc
-    ./src/on_default_service_chosen_notification.cc
-    ./src/process_data_request.cc
+    ./src/mobile_command_factory.cc
+    ./src/request_controller.cc
+    ./src/vr_module_event_gpb.cc
+    ./src/vr_module_event.cc
+    ./src/vr_module.cc
+    ./src/vr_proxy.cc
 )
 
 set (LIBRARIES

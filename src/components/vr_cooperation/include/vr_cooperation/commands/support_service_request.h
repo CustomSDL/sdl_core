@@ -33,26 +33,26 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_SUPPORT_SERVICE_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_SUPPORT_SERVICE_REQUEST_H_
 
-#include "vr_cooperation/interface/hmi.pb.h"
-#include "vr_cooperation/commands/request_from_hmi.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/commands/base_gpb_request.h"
 
 namespace vr_cooperation {
+
+class VRModule;
 
 namespace commands {
 
 /**
  * @brief SupportServiceRequest command class
  */
-class SupportServiceRequest : public RequestFromHMI {
+class SupportServiceRequest : public BaseGpbRequest {
  public:
   /**
    * @brief RequestFromHMI class constructor
    * @param parent pointer to VRmodule
    * @param message Message from HMI
    */
-   SupportServiceRequest(VRModule* parent,
-                         const vr_hmi_api::ServiceMessage& message);
+  SupportServiceRequest(VRModule* parent,
+                        const application_manager::MessagePtr& message);
 
   /**
    * @brief SupportServiceRequest class destructor
@@ -67,8 +67,8 @@ class SupportServiceRequest : public RequestFromHMI {
   /**
    * @brief This method will be called whenever new event received
    */
-  virtual void OnEvent(const event_engine::Event<vr_hmi_api::ServiceMessage,
-                                                 vr_hmi_api::RPCName>& event);
+  virtual void OnEvent(
+      const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event);
 
  private:
   vr_hmi_api::ServiceMessage message_;

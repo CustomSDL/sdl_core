@@ -30,64 +30,78 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_GPB_REQUEST_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_GPB_REQUEST_H_
 
-#include "application_manager/message.h"
-#include "vr_cooperation/commands/command.h"
-#include "vr_cooperation/interface/hmi.pb.h"
+#include "vr_cooperation/commands/base_command_request.h"
+#include "vr_cooperation/event_engine/event_observer.h"
 
 namespace vr_cooperation {
+
+class VRModule;
 
 namespace commands {
 
 /**
- * @brief Base command class for requests
+ * @brief Base command class for json requests
  */
-class BaseCommandRequest : public Command {
+class BaseGpbRequest : public BaseCommandRequest,
+    public event_engine::EventObserver<vr_hmi_api::ServiceMessage,
+        vr_hmi_api::RPCName> {
  public:
+
   /**
-   * @brief BaseCommandRequest class constructor
+   * @brief BaseGpbRequest class constructor
+   * @param parent pointer to VRModule
+   * @param message Message from Mobile
    **/
-  BaseCommandRequest();
+  BaseGpbRequest(VRModule* parent,
+                 const application_manager::MessagePtr& message);
 
   /**
-   * @brief BaseCommandRequest class destructor
+   * @brief BaseGpbRequest class destructor
    */
-  virtual ~BaseCommandRequest();
+  virtual ~BaseGpbRequest();
 
   /**
-   * @brief BaseCommandRequest on timeout reaction
+   * @brief BaseGpbRequest on timeout reaction
    */
-  virtual void OnTimeout() = 0;
+  virtual void OnTimeout();
 
   /**
-   * @brief run request
+   * @brief This method will be called when receive an event
+   *
+   * @param event The received event
    */
-  virtual void Run();
+  virtual void on_event(
+      const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event);
 
+ protected:
   /**
-   * @brief send message (request/response) to HMI
-   * @param message gpb message for HMI
+   * @brief Interface method that is called whenever new event received
    */
-  virtual void SendMessageToHMI(const vr_hmi_api::ServiceMessage& message) = 0;
-
-  /**
-   * @brief send message (request/response) to HMI
-   * @param message json message for Mobile
-   */
-  virtual void SendMessageToMobile(
-      const application_manager::MessagePtr& message) = 0;
+  virtual void OnEvent(
+      const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) = 0;
 
   /**
    * @brief Interface method that executes specific logic of children classes
    */
-  virtual void Execute() = 0;
+  virtual void Execute();
 
+ protected:
+  /**
+   * @brief Returns parent
+   */
+  VRModule* parent() const {
+    return parent_;
+  }
+
+ private:
+  VRModule* parent_;
+  application_manager::MessagePtr json_message_;
 };
 
 }  // namespace commands
 
 }  // namespace vr_cooperation
-
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_COMMAND_REQUEST_H_
+#endif /* SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_GPB_REQUEST_H_ */
