@@ -46,7 +46,7 @@ BaseGpbRequest::BaseGpbRequest(VRModule* parent)
 }
 
 BaseGpbRequest::BaseGpbRequest(VRModule* parent,
-                               const application_manager::MessagePtr& message)
+                               application_manager::MessagePtr message)
     : parent_(parent),
       json_message_(message) {
 }

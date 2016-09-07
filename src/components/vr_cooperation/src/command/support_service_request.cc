@@ -41,7 +41,7 @@ namespace commands {
 CREATE_LOGGERPTR_GLOBAL(logger_, "SupportServiceRequest")
 
 SupportServiceRequest::SupportServiceRequest(
-    VRModule* parent, const application_manager::MessagePtr& message)
+    VRModule* parent, application_manager::MessagePtr message)
     : BaseGpbRequest(parent, message),
       message_() {
 }

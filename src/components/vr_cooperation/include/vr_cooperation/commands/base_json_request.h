@@ -108,7 +108,7 @@ class BaseJsonRequest : public BaseCommandRequest,
    */
   void PrepareRequestMessageForMobile(vr_hmi_api::RPCName function_id,
                                       const std::string& message_params,
-                                      application_manager::MessagePtr& message);
+                                      application_manager::MessagePtr message);
 
   /**
    * @brief send message (request/response) to HMI
@@ -120,8 +120,7 @@ class BaseJsonRequest : public BaseCommandRequest,
    * @brief send message (request/response) to HMI
    * @param message json message for Mobile
    */
-  virtual void SendMessageToMobile(
-      const application_manager::MessagePtr& message);
+  virtual void SendMessageToMobile(application_manager::MessagePtr message);
 
   /**
    * @brief Interface method that executes specific logic of children classes
@@ -145,4 +144,4 @@ class BaseJsonRequest : public BaseCommandRequest,
 
 }  // namespace vr_cooperation
 
-#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_JSON_REQUEST_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_JSON_REQUEST_H_

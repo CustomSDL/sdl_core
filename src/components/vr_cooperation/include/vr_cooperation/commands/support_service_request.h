@@ -52,7 +52,7 @@ class SupportServiceRequest : public BaseGpbRequest {
    * @param message Message from HMI
    */
   SupportServiceRequest(VRModule* parent,
-                        const application_manager::MessagePtr& message);
+                        application_manager::MessagePtr message);
 
   /**
    * @brief SupportServiceRequest class destructor

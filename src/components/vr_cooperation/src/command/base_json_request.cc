@@ -103,7 +103,7 @@ void BaseJsonRequest::ParseMobileResultCode(
 
 void BaseJsonRequest::PrepareRequestMessageForMobile(
     vr_hmi_api::RPCName function_id, const std::string& message_params,
-    application_manager::MessagePtr& message) {
+    application_manager::MessagePtr message) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg;
   msg[kId] = parent()->GetNextCorrelationID();
@@ -130,7 +130,7 @@ void BaseJsonRequest::SendMessageToHMI(
 }
 
 void BaseJsonRequest::SendMessageToMobile(
-    const application_manager::MessagePtr& message) {
+    application_manager::MessagePtr message) {
   LOG4CXX_AUTO_TRACE(logger_);
   PrepareRequestMessageForMobile(gpb_message_.rpc(), gpb_message_.params(),
                                  message_to_send);

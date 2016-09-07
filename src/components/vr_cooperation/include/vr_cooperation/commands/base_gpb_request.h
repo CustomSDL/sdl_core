@@ -55,8 +55,7 @@ class BaseGpbRequest : public BaseCommandRequest,
    * @param parent pointer to VRModule
    * @param message Message from Mobile
    */
-  BaseGpbRequest(VRModule* parent,
-                 const application_manager::MessagePtr& message);
+  BaseGpbRequest(VRModule* parent, application_manager::MessagePtr message);
 
   /**
    * @brief BaseGpbRequest class destructor
@@ -104,4 +103,4 @@ class BaseGpbRequest : public BaseCommandRequest,
 }  // namespace commands
 
 }  // namespace vr_cooperation
-#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_GPB_REQUEST_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_GPB_REQUEST_H_

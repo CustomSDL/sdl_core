@@ -76,8 +76,7 @@ class BaseCommandRequest : public Command {
    * @brief send message (request/response) to HMI
    * @param message json message for Mobile
    */
-  virtual void SendMessageToMobile(
-      const application_manager::MessagePtr& message) = 0;
+  virtual void SendMessageToMobile(application_manager::MessagePtr message) = 0;
 
   /**
    * @brief Interface method that executes specific logic of children classes
