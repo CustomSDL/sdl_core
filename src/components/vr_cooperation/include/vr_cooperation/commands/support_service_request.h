@@ -65,9 +65,9 @@ class SupportServiceRequest : public BaseGpbRequest {
   virtual void Execute();
 
   /**
-   * @brief This method will be called whenever new event received
+   * @brief Handles received event
    */
-  virtual void OnEvent(
+  virtual void ProcessEvent(
       const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event);
 
  private:

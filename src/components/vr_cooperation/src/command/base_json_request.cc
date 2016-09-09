@@ -96,6 +96,9 @@ void BaseJsonRequest::ParseMobileResultCode(
     mobile_result_code = value[kResult][kCode].asString();
   } else if (IsMember(value, kError) && IsMember(value[kError], kCode)) {
     mobile_result_code = value[kError][kCode].asString();
+  } else {
+    LOG4CXX_ERROR(logger_, "Unknown Mobile result code ");
+    mobile_result_code = result_codes::kInvalidData;
   }
 
   result_code = GetHMIResultCode(mobile_result_code);
@@ -145,7 +148,7 @@ void BaseJsonRequest::on_event(
     const event_engine::Event<application_manager::MessagePtr,
         vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
-  OnEvent(event);  //runs child's logic
+  ProcessEvent(event);  //runs child's logic
 
 }
 

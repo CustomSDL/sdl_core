@@ -77,9 +77,9 @@ class BaseGpbRequest : public BaseCommandRequest,
 
  protected:
   /**
-   * @brief Interface method that is called whenever new event received
+   * @brief Calls child logic to process received event
    */
-  virtual void OnEvent(
+  virtual void ProcessEvent(
       const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) = 0;
 
   /**

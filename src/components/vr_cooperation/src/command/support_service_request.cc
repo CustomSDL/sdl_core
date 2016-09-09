@@ -57,7 +57,7 @@ void SupportServiceRequest::Execute() {
   parent()->SendMessageToHMI(message_);
 }
 
-void SupportServiceRequest::OnEvent(
+void SupportServiceRequest::ProcessEvent(
     const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
   const vr_hmi_api::ServiceMessage message = event.event_message();

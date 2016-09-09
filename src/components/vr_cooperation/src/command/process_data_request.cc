@@ -58,7 +58,7 @@ void ProcessDataRequest::Execute() {
   SendMessageToMobile(message_to_send);
 }
 
-void ProcessDataRequest::OnEvent(
+void ProcessDataRequest::ProcessEvent(
     const event_engine::Event<application_manager::MessagePtr,
         vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);

@@ -63,9 +63,9 @@ class ProcessDataRequest : public BaseJsonRequest {
   virtual void Execute();
 
   /**
-   * @brief This method will be called whenever new event received
+   * @brief Handles received event
    */
-  virtual void OnEvent(
+  virtual void ProcessEvent(
       const event_engine::Event<application_manager::MessagePtr,
                                 vr_hmi_api::RPCName>& event);
 

@@ -85,9 +85,9 @@ class BaseJsonRequest : public BaseCommandRequest,
   vr_hmi_api::ResultCode GetHMIResultCode(const std::string& mobile_code) const;
 
   /**
-   * @brief Interface method that is called whenever new event received
+   * @brief Calls child logic to process received event
    */
-  virtual void OnEvent(
+  virtual void ProcessEvent (
       const event_engine::Event<application_manager::MessagePtr,
           vr_hmi_api::RPCName>& event) = 0;
 

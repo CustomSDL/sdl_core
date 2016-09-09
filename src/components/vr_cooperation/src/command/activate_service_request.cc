@@ -55,7 +55,7 @@ void ActivateServiceRequest::Execute() {
   SendMessageToMobile(message_to_send);
 }
 
-void ActivateServiceRequest::OnEvent(
+void ActivateServiceRequest::ProcessEvent(
     const event_engine::Event<application_manager::MessagePtr,
                               vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
