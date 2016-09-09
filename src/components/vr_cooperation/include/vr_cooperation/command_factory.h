@@ -30,24 +30,48 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/mobile_command_factory.h"
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMAND_FACTORY_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMAND_FACTORY_H_
 
-#include "utils/logger.h"
-#include "vr_cooperation/vr_module.h"
+#include "application_manager/message.h"
+#include "utils/macro.h"
+#include "vr_cooperation/commands/command.h"
+
+namespace vr_hmi_api {
+class ServiceMessage;
+}  // namespace vr_hmi_api
 
 namespace vr_cooperation {
+class VRModule;
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
+/**
+ * @brief Factory class for command creation
+ */
+class CommandFactory {
+ public:
+  /**
+   * @brief Create command object and return pointer to it
+   * @param parent pointer to VRmodule
+   * @param msg Message shared pointer.
+   * @return Pointer to created command object.
+   */
+  static commands::Command* Create(
+      VRModule* parent, application_manager::MessagePtr msg);
 
-commands::Command* MobileCommandFactory::CreateCommand(
-    VRModule* parent,
-    const application_manager::MessagePtr& msg) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  switch (msg->function_id()) {
-    default: {
-      return NULL;
-    }
-  }
-}
+  /**
+   * @brief Create command object and return pointer to it
+   * @param parent pointer to VRmodule
+   * @param message ServiceMessage.
+   * @return Pointer to created command object.
+   */
+  static commands::Command* Create(
+      VRModule* parent, const vr_hmi_api::ServiceMessage& message);
+
+ private:
+  CommandFactory();
+  DISALLOW_COPY_AND_ASSIGN(CommandFactory);
+};
 
 }  // namespace vr_cooperation
+
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMAND_FACTORY_H_

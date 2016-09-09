@@ -34,8 +34,11 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_DEFAULT_SERVICE_CHOSEN_NOTIFICATION_H_
 
 #include <string>
-#include "vr_cooperation/commands/base_command_notification.h"
-#include "vr_cooperation/interface/hmi.pb.h"
+#include "vr_cooperation/commands/json_notification.h"
+
+namespace vr_hmi_api {
+class ServiceMessage;
+}  // namespace vr_hmi_api
 
 namespace vr_cooperation {
 
@@ -46,7 +49,7 @@ namespace commands {
 /**
  * @brief OnDefaultServiceChosenNotification command class
  */
-class OnDefaultServiceChosenNotification : public BaseCommandNotification {
+class OnDefaultServiceChosenNotification : public JsonNotification {
  public:
   /**
    * @brief OnDefaultServiceChosenNotification class constructor

@@ -30,35 +30,86 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_MOBILE_COMMAND_FACTORY_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_MOBILE_COMMAND_FACTORY_H_
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_JSON_NOTIFICATION_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_JSON_NOTIFICATION_H_
 
-#include "application_manager/message.h"
+#include "application_manager/service.h"
 #include "utils/macro.h"
+#include "vr_cooperation/interface/hmi.pb.h"
 #include "vr_cooperation/commands/command.h"
-#include "vr_cooperation/vr_module.h"
+
+namespace Json {
+class Value;
+}
 
 namespace vr_cooperation {
+class VRModule;
+
+namespace commands {
 
 /**
- * @brief Factory class for command creation
+ * @brief Base class for json notifications
  */
-class MobileCommandFactory {
+class JsonNotification : public Command {
  public:
   /**
-   * @brief Create command object and return pointer to it
-   * @param  msg Message shared pointer.
-   * @return Pointer to created command object.
+   * @brief JsonNotification class constructor
+   * @param parent pointer to VRModule
+   * @param message Message from HMI
    */
-  static commands::Command* CreateCommand(
-      VRModule* parent,
-      const application_manager::MessagePtr& msg);
+  JsonNotification(VRModule* parent, const vr_hmi_api::ServiceMessage& message);
+
+  /**
+   * @brief JsonNotification class destructor
+   */
+  virtual ~JsonNotification();
+
+  /**
+   * @brief JsonNotification on timeout reaction
+   */
+  virtual void OnTimeout() {}
+
+  /**
+   * @brief run request
+   */
+  virtual void Run();
+
+ protected:
+  /**
+   * @brief getter for GPB message
+   * @return GPB message
+   */
+  vr_hmi_api::ServiceMessage& message() {
+    return message_;
+  }
+
+  /**
+   * @brief getter return pointer to VRModule
+   * @return pointer to VRModule
+   */
+  VRModule* parent() const {
+    return parent_;
+  }
+
+  /**
+   * @brief send notification to Mobile
+   * @param mobile_msg message to mobile
+   */
+  void SendNotification(application_manager::MessagePtr mobile_msg);
+
+  /**
+   * @brief Interface method that executes specific logic of children classes
+   */
+  virtual void Execute() = 0;
 
  private:
-  MobileCommandFactory();
-  DISALLOW_COPY_AND_ASSIGN(MobileCommandFactory);
+  vr_hmi_api::ServiceMessage message_;
+  VRModule* parent_;
+  application_manager::ServicePtr service_;
 };
+
+}  // namespace commands
 
 }  // namespace vr_cooperation
 
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_MOBILE_COMMAND_FACTORY_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_JSON_NOTIFICATION_H_
