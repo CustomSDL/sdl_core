@@ -44,6 +44,7 @@ namespace vr_cooperation {
 
 namespace commands {
 const int kVoiceRecognition = 0;
+const int kInvalidConnectionKey = -1;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
@@ -64,7 +65,7 @@ void OnServiceDeactivatedNotification::Execute() {
       functional_modules::MobileFunctionID::ON_SERVICE_DEACTIVATED);
   mobile_msg->set_json_message(MessageHelper::ValueToString(msg_params));
   SendNotification(mobile_msg);
-  parent()->set_activated_connection_key(-1);
+  parent()->set_activated_connection_key(kInvalidConnectionKey);
 }
 
 }  // namespace commands

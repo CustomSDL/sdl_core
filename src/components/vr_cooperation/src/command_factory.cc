@@ -46,9 +46,8 @@ commands::Command* CommandFactory::Create(VRModule* parent,
                                           application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
   switch (msg->function_id()) {
-    default: {
+    default:
       return NULL;
-    }
   }
 }
 
@@ -60,9 +59,8 @@ commands::Command* CommandFactory::Create(
       return new commands::OnServiceDeactivatedNotification(parent, message);
     case vr_hmi_api::ON_DEFAULT_CHOSEN:
       return new commands::OnDefaultServiceChosenNotification(parent, message);
-    default: {
+    default:
       return NULL;
-    }
   }
 }
 
