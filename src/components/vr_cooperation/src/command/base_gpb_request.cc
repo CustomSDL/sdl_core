@@ -30,9 +30,7 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
-
+#include "utils/logger.h"
 #include "vr_cooperation/commands/base_json_request.h"
 #include "vr_cooperation/vr_module.h"
 
@@ -40,55 +38,33 @@ namespace vr_cooperation {
 
 namespace commands {
 
-/**
- * @brief ActivateServiceRequest command class
- */
-class ActivateServiceRequest : public BaseJsonRequest {
- public:
-  /**
-   * @brief ActivateServiceRequest class constructor
-   * @param parent pointer to VRModule
-   * @param message Message from HMI
-   */
-  ActivateServiceRequest(VRModule* parent,
-                         const vr_hmi_api::ServiceMessage& message);
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-  /**
-   * @brief ActivateServiceRequest class destructor
-   */
-  virtual ~ActivateServiceRequest();
+BaseGpbRequest::BaseGpbRequest(VRModule* parent)
+    : parent_(parent),
+      json_message_() {
+}
 
-  /**
-   * @brief Execute command
-   */
-  virtual void Execute();
+BaseGpbRequest::BaseGpbRequest(VRModule* parent,
+                               application_manager::MessagePtr message)
+    : parent_(parent),
+      json_message_(message) {
+}
 
-  /**
-   * @brief Handles received event
-   */
-  virtual void ProcessEvent(
-      const event_engine::Event<application_manager::MessagePtr,
-                                vr_hmi_api::RPCName>& event);
+BaseGpbRequest::~BaseGpbRequest() {
+}
 
- private:
-  /**
-   * @brief Gets params from json value
-   * @param value json value
-   * @returns strings with params for GPB message
-   */
-  std::string GetParams(const Json::Value& value);
+void BaseGpbRequest::Execute() {
+  LOG4CXX_AUTO_TRACE(logger_);
+}
 
-  /**
-   * @brief Prepares GPB message for HMI
-   * @param message GPB message for HMI
-   * @param value from json message
-   */
-  void PrepareGpbMessage(const Json::Value& value,
-                         vr_hmi_api::ServiceMessage& message);
-};
+void BaseGpbRequest::on_event(
+    const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  ProcessEvent(event);  //runs child's logic
+
+}
 
 }  // namespace commands
 
 }  // namespace vr_cooperation
-
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_

@@ -30,65 +30,77 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_GPB_REQUEST_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_GPB_REQUEST_H_
 
-#include "vr_cooperation/commands/base_json_request.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/commands/base_command_request.h"
+#include "vr_cooperation/event_engine/event_observer.h"
 
 namespace vr_cooperation {
+
+class VRModule;
 
 namespace commands {
 
 /**
- * @brief ActivateServiceRequest command class
+ * @brief Base command class for json requests
  */
-class ActivateServiceRequest : public BaseJsonRequest {
+class BaseGpbRequest : public BaseCommandRequest,
+    public event_engine::EventObserver<vr_hmi_api::ServiceMessage,
+        vr_hmi_api::RPCName> {
  public:
+
   /**
-   * @brief ActivateServiceRequest class constructor
+   * @brief BaseGpbRequest class constructor
    * @param parent pointer to VRModule
-   * @param message Message from HMI
+   * @param message Message from Mobile
    */
-  ActivateServiceRequest(VRModule* parent,
-                         const vr_hmi_api::ServiceMessage& message);
+  BaseGpbRequest(VRModule* parent, application_manager::MessagePtr message);
 
   /**
-   * @brief ActivateServiceRequest class destructor
+   * @brief BaseGpbRequest class destructor
    */
-  virtual ~ActivateServiceRequest();
+  virtual ~BaseGpbRequest();
 
   /**
-   * @brief Execute command
+   * @brief BaseGpbRequest on timeout reaction
+   */
+  virtual void OnTimeout();
+
+  /**
+   * @brief This method will be called when receive an event
+   *
+   * @param event The received event
+   */
+  virtual void on_event(
+      const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event);
+
+ protected:
+  /**
+   * @brief Calls child logic to process received event
+   */
+  virtual void ProcessEvent(
+      const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) = 0;
+
+  /**
+   * @brief Interface method that executes specific logic of children classes
    */
   virtual void Execute();
 
+ protected:
   /**
-   * @brief Handles received event
+   * @brief Returns parent
    */
-  virtual void ProcessEvent(
-      const event_engine::Event<application_manager::MessagePtr,
-                                vr_hmi_api::RPCName>& event);
+  VRModule* parent() const {
+    return parent_;
+  }
 
  private:
-  /**
-   * @brief Gets params from json value
-   * @param value json value
-   * @returns strings with params for GPB message
-   */
-  std::string GetParams(const Json::Value& value);
-
-  /**
-   * @brief Prepares GPB message for HMI
-   * @param message GPB message for HMI
-   * @param value from json message
-   */
-  void PrepareGpbMessage(const Json::Value& value,
-                         vr_hmi_api::ServiceMessage& message);
+  VRModule* parent_;
+  application_manager::MessagePtr json_message_;
 };
 
 }  // namespace commands
 
 }  // namespace vr_cooperation
-
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_GPB_REQUEST_H_

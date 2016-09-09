@@ -30,73 +30,49 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/commands/process_data_request.h"
+#include "vr_cooperation/commands/support_service_request.h"
 #include "vr_cooperation/vr_module.h"
-#include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
 
 namespace vr_cooperation {
 
 namespace commands {
 
-using json_keys::kText;
-using json_keys::kInfo;
+CREATE_LOGGERPTR_GLOBAL(logger_, "SupportServiceRequest")
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "ProcessDataRequest")
-
-ProcessDataRequest::ProcessDataRequest(
-    VRModule* parent, const vr_hmi_api::ServiceMessage& message)
-    : BaseCommandRequest(parent, message) {
+SupportServiceRequest::SupportServiceRequest(
+    VRModule* parent, application_manager::MessagePtr message)
+    : BaseGpbRequest(parent, message),
+      message_() {
 }
 
-ProcessDataRequest::~ProcessDataRequest() {
+SupportServiceRequest::~SupportServiceRequest() {
 }
 
-void ProcessDataRequest::Execute() {
+void SupportServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-  SendRequestToMobile();
+  message_.set_rpc(vr_hmi_api::SUPPORT_SERVICE);
+  message_.set_rpc_type(vr_hmi_api::REQUEST);
+  message_.set_correlation_id(parent()->GetNextCorrelationID());
+  parent()->SendMessageToHMI(message_);
 }
 
-void ProcessDataRequest::OnEvent(
-    const event_engine::Event<application_manager::MessagePtr,
-        vr_hmi_api::RPCName>& event) {
+void SupportServiceRequest::ProcessEvent(
+    const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
-  Json::Value value;
-  Json::Reader reader;
-  reader.parse(event.event_message()->json_message(), value);
-
-  vr_hmi_api::ServiceMessage message_to_hmi;
-  PrepareGpbMessage(value, message_to_hmi);
-
-  SendResponseToHMI(message_to_hmi);
-}
-
-std::string ProcessDataRequest::GetParams(const Json::Value& value) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  vr_hmi_api::ResultCode result_code;
-  ParseMobileResultCode(value, result_code);
-  vr_hmi_api::ProcessDataResponse response;
-  response.set_result(result_code);
-  const std::string text = value[kText].asString();
-  if (!text.empty()) {
-    response.set_text(text);
+  const vr_hmi_api::ServiceMessage message = event.event_message();
+  if (!message.has_params()) {
+    LOG4CXX_WARN(logger_, "Message does not contain params");
+    return;
   }
-  const std::string info = value[kInfo].asString();
-  if (!info.empty()) {
-    response.set_info(info);
+  vr_hmi_api::SupportServiceResponse response;
+  if (response.ParseFromString(message.params())) {
+    const bool supported = vr_hmi_api::SUCCESS == response.result();
+    parent()->set_supported(supported);
+    parent()->UnregisterRequest(message.correlation_id());
+  } else {
+    LOG4CXX_WARN(logger_, "Could not parse params");
   }
-  std::string params;
-  response.SerializeToString(&params);
-  return params;
-}
-
-void ProcessDataRequest::PrepareGpbMessage(
-    const Json::Value& value, vr_hmi_api::ServiceMessage& message) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  message.set_rpc(vr_hmi_api::PROCESS_DATA);
-  message.set_rpc_type(vr_hmi_api::RESPONSE);
-  message.set_correlation_id(service()->GetNextCorrelationID());
-  message.set_params(GetParams(value));
 }
 
 }  // namespace commands

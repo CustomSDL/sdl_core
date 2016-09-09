@@ -33,18 +33,16 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_PROCESS_DATA_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_PROCESS_DATA_REQUEST_H_
 
-#include "vr_cooperation/commands/base_command_request.h"
+#include "vr_cooperation/commands/base_json_request.h"
 
 namespace vr_cooperation {
-
-class VRModule;
 
 namespace commands {
 
 /**
  * @brief ProcessDataRequest command class
  */
-class ProcessDataRequest : public BaseCommandRequest {
+class ProcessDataRequest : public BaseJsonRequest {
  public:
   /**
    * @brief ProcessDataRequest class constructor
@@ -65,9 +63,9 @@ class ProcessDataRequest : public BaseCommandRequest {
   virtual void Execute();
 
   /**
-   * @brief This method will be called whenever new event received
+   * @brief Handles received event
    */
-  virtual void OnEvent(
+  virtual void ProcessEvent(
       const event_engine::Event<application_manager::MessagePtr,
                                 vr_hmi_api::RPCName>& event);
 

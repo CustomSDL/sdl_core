@@ -30,33 +30,37 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "functional_module/function_ids.h"
-#include "vr_cooperation/commands/activate_service_request.h"
+#include "vr_cooperation/commands/process_data_request.h"
+#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
 
 namespace vr_cooperation {
 
 namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "ActivateServiceRequest")
+using json_keys::kText;
+using json_keys::kInfo;
 
-ActivateServiceRequest::ActivateServiceRequest(
-      VRModule* parent,
-      const vr_hmi_api::ServiceMessage& message)
-  : BaseCommandRequest(parent, message) {
+CREATE_LOGGERPTR_GLOBAL(logger_, "ProcessDataRequest")
+
+ProcessDataRequest::ProcessDataRequest(
+    VRModule* parent, const vr_hmi_api::ServiceMessage& message)
+    : BaseJsonRequest(parent, message) {
 }
 
-ActivateServiceRequest::~ActivateServiceRequest() {
+ProcessDataRequest::~ProcessDataRequest() {
 }
 
-void ActivateServiceRequest::Execute() {
+void ProcessDataRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-  SendRequestToMobile();
+  application_manager::MessagePtr message_to_send;
+  SendMessageToMobile(message_to_send);
 }
 
-void ActivateServiceRequest::OnEvent(
+void ProcessDataRequest::ProcessEvent(
     const event_engine::Event<application_manager::MessagePtr,
-                              vr_hmi_api::RPCName>& event) {
+        vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value value;
   Json::Reader reader;
@@ -65,29 +69,34 @@ void ActivateServiceRequest::OnEvent(
   vr_hmi_api::ServiceMessage message_to_hmi;
   PrepareGpbMessage(value, message_to_hmi);
 
-  SendResponseToHMI(message_to_hmi);
+  SendMessageToHMI(message_to_hmi);
 }
 
-std::string ActivateServiceRequest::GetParams(
-    const Json::Value& value) {
+std::string ProcessDataRequest::GetParams(const Json::Value& value) {
   LOG4CXX_AUTO_TRACE(logger_);
   vr_hmi_api::ResultCode result_code;
   ParseMobileResultCode(value, result_code);
-  vr_hmi_api::ActivateServiceResponse response;
+  vr_hmi_api::ProcessDataResponse response;
   response.set_result(result_code);
+  const std::string text = value[kText].asString();
+  if (!text.empty()) {
+    response.set_text(text);
+  }
+  const std::string info = value[kInfo].asString();
+  if (!info.empty()) {
+    response.set_info(info);
+  }
   std::string params;
   response.SerializeToString(&params);
-
   return params;
 }
 
-void ActivateServiceRequest::PrepareGpbMessage(
-    const Json::Value& value,
-    vr_hmi_api::ServiceMessage& message) {
+void ProcessDataRequest::PrepareGpbMessage(
+    const Json::Value& value, vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
-  message.set_rpc(vr_hmi_api::ACTIVATE);
+  message.set_rpc(vr_hmi_api::PROCESS_DATA);
   message.set_rpc_type(vr_hmi_api::RESPONSE);
-  message.set_correlation_id(service()->GetNextCorrelationID());
+  message.set_correlation_id(parent()->GetNextCorrelationID());
   message.set_params(GetParams(value));
 }
 
