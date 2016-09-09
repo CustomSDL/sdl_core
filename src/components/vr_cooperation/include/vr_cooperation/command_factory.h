@@ -51,7 +51,8 @@ class CommandFactory {
  public:
   /**
    * @brief Create command object and return pointer to it
-   * @param  msg Message shared pointer.
+   * @param parent pointer to VRmodule
+   * @param msg Message shared pointer.
    * @return Pointer to created command object.
    */
   static commands::Command* Create(
@@ -60,7 +61,7 @@ class CommandFactory {
   /**
    * @brief Create command object and return pointer to it
    * @param parent pointer to VRmodule
-   * @param  message Message shared pointer.
+   * @param message ServiceMessage.
    * @return Pointer to created command object.
    */
   static commands::Command* Create(
