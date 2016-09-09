@@ -35,6 +35,7 @@
 
 #include "vr_cooperation/commands/base_command_request.h"
 #include "vr_cooperation/event_engine/event_observer.h"
+#include "interfaces/MOBILE_API.h"
 
 namespace vr_cooperation {
 
@@ -94,6 +95,39 @@ class BaseGpbRequest : public BaseCommandRequest,
   VRModule* parent() const {
     return parent_;
   }
+
+  /**
+   * @brief Returns JSON message
+   */
+  application_manager::MessagePtr json_message() const {
+    return json_message_;
+  }
+
+  /**
+   * @brief send message (request/response) to HMI
+   * @param message gpb message for HMI
+   */
+  virtual void SendMessageToHMI(const vr_hmi_api::ServiceMessage& message) {}
+
+  /**
+   * @brief send message (request/response) to HMI
+   * @param message json message for Mobile
+   */
+  virtual void SendMessageToMobile(application_manager::MessagePtr message) {}
+
+  /**
+   * @brief send notification to HMI
+   */
+  void SendNotificationToHMI();
+
+  /**
+   * @brief send response message to mobile
+   * @param success true if successful; false, if failed
+   * @param result Mobile result
+   * @param info Provides additional human readable info regarding the result(may be empty)
+   */
+  void SendResponseToMobile(bool success, mobile_apis::Result::eType result,
+                            const std::string& info);
 
  private:
   VRModule* parent_;

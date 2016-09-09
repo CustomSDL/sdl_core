@@ -31,18 +31,19 @@
  */
 
 #include "vr_cooperation/commands/unregister_service_request.h"
+
 #include "utils/logger.h"
 
 namespace vr_cooperation {
 
 namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "UnregisterServiceRequest")
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 UnregisterServiceRequest::UnregisterServiceRequest(
       VRModule* parent,
-      const application_manager::MessagePtr& message)
-  : BaseCommandRequest(parent, message) {
+      application_manager::MessagePtr message)
+  : BaseGpbRequest(parent, message) {
 }
 
 UnregisterServiceRequest::~UnregisterServiceRequest() {
@@ -50,9 +51,18 @@ UnregisterServiceRequest::~UnregisterServiceRequest() {
 
 void UnregisterServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
+  mobile_apis::Result::eType result = mobile_apis::Result::SUCCESS;
+  bool success = true;
+  std::string info;
+
+  SendResponseToMobile(success, result, info);
+  if (success) {
+    SendNotificationToHMI();
+  }
 }
 
-void UnregisterServiceRequest::OnEvent() {
+void UnregisterServiceRequest::OnEvent(
+    const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 

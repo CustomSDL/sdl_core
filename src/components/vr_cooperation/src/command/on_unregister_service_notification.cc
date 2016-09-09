@@ -1,22 +1,17 @@
 /*
  Copyright (c) 2016, Ford Motor Company
  All rights reserved.
-
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
-
  Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
-
  Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following
  disclaimer in the documentation and/or other materials provided with the
  distribution.
-
  Neither the name of the Ford Motor Company nor the names of its contributors
  may be used to endorse or promote products derived from this software
  without specific prior written permission.
-
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -30,9 +25,9 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "vr_cooperation/commands/on_unregister_service_notification.h"
+
 #include "utils/logger.h"
-#include "vr_cooperation/commands/base_json_request.h"
-#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
@@ -40,56 +35,30 @@ namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-BaseGpbRequest::BaseGpbRequest(VRModule* parent)
-    : parent_(parent),
-      json_message_() {
+OnUnregisterServiceNotification::OnRegisterServiceNotification(
+    VRModule* parent, application_manager::MessagePtr message)
+    : GpbNotification(parent, message) {
 }
 
-BaseGpbRequest::BaseGpbRequest(VRModule* parent,
-                               application_manager::MessagePtr message)
-    : parent_(parent),
-      json_message_(message) {
+OnUnregisterServiceNotification::~OnUnregisterServiceNotification() {
 }
 
-BaseGpbRequest::~BaseGpbRequest() {
-}
-
-void BaseGpbRequest::Execute() {
+void OnUnregisterServiceNotification::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-}
 
-void BaseGpbRequest::on_event(
-    const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  ProcessEvent(event);  //runs child's logic
+  vr_hmi_api::ServiceMessage service_message;
+  service_message.set_rpc(vr_hmi_api::ON_REGISTER);
 
-}
+  vr_hmi_api::OnRegisterServiceNotification on_unregister_notification;
+  int32_t app_id = json_message()->connection_key();
+  onregister_notification.set_appid(app_id);
 
-void BaseGpbRequest::SendNotificationToHMI() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  json_message_->set_message_type(application_manager::MessageType::kNotification);
-  commands::Command* command = MobileCommandFactory::CreateCommand(this, json_message_);
-  if (command) {
-    command->Run();
-    delete command;
+  std::string params;
+  if (onregister_notification.SerializeToString(&params)) {
+    service_message.set_params(params);
   }
-}
 
-void SendResponseToMobile(bool success, mobile_apis::Result::eType result,
-                          const std::string& info) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  Json::Value msg_params;
-  msg_params[kId] = service()->GetNextCorrelationID();
-  msg_params[kSuccess] = success;
-  msg_params[kResultCode] = result;
-  msg_params[kInfo] = info;
-
-  json_message_->set_message_type(application_manager::MessageType::kResponse);
-  Json::FastWriter writer;
-  json_message_->set_json_message(writer.write(msg_params));
-  json_message_->set_correlation_id(msg_params[kId].asInt());
-  json_message_->set_protocol_version(application_manager::ProtocolVersion::kV2);
-  parent_->SendMessageToMobile(json_message_);
+  SendNotification(service_message);
 }
 
 }  // namespace commands

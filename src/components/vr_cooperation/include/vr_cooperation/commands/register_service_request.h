@@ -33,8 +33,7 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REGISTER_SERVICE_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REGISTER_SERVICE_REQUEST_H_
 
-#include <string>
-#include "vr_cooperation/commands/base_command_request.h"
+#include "vr_cooperation/commands/base_gpb_request.h"
 #include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
@@ -44,7 +43,7 @@ namespace commands {
 /**
  * @brief RegisterServiceRequest command class
  */
-class RegisterServiceRequest : public BaseCommandRequest {
+class RegisterServiceRequest : public BaseGpbRequest {
  public:
   /**
    * @brief RegisterServiceRequest class constructor
@@ -52,7 +51,7 @@ class RegisterServiceRequest : public BaseCommandRequest {
    * @param message Message from mobile
    **/
   RegisterServiceRequest(VRModule* parent,
-                         const application_manager::MessagePtr& message);
+                         application_manager::MessagePtr message);
 
   /**
    * @brief RegisterServiceRequest class destructor
@@ -68,8 +67,8 @@ class RegisterServiceRequest : public BaseCommandRequest {
    * @brief This method will be called whenever new event received
    * @param event The received event
    */
-  virtual void OnEvent(const event_engine::Event<
-                       application_manager::MessagePtr, std::string>& event);
+  virtual void OnEvent(
+      const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event);
 };
 
 }  // namespace commands

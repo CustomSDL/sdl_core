@@ -37,6 +37,10 @@
 #include "vr_cooperation/interface/hmi.pb.h"
 #include "vr_cooperation/commands/on_default_service_chosen_notification.h"
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
+#include "vr_cooperation/commands/register_service_request.h"
+#include "vr_cooperation/commands/unregister_service_request.h"
+#include "vr_cooperation/commands/on_register_service_notification.h"
+#include "vr_cooperation/commands/on_unregister_service_notification.h"
 
 namespace vr_cooperation {
 
@@ -46,6 +50,20 @@ commands::Command* CommandFactory::Create(VRModule* parent,
                                           application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
   switch (msg->function_id()) {
+    case MobileFunctionID::REGISTER_SERVICE:
+      if (msg->type() == application_manager::MessageType::kRequest) {
+        return new RegisterServiceRequest(parent, msg);
+      } else {
+        return new OnRegisterServiceNotification(parent, msg);
+      }
+
+    case MobileFunctionID::UNREGISTER_SERVICE:
+      if (msg->type() == application_manager::MessageType::kRequest) {
+        return new UnregisterServiceRequest(parent, msg);
+      } else {
+        return new OnUnregisterServiceNotification(parent, msg);
+      }
+
     default:
       return NULL;
   }

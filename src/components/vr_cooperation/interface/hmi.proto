@@ -75,6 +75,11 @@ message OnRegisterServiceNotification{
   optional int32 appID = 2;
 }
 
+message OnUnregisterServiceNotification{
+  // defines if the service has been previously stored as default on SDL
+  optional int32 appID = 2;
+}
+
 // sent from HU-subsystem -> SDL, 
 // to notify about the default service chosen by the User
 message OnDefaultServiceChosenNotification{

@@ -32,20 +32,18 @@
 
 #include "vr_cooperation/commands/register_service_request.h"
 
-#include "functional_module/function_ids.h"
 #include "utils/logger.h"
-#include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
 
 namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "RegisterServiceRequest")
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 RegisterServiceRequest::RegisterServiceRequest(
       VRModule* parent,
-      const application_manager::MessagePtr& message)
-  : BaseCommandRequest(parent, message) {
+      application_manager::MessagePtr message)
+  : BaseGpbRequest(parent, message) {
 }
 
 RegisterServiceRequest::~RegisterServiceRequest() {
@@ -53,26 +51,18 @@ RegisterServiceRequest::~RegisterServiceRequest() {
 
 void RegisterServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-
-  Json::Value params;
-  Json::Reader reader;
-  reader.parse(json_message_->json_message(), params);
-
-  std::string result_code = result_codes::kSuccess;
+  mobile_apis::Result::eType result = mobile_apis::Result::SUCCESS;
   bool success = true;
   std::string info;
 
-  // TODO(Thinh): check to return results code
-
-  SendResponseToMobile(success, result_code, info);
+  SendResponseToMobile(success, result, info);
   if (success) {
-    SendNotification(true);
+    SendNotificationToHMI();
   }
 }
 
 void RegisterServiceRequest::OnEvent(
-    const event_engine::Event<application_manager::MessagePtr,
-    std::string>& event) {
+    const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
