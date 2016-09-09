@@ -119,9 +119,9 @@ functional_modules::ProcessResult VRModule::ProcessMessage(
 
   if (!IsVRServiceSupported()) {
     bool success = false;
-    mobile_apis::Result::eType result = mobile_apis::Result::UNSUPPORTED_RESOURCE;
+    std::string result = result_codes::kUnsupportedResource;
     std::string info = "VR Service is not supported";
-    SendResponseToMobile(msg, success, result, info);
+    SendResponseToMobile(msg, success, result.c_str(), info);
     return ProcessResult::PROCESSED;
   }
 
@@ -289,7 +289,7 @@ bool VRModule::IsVRServiceSupported() const {
 }
 
 void VRModule::SendResponseToMobile(application_manager::MessagePtr msg,
-                                    bool success, mobile_apis::Result::eType result,
+                                    bool success, const char* result,
                                     std::string& info) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg_params;

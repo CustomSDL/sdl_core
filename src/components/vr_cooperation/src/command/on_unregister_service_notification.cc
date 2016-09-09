@@ -35,7 +35,7 @@ namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-OnUnregisterServiceNotification::OnRegisterServiceNotification(
+OnUnregisterServiceNotification::OnUnregisterServiceNotification(
     VRModule* parent, application_manager::MessagePtr message)
     : GpbNotification(parent, message) {
 }
@@ -51,10 +51,10 @@ void OnUnregisterServiceNotification::Execute() {
 
   vr_hmi_api::OnRegisterServiceNotification on_unregister_notification;
   int32_t app_id = json_message()->connection_key();
-  onregister_notification.set_appid(app_id);
+  on_unregister_notification.set_appid(app_id);
 
   std::string params;
-  if (onregister_notification.SerializeToString(&params)) {
+  if (on_unregister_notification.SerializeToString(&params)) {
     service_message.set_params(params);
   }
 

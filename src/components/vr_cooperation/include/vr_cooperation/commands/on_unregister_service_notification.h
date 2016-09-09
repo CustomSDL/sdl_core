@@ -25,8 +25,8 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_REGISTER_SERVICE_NOTIFICATION_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_REGISTER_SERVICE_NOTIFICATION_H_
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_UNREGISTER_SERVICE_NOTIFICATION_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_UNREGISTER_SERVICE_NOTIFICATION_H_
 
 #include "vr_cooperation/commands/gpb_notification.h"
 #include "vr_cooperation/vr_module.h"
@@ -46,7 +46,7 @@ class OnUnregisterServiceNotification : public GpbNotification {
    * @param message Message from mobile
    **/
   OnUnregisterServiceNotification(VRModule* parent,
-                                application_manager::MessagePtr message);
+                                  application_manager::MessagePtr message);
 
   /**
    * @brief OnUnregisterServiceNotification class destructor
@@ -63,4 +63,4 @@ class OnUnregisterServiceNotification : public GpbNotification {
 
 }  // namespace vr_cooperation
 
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_REGISTER_SERVICE_NOTIFICATION_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_UNREGISTER_SERVICE_NOTIFICATION_H_

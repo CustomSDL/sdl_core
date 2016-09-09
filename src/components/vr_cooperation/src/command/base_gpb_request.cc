@@ -30,20 +30,24 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "vr_cooperation/commands/base_gpb_request.h"
+
 #include "utils/logger.h"
-#include "vr_cooperation/commands/base_json_request.h"
+#include "json/json.h"
+#include "vr_cooperation/command_factory.h"
 #include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
 
 namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
+using json_keys::kId;
+using json_keys::kInfo;
+using json_keys::kResultCode;
+using json_keys::kSuccess;
 
-BaseGpbRequest::BaseGpbRequest(VRModule* parent)
-    : parent_(parent),
-      json_message_() {
-}
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 BaseGpbRequest::BaseGpbRequest(VRModule* parent,
                                application_manager::MessagePtr message)
@@ -52,6 +56,10 @@ BaseGpbRequest::BaseGpbRequest(VRModule* parent,
 }
 
 BaseGpbRequest::~BaseGpbRequest() {
+}
+
+void BaseGpbRequest::OnTimeout() {
+  LOG4CXX_AUTO_TRACE(logger_);
 }
 
 void BaseGpbRequest::Execute() {
@@ -68,18 +76,18 @@ void BaseGpbRequest::on_event(
 void BaseGpbRequest::SendNotificationToHMI() {
   LOG4CXX_AUTO_TRACE(logger_);
   json_message_->set_message_type(application_manager::MessageType::kNotification);
-  commands::Command* command = MobileCommandFactory::CreateCommand(this, json_message_);
+  commands::Command* command = CommandFactory::Create(parent_, json_message_);
   if (command) {
     command->Run();
     delete command;
   }
 }
 
-void SendResponseToMobile(bool success, mobile_apis::Result::eType result,
-                          const std::string& info) {
+void BaseGpbRequest::SendResponseToMobile(bool success, const char* result,
+                                          const std::string& info) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg_params;
-  msg_params[kId] = service()->GetNextCorrelationID();
+  msg_params[kId] = parent_->service()->GetNextCorrelationID();
   msg_params[kSuccess] = success;
   msg_params[kResultCode] = result;
   msg_params[kInfo] = info;

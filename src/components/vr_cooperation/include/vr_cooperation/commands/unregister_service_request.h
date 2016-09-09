@@ -67,7 +67,7 @@ class UnregisterServiceRequest : public BaseGpbRequest {
    * @brief This method will be called whenever new event received
    * @param event The received event
    */
-  virtual void OnEvent(
+  virtual void ProcessEvent(
       const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event);
 };
 

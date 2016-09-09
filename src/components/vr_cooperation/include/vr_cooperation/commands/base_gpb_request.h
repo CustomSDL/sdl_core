@@ -126,7 +126,7 @@ class BaseGpbRequest : public BaseCommandRequest,
    * @param result Mobile result
    * @param info Provides additional human readable info regarding the result(may be empty)
    */
-  void SendResponseToMobile(bool success, mobile_apis::Result::eType result,
+  void SendResponseToMobile(bool success, const char* result,
                             const std::string& info);
 
  private:

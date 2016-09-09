@@ -32,6 +32,7 @@
 
 #include "vr_cooperation/command_factory.h"
 
+#include "functional_module/function_ids.h"
 #include "utils/logger.h"
 #include "vr_cooperation/vr_module.h"
 #include "vr_cooperation/interface/hmi.pb.h"
@@ -44,6 +45,8 @@
 
 namespace vr_cooperation {
 
+using functional_modules::MobileFunctionID;
+
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 commands::Command* CommandFactory::Create(VRModule* parent,
@@ -52,16 +55,16 @@ commands::Command* CommandFactory::Create(VRModule* parent,
   switch (msg->function_id()) {
     case MobileFunctionID::REGISTER_SERVICE:
       if (msg->type() == application_manager::MessageType::kRequest) {
-        return new RegisterServiceRequest(parent, msg);
+        return new commands::RegisterServiceRequest(parent, msg);
       } else {
-        return new OnRegisterServiceNotification(parent, msg);
+        return new commands::OnRegisterServiceNotification(parent, msg);
       }
 
     case MobileFunctionID::UNREGISTER_SERVICE:
       if (msg->type() == application_manager::MessageType::kRequest) {
-        return new UnregisterServiceRequest(parent, msg);
+        return new commands::UnregisterServiceRequest(parent, msg);
       } else {
-        return new OnUnregisterServiceNotification(parent, msg);
+        return new commands::OnUnregisterServiceNotification(parent, msg);
       }
 
     default:

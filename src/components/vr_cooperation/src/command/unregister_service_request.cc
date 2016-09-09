@@ -33,6 +33,7 @@
 #include "vr_cooperation/commands/unregister_service_request.h"
 
 #include "utils/logger.h"
+#include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
 
@@ -51,17 +52,17 @@ UnregisterServiceRequest::~UnregisterServiceRequest() {
 
 void UnregisterServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-  mobile_apis::Result::eType result = mobile_apis::Result::SUCCESS;
+  std::string result = result_codes::kSuccess;
   bool success = true;
   std::string info;
 
-  SendResponseToMobile(success, result, info);
+  SendResponseToMobile(success, result.c_str(), info);
   if (success) {
     SendNotificationToHMI();
   }
 }
 
-void UnregisterServiceRequest::OnEvent(
+void UnregisterServiceRequest::ProcessEvent(
     const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
 }
