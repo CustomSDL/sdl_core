@@ -57,7 +57,8 @@ void OnRegisterServiceNotification::Execute() {
 
   vr_hmi_api::OnRegisterServiceNotification onregister_notification;
   int32_t app_id = json_message()->connection_key();
-  onregister_notification.set_appid(app_id == parent()->default_app_id());
+  onregister_notification.set_appid(app_id);
+  onregister_notification.set_default_(app_id == parent()->default_app_id());
 
   std::string params;
   if (onregister_notification.SerializeToString(&params)) {
