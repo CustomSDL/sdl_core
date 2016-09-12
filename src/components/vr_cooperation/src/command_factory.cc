@@ -56,15 +56,21 @@ commands::Command* CommandFactory::Create(VRModule* parent,
     case MobileFunctionID::REGISTER_SERVICE:
       if (msg->type() == application_manager::MessageType::kRequest) {
         return new commands::RegisterServiceRequest(parent, msg);
-      } else {
+      } else if (msg->type()
+          == application_manager::MessageType::kNotification) {
         return new commands::OnRegisterServiceNotification(parent, msg);
+      } else {
+        return NULL;
       }
 
     case MobileFunctionID::UNREGISTER_SERVICE:
       if (msg->type() == application_manager::MessageType::kRequest) {
         return new commands::UnregisterServiceRequest(parent, msg);
-      } else {
+      } else if (msg->type()
+          == application_manager::MessageType::kNotification) {
         return new commands::OnUnregisterServiceNotification(parent, msg);
+      } else {
+        return NULL;
       }
 
     default:

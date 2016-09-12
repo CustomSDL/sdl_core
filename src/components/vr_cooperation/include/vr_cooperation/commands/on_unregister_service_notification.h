@@ -29,9 +29,10 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ON_UNREGISTER_SERVICE_NOTIFICATION_H_
 
 #include "vr_cooperation/commands/gpb_notification.h"
-#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
+
+class VRModule;
 
 namespace commands {
 

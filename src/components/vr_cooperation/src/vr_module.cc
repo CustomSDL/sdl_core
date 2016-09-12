@@ -272,7 +272,7 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
   } else {
     commands::Command* command = CommandFactory::Create(this, message);
     if (command) {
-     if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
+      if (vr_hmi_api::MessageType::REQUEST == message.rpc_type()) {
         request_controller_.AddRequest(message.correlation_id(), command);
       }
       command->Run();

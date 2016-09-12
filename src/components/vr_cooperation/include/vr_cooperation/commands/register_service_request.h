@@ -34,9 +34,10 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REGISTER_SERVICE_REQUEST_H_
 
 #include "vr_cooperation/commands/base_gpb_request.h"
-#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
+
+class VRModule;
 
 namespace commands {
 

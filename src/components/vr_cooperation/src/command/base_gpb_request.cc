@@ -62,10 +62,6 @@ void BaseGpbRequest::OnTimeout() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-void BaseGpbRequest::Execute() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-
 void BaseGpbRequest::on_event(
     const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);

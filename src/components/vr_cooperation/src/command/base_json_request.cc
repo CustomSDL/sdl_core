@@ -69,10 +69,6 @@ void BaseJsonRequest::OnTimeout() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-void BaseJsonRequest::Execute() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-
 vr_hmi_api::ResultCode BaseJsonRequest::GetHMIResultCode(
     const std::string& mobile_code) const {
   vr_hmi_api::ResultCode hmiResCode = vr_hmi_api::INVALID_DATA;

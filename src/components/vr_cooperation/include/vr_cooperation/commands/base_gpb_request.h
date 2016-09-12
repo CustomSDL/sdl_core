@@ -86,9 +86,8 @@ class BaseGpbRequest : public BaseCommandRequest,
   /**
    * @brief Interface method that executes specific logic of children classes
    */
-  virtual void Execute();
+  virtual void Execute() = 0;
 
- protected:
   /**
    * @brief Returns parent
    */

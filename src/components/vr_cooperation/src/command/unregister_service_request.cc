@@ -33,6 +33,7 @@
 #include "vr_cooperation/commands/unregister_service_request.h"
 
 #include "utils/logger.h"
+#include "vr_cooperation/vr_module.h"
 #include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
