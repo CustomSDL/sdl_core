@@ -106,27 +106,13 @@ class BaseGpbRequest : public BaseCommandRequest,
    * @brief send message (request/response) to HMI
    * @param message gpb message for HMI
    */
-  virtual void SendMessageToHMI(const vr_hmi_api::ServiceMessage& message) {}
+  virtual void SendMessageToHMI(const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief send message (request/response) to HMI
    * @param message json message for Mobile
    */
-  virtual void SendMessageToMobile(application_manager::MessagePtr message) {}
-
-  /**
-   * @brief send notification to HMI
-   */
-  void SendNotificationToHMI();
-
-  /**
-   * @brief send response message to mobile
-   * @param success true if successful; false, if failed
-   * @param result Mobile result
-   * @param info Provides additional human readable info regarding the result(may be empty)
-   */
-  void SendResponseToMobile(bool success, const char* result,
-                            const std::string& info);
+  virtual void SendMessageToMobile(application_manager::MessagePtr message);
 
  private:
   VRModule* parent_;

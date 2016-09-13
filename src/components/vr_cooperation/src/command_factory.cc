@@ -39,9 +39,7 @@
 #include "vr_cooperation/commands/on_default_service_chosen_notification.h"
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
 #include "vr_cooperation/commands/register_service_request.h"
-#include "vr_cooperation/commands/unregister_service_request.h"
 #include "vr_cooperation/commands/on_register_service_notification.h"
-#include "vr_cooperation/commands/on_unregister_service_notification.h"
 
 namespace vr_cooperation {
 
@@ -63,15 +61,16 @@ commands::Command* CommandFactory::Create(VRModule* parent,
         return NULL;
       }
 
-    case MobileFunctionID::UNREGISTER_SERVICE:
-      if (msg->type() == application_manager::MessageType::kRequest) {
-        return new commands::UnregisterServiceRequest(parent, msg);
-      } else if (msg->type()
-          == application_manager::MessageType::kNotification) {
-        return new commands::OnUnregisterServiceNotification(parent, msg);
-      } else {
-        return NULL;
-      }
+      //TODO(Thinh):this code for future implementation
+//    case MobileFunctionID::UNREGISTER_SERVICE:
+//      if (msg->type() == application_manager::MessageType::kRequest) {
+//        return new commands::UnregisterServiceRequest(parent, msg);
+//      } else if (msg->type()
+//          == application_manager::MessageType::kNotification) {
+//        return new commands::OnUnregisterServiceNotification(parent, msg);
+//      } else {
+//        return NULL;
+//      }
 
     default:
       return NULL;

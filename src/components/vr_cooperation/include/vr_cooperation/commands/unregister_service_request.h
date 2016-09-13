@@ -70,6 +70,21 @@ class UnregisterServiceRequest : public BaseGpbRequest {
    */
   virtual void ProcessEvent(
       const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event);
+
+ private:
+  /**
+   * @brief send notification to HMI
+   */
+  void SendNotificationToHMI();
+
+  /**
+   * @brief send response message to mobile
+   * @param success true if successful; false, if failed
+   * @param result Mobile result
+   * @param info Provides additional human readable info regarding the result(may be empty)
+   */
+  void SendResponseToMobile(bool success, const char* result,
+                            const std::string& info);
 };
 
 }  // namespace commands

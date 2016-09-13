@@ -33,12 +33,19 @@
 #include "vr_cooperation/commands/register_service_request.h"
 
 #include "utils/logger.h"
+#include "json/json.h"
+#include "vr_cooperation/command_factory.h"
 #include "vr_cooperation/vr_module.h"
 #include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
 
 namespace commands {
+
+using json_keys::kId;
+using json_keys::kInfo;
+using json_keys::kResultCode;
+using json_keys::kSuccess;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
@@ -66,6 +73,36 @@ void RegisterServiceRequest::Execute() {
 void RegisterServiceRequest::ProcessEvent(
     const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
+}
+
+void RegisterServiceRequest::SendNotificationToHMI() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  application_manager::MessagePtr json_msg = json_message();
+  json_msg->set_message_type(application_manager::MessageType::kNotification);
+  commands::Command* command = CommandFactory::Create(parent(), json_msg);
+  if (command) {
+    command->Run();
+    delete command;
+  }
+}
+
+void RegisterServiceRequest::SendResponseToMobile(bool success,
+                                                  const char* result,
+                                                  const std::string& info) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  Json::Value msg_params;
+  msg_params[kId] = parent()->service()->GetNextCorrelationID();
+  msg_params[kSuccess] = success;
+  msg_params[kResultCode] = result;
+  msg_params[kInfo] = info;
+
+  application_manager::MessagePtr json_msg = json_message();
+  json_msg->set_message_type(application_manager::MessageType::kResponse);
+  Json::FastWriter writer;
+  json_msg->set_json_message(writer.write(msg_params));
+  json_msg->set_correlation_id(msg_params[kId].asInt());
+  json_msg->set_protocol_version(application_manager::ProtocolVersion::kV2);
+  parent()->SendMessageToMobile(json_msg);
 }
 
 }  // namespace commands
