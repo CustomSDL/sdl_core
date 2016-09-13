@@ -168,12 +168,6 @@ class VRModule : public functional_modules::GenericModule,
     return service()->GetNextCorrelationID();
   }
 
-  /**
-   * @brief Registers service
-   * @param msg Json message form mobile
-   */
-  void RegisterService(application_manager::MessagePtr msg);
-
  protected:
   /**
    * @brief Remove extension for all applications
