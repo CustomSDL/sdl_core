@@ -12,7 +12,6 @@ set (SOURCES
   src/vr_library_test.cc
   src/on_service_deactivated_test.cc
   src/on_default_service_chosen_test.cc
-  #src/active_service_test.cc
   src/on_register_service_test.cc
   src/support_service_test.cc
 )
