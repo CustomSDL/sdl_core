@@ -50,9 +50,8 @@ using json_keys::kSuccess;
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 RegisterServiceRequest::RegisterServiceRequest(
-      VRModule* parent,
-      application_manager::MessagePtr message)
-  : BaseGpbRequest(parent, message) {
+    VRModule* parent, application_manager::MessagePtr message)
+    : BaseGpbRequest(parent, message) {
 }
 
 RegisterServiceRequest::~RegisterServiceRequest() {

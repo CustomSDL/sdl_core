@@ -290,7 +290,7 @@ bool VRModule::IsVRServiceSupported() const {
 
 void VRModule::SendResponseToMobile(application_manager::MessagePtr msg,
                                     bool success, const char* result,
-                                    std::string& info) {
+                                    const std::string& info) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg_params;
   msg_params[kId] = service()->GetNextCorrelationID();

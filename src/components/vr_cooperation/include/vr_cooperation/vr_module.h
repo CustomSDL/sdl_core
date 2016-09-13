@@ -207,7 +207,7 @@ class VRModule : public functional_modules::GenericModule,
    * @param info Provides additional human readable info regarding the result(may be empty)
    */
   void SendResponseToMobile(application_manager::MessagePtr msg, bool success,
-                            const char* result, std::string& info);
+                            const char* result, const std::string& info);
 
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;

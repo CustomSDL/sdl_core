@@ -50,9 +50,8 @@ using json_keys::kSuccess;
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 UnregisterServiceRequest::UnregisterServiceRequest(
-      VRModule* parent,
-      application_manager::MessagePtr message)
-  : BaseGpbRequest(parent, message) {
+    VRModule* parent, application_manager::MessagePtr message)
+    : BaseGpbRequest(parent, message) {
 }
 
 UnregisterServiceRequest::~UnregisterServiceRequest() {
@@ -87,8 +86,8 @@ void UnregisterServiceRequest::SendNotificationToHMI() {
 }
 
 void UnregisterServiceRequest::SendResponseToMobile(bool success,
-                                                  const char* result,
-                                                  const std::string& info) {
+                                                    const char* result,
+                                                    const std::string& info) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg_params;
   msg_params[kId] = parent()->service()->GetNextCorrelationID();
