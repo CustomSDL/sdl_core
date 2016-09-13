@@ -35,7 +35,6 @@
 
 #include "vr_cooperation/commands/base_command_request.h"
 #include "vr_cooperation/event_engine/event_observer.h"
-#include "interfaces/MOBILE_API.h"
 
 namespace vr_cooperation {
 

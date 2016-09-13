@@ -200,14 +200,10 @@ class VRModule : public functional_modules::GenericModule,
   bool IsVRServiceSupported() const;
 
   /**
-   * @brief send response message to mobile
-   * @param msg
-   * @param success true if successful; false, if failed
-   * @param result Mobile result
-   * @param info Provides additional human readable info regarding the result(may be empty)
+   * @brief send response message to mobile in case VRService is not supported
+   * @param msg message to send
    */
-  void SendResponseToMobile(application_manager::MessagePtr msg, bool success,
-                            const char* result, const std::string& info);
+  void SendUnsupportedServiceResponse(application_manager::MessagePtr msg);
 
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;

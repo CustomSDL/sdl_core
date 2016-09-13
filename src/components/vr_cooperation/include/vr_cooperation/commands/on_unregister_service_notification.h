@@ -37,12 +37,12 @@ class VRModule;
 namespace commands {
 
 /**
- * @brief RegisterServiceRequest command class
+ * @brief OnUnregisterServiceNotification command class
  */
 class OnUnregisterServiceNotification : public GpbNotification {
  public:
   /**
-   * @brief OnUnregisterServiceRequest class constructor
+   * @brief OnUnregisterServiceNotification class constructor
    * @param parent pointer to VRModule
    * @param message Message from mobile
    **/
