@@ -39,7 +39,7 @@
 
 namespace vr_cooperation {
 
-class VRModule;
+class ServiceModule;
 
 namespace commands {
 
@@ -52,10 +52,10 @@ class BaseJsonRequest : public BaseCommandRequest,
  public:
   /**
    * @brief BaseJsonRequest class constructor
-   * @param parent pointer to VRModule
+   * @param parent pointer to ServiceModule
    * @param message Message from HMI
    */
-  BaseJsonRequest(VRModule* parent, const vr_hmi_api::ServiceMessage& message);
+  BaseJsonRequest(ServiceModule* parent, const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief BaseJsonRequest class destructor
@@ -130,12 +130,12 @@ class BaseJsonRequest : public BaseCommandRequest,
   /**
    * @brief Returns parent
    */
-  VRModule* parent() const {
+  ServiceModule* parent() const {
     return parent_;
   }
 
  private:
-  VRModule* parent_;
+  ServiceModule* parent_;
   vr_hmi_api::ServiceMessage gpb_message_;
 };
 

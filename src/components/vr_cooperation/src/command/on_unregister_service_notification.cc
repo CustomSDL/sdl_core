@@ -26,9 +26,8 @@
  */
 
 #include "vr_cooperation/commands/on_unregister_service_notification.h"
-
+#include "vr_cooperation/service_module.h"
 #include "utils/logger.h"
-#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
@@ -37,7 +36,7 @@ namespace commands {
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 OnUnregisterServiceNotification::OnUnregisterServiceNotification(
-    VRModule* parent, application_manager::MessagePtr message)
+    ServiceModule* parent, application_manager::MessagePtr message)
     : GpbNotification(parent, message) {
 }
 

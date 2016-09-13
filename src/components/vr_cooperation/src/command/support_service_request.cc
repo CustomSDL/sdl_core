@@ -31,7 +31,7 @@
  */
 
 #include "vr_cooperation/commands/support_service_request.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/service_module.h"
 #include "utils/logger.h"
 
 namespace vr_cooperation {
@@ -41,7 +41,7 @@ namespace commands {
 CREATE_LOGGERPTR_GLOBAL(logger_, "SupportServiceRequest")
 
 SupportServiceRequest::SupportServiceRequest(
-    VRModule* parent, application_manager::MessagePtr message)
+    ServiceModule* parent, application_manager::MessagePtr message)
     : BaseGpbRequest(parent, message),
       message_() {
 }
@@ -55,24 +55,21 @@ void SupportServiceRequest::Execute() {
   message_.set_rpc_type(vr_hmi_api::REQUEST);
   message_.set_correlation_id(parent()->GetNextCorrelationID());
   parent()->SendMessageToHMI(message_);
+  parent()->UnregisterRequest(message_.correlation_id());
 }
 
 void SupportServiceRequest::ProcessEvent(
     const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
   const vr_hmi_api::ServiceMessage message = event.event_message();
-  if (!message.has_params()) {
-    LOG4CXX_WARN(logger_, "Message does not contain params");
-    return;
-  }
   vr_hmi_api::SupportServiceResponse response;
-  if (response.ParseFromString(message.params())) {
-    const bool supported = vr_hmi_api::SUCCESS == response.result();
-    parent()->set_supported(supported);
-    parent()->UnregisterRequest(message.correlation_id());
+  if (message.has_params() && response.ParseFromString(message.params())) {
+    vr_hmi_api::SUCCESS == response.result() ?
+        parent()->EnableSupport() : parent()->DisableSupport();
   } else {
-    LOG4CXX_WARN(logger_, "Could not parse params");
+    LOG4CXX_ERROR(logger_, "Could not get result from message");
   }
+  parent()->UnregisterRequest(message.correlation_id());
 }
 
 }  // namespace commands

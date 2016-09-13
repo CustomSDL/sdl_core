@@ -36,8 +36,7 @@
 #include "vr_cooperation/commands/base_gpb_request.h"
 
 namespace vr_cooperation {
-
-class VRModule;
+class ServiceModule;
 
 namespace commands {
 
@@ -48,10 +47,10 @@ class UnregisterServiceRequest : public BaseGpbRequest {
  public:
   /**
    * @brief UnregisterServiceRequest class constructor
-   * @param parent pointer to VRModule
+   * @param parent pointer to ServiceModule
    * @param message Message from mobile
    **/
-  UnregisterServiceRequest(VRModule* parent,
+  UnregisterServiceRequest(ServiceModule* parent,
                            application_manager::MessagePtr message);
 
   /**

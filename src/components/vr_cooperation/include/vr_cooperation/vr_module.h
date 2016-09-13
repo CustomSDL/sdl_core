@@ -38,6 +38,7 @@
 #include "vr_cooperation/request_controller.h"
 #include "vr_cooperation/vr_proxy.h"
 #include "vr_cooperation/vr_proxy_listener.h"
+#include "vr_cooperation/service_module.h"
 
 namespace vr_hmi_api {
 class ServiceMessage;
@@ -49,14 +50,14 @@ namespace vr_cooperation {
  * @brief VR Module plugin class
  */
 class VRModule : public functional_modules::GenericModule,
-                 public VRProxyListener {
+    public VRProxyListener, public ServiceModule {
  public:
   VRModule();
   ~VRModule();
   /**
    * @brief get plugin information
    */
-  functional_modules::PluginInfo GetPluginInfo() const;
+  virtual functional_modules::PluginInfo GetPluginInfo() const;
 
   /**
    * @brief process message from mobile
@@ -82,33 +83,34 @@ class VRModule : public functional_modules::GenericModule,
    * @brief Check registering app can be handled by plugin
    * @param app Application basis already create by Core
    */
-  bool IsAppForPlugin(application_manager::ApplicationSharedPtr app);
+  virtual bool IsAppForPlugin(application_manager::ApplicationSharedPtr app);
 
   /**
    * @brief Notify about change of HMILevel of plugin's app
    * @param app application with new HMILevel
    * @param old_level Old HMILevel of app
    */
-  void OnAppHMILevelChanged(application_manager::ApplicationSharedPtr app,
-                            mobile_apis::HMILevel::eType old_level);
+  virtual void OnAppHMILevelChanged(
+      application_manager::ApplicationSharedPtr app,
+      mobile_apis::HMILevel::eType old_level);
 
   /**
    * @brief Handles removing (disconnecting) device
    * @param device removed
    */
-  void OnDeviceRemoved(const connection_handler::DeviceHandle& device);
+  virtual void OnDeviceRemoved(const connection_handler::DeviceHandle& device);
 
   /**
    * @brief send gpb message to HMI
    * @param message gpb message that will be sent to HMI
    */
-  void SendMessageToHMI(const vr_hmi_api::ServiceMessage& message);
+  virtual void SendMessageToHMI(const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief send message to mobile
    * @param msg message to send
    */
-  void SendMessageToMobile(application_manager::MessagePtr msg);
+  virtual void SendMessageToMobile(application_manager::MessagePtr msg);
 
   /**
    * Handles received message from HMI (Applink)
@@ -120,13 +122,34 @@ class VRModule : public functional_modules::GenericModule,
    * Removed request from request controller
    * @param correlation_id request id
    */
-  void UnregisterRequest(uint32_t correlation_id);
+  virtual void UnregisterRequest(int32_t correlation_id);
+
+  /**
+   * @brief IsVRServiceSupported return true if VR service is supported
+   */
+  virtual bool IsVRServiceSupported() const {
+    return supported_;
+  }
+
+  /**
+   * @brief EnableSupport
+   */
+  virtual void EnableSupport() {
+    supported_ = true;
+  }
+
+  /**
+   * @brief DisableSupport
+   */
+  virtual void DisableSupport() {
+    supported_ = false;
+  }
 
   /**
    * @brief Returns key of application that process VR requests.
    * @return mobile application connection key
    */
-  int32_t activated_connection_key() const {
+  virtual int32_t activated_connection_key() const {
     return activated_connection_key_;
   }
 
@@ -135,36 +158,46 @@ class VRModule : public functional_modules::GenericModule,
    *        when ActivateServiceRequest come from HU
    * @param connection_key key of activate application
    */
-  void set_activated_connection_key(int32_t connection_key) {
+  virtual void ActivateService(int32_t connection_key) {
     activated_connection_key_ = connection_key;
   }
 
   /**
-   * @brief default_app_id getter for default vr-service app id
-   * @return id of default vr-service app
+   * @brief Reset key of application that process VR requests. It happens
+   *        when OnDeactivatedService notification come from HU
    */
-  int32_t default_app_id() const { return default_app_id_; }
-
-  /**
-   * @brief set_default_app_id setter for default vr-service app id
-   * @param app_id default vr-service app id
-   */
-  void set_default_app_id(int32_t app_id) {
-    default_app_id_ = app_id;
+  virtual void DeactivateService() {
+    activated_connection_key_ = 0;
   }
 
   /**
-   * @brief set_default_app_id setter for default vr-service app id
+   * @brief IsDefaultService return true if app is default for service
+   * false otherwise
+   * @param app_id application id
+   */
+  virtual bool IsDefaultService(int32_t app_id) const {
+    return default_app_id_ == app_id;
+  }
+
+  /**
+   * @brief SetDefaultService setter for default vr-service app id
    * @param app_id default vr-service app id
    */
-  void set_supported(bool supported) {
-    supported_ = supported;
+  virtual void SetDefaultService(int32_t app_id) {
+    default_app_id_ = app_id;
+  }
+  
+  /**
+   * @brief ResetDefaultService
+   */
+  virtual void ResetDefaultService() {
+    default_app_id_ = 0;
   }
 
   /**
    * @brief Returns unique correlation ID for next HMI request
    */
-  uint32_t GetNextCorrelationID() {
+  int32_t GetNextCorrelationID() {
     return service()->GetNextCorrelationID();
   }
 
@@ -192,12 +225,6 @@ class VRModule : public functional_modules::GenericModule,
    * @param msg mobile message
    */
   bool SetMessageType(application_manager::MessagePtr msg) const;
-
-  /**
-   * @brief check if VRService is supported or not
-   * @return true if supported, false if not supported
-   */
-  bool IsVRServiceSupported() const;
 
   /**
    * @brief send response message to mobile in case VRService is not supported

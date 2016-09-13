@@ -42,7 +42,7 @@ class ServiceMessage;
 
 namespace vr_cooperation {
 
-class VRModule;
+class ServiceModule;
 
 namespace commands {
 
@@ -53,10 +53,10 @@ class OnDefaultServiceChosenNotification : public JsonNotification {
  public:
   /**
    * @brief OnDefaultServiceChosenNotification class constructor
-   * @param parent pointer to VRModule
+   * @param parent pointer to ServiceModule
    * @param message Message from HMI
    */
-  OnDefaultServiceChosenNotification(VRModule* parent,
+  OnDefaultServiceChosenNotification(ServiceModule* parent,
                                      const vr_hmi_api::ServiceMessage& message);
 
   /**

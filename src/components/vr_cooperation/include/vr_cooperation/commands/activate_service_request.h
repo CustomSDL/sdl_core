@@ -34,9 +34,9 @@
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
 
 #include "vr_cooperation/commands/base_json_request.h"
-#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
+class ServiceModule;
 
 namespace commands {
 
@@ -47,10 +47,10 @@ class ActivateServiceRequest : public BaseJsonRequest {
  public:
   /**
    * @brief ActivateServiceRequest class constructor
-   * @param parent pointer to VRModule
+   * @param parent pointer to ServiceModule
    * @param message Message from HMI
    */
-  ActivateServiceRequest(VRModule* parent,
+  ActivateServiceRequest(ServiceModule* parent,
                          const vr_hmi_api::ServiceMessage& message);
 
   /**

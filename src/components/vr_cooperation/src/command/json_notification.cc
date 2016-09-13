@@ -43,10 +43,9 @@ namespace commands {
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 JsonNotification::JsonNotification(
-    VRModule* parent, const vr_hmi_api::ServiceMessage& message)
+    ServiceModule* parent, const vr_hmi_api::ServiceMessage& message)
     : message_(message),
       parent_(parent) {
-  service_ = parent_->service();
 }
 
 JsonNotification::~JsonNotification() {
@@ -64,7 +63,7 @@ void JsonNotification::SendNotification(
   mobile_msg->set_message_type(application_manager::MessageType::kNotification);
   mobile_msg->set_correlation_id(message_.correlation_id());
   mobile_msg->set_protocol_version(application_manager::ProtocolVersion::kV2);
-  service_->SendMessageToMobile(mobile_msg);
+  parent_->SendMessageToMobile(mobile_msg);
 }
 
 }  // namespace commands

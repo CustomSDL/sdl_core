@@ -30,44 +30,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/commands/on_service_deactivated_notification.h"
+#ifndef SRC_COMPONENTS_VR_COOPERATION_TEST_INCLUDE_MOCK_VR_PROXY_LISTENER_H_
+#define SRC_COMPONENTS_VR_COOPERATION_TEST_INCLUDE_MOCK_VR_PROXY_LISTENER_H_
 
-#include "functional_module/function_ids.h"
-#include "json/json.h"
-#include "utils/logger.h"
-#include "vr_cooperation/message_helper.h"
-#include "vr_cooperation/vr_module_constants.h"
-#include "vr_cooperation/vr_module.h"
-#include "vr_cooperation/interface/hmi.pb.h"
-#include "vr_cooperation/service_module.h"
+#include "gmock/gmock.h"
+#include "vr_cooperation/vr_proxy_listener.h"
 
 namespace vr_cooperation {
 
-namespace commands {
-const int kVoiceRecognition = 0;
-
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
-
-OnServiceDeactivatedNotification::OnServiceDeactivatedNotification(
-    ServiceModule* parent, const vr_hmi_api::ServiceMessage& message)
-    : JsonNotification(parent, message) {
-}
-
-void OnServiceDeactivatedNotification::Execute() {
-  LOG4CXX_AUTO_TRACE(logger_);
-
-  Json::Value msg_params;
-  msg_params[json_keys::kService] = kVoiceRecognition;
-
-  application_manager::MessagePtr mobile_msg = new application_manager::Message(
-      protocol_handler::MessagePriority::kDefault);
-  mobile_msg->set_function_id(
-      functional_modules::MobileFunctionID::ON_SERVICE_DEACTIVATED);
-  mobile_msg->set_json_message(MessageHelper::ValueToString(msg_params));
-  SendNotification(mobile_msg);
-  parent()->DeactivateService();
-}
-
-}  // namespace commands
+class MockVRProxyListener : public VRProxyListener {
+ public:
+  MOCK_METHOD1(OnReceived,
+      void(const vr_hmi_api::ServiceMessage& message));
+};
 
 }  // namespace vr_cooperation
+
+#endif  // SRC_COMPONENTS_VR_COOPERATION_TEST_INCLUDE_MOCK_VR_PROXY_LISTENER_H_

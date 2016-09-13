@@ -31,8 +31,7 @@
 #include "vr_cooperation/commands/gpb_notification.h"
 
 namespace vr_cooperation {
-
-class VRModule;
+class ServiceModule;
 
 namespace commands {
 
@@ -43,10 +42,10 @@ class OnUnregisterServiceNotification : public GpbNotification {
  public:
   /**
    * @brief OnUnregisterServiceNotification class constructor
-   * @param parent pointer to VRModule
+   * @param parent pointer to ServiceModule
    * @param message Message from mobile
    **/
-  OnUnregisterServiceNotification(VRModule* parent,
+  OnUnregisterServiceNotification(ServiceModule* parent,
                                   application_manager::MessagePtr message);
 
   /**

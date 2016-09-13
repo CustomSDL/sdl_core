@@ -43,7 +43,7 @@ class Value;
 }
 
 namespace vr_cooperation {
-class VRModule;
+class ServiceModule;
 
 namespace commands {
 
@@ -54,10 +54,10 @@ class JsonNotification : public Command {
  public:
   /**
    * @brief JsonNotification class constructor
-   * @param parent pointer to VRModule
+   * @param parent pointer to ServiceModule
    * @param message Message from HMI
    */
-  JsonNotification(VRModule* parent, const vr_hmi_api::ServiceMessage& message);
+  JsonNotification(ServiceModule* parent, const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief JsonNotification class destructor
@@ -84,10 +84,10 @@ class JsonNotification : public Command {
   }
 
   /**
-   * @brief getter return pointer to VRModule
-   * @return pointer to VRModule
+   * @brief getter return pointer to ServiceModule
+   * @return pointer to ServiceModule
    */
-  VRModule* parent() const {
+  ServiceModule* parent() const {
     return parent_;
   }
 
@@ -104,8 +104,7 @@ class JsonNotification : public Command {
 
  private:
   vr_hmi_api::ServiceMessage message_;
-  VRModule* parent_;
-  application_manager::ServicePtr service_;
+  ServiceModule* parent_;
 };
 
 }  // namespace commands

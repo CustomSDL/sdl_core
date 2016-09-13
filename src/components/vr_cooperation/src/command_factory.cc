@@ -34,7 +34,7 @@
 
 #include "functional_module/function_ids.h"
 #include "utils/logger.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/service_module.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 #include "vr_cooperation/commands/on_default_service_chosen_notification.h"
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
@@ -47,7 +47,7 @@ using functional_modules::MobileFunctionID;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-commands::Command* CommandFactory::Create(VRModule* parent,
+commands::Command* CommandFactory::Create(ServiceModule* parent,
                                           application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
   switch (msg->function_id()) {
@@ -78,7 +78,7 @@ commands::Command* CommandFactory::Create(VRModule* parent,
 }
 
 commands::Command* CommandFactory::Create(
-    VRModule* parent, const vr_hmi_api::ServiceMessage& message) {
+    ServiceModule* parent, const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   switch (message.rpc()) {
     case vr_hmi_api::RPCName::ON_DEACTIVATED:

@@ -41,7 +41,7 @@ namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-BaseGpbRequest::BaseGpbRequest(VRModule* parent,
+BaseGpbRequest::BaseGpbRequest(ServiceModule* parent,
                                application_manager::MessagePtr message)
     : parent_(parent),
       json_message_(message) {

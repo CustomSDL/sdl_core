@@ -38,7 +38,7 @@
 
 namespace vr_cooperation {
 
-class VRModule;
+class ServiceModule;
 
 namespace commands {
 
@@ -52,10 +52,10 @@ class BaseGpbRequest : public BaseCommandRequest,
 
   /**
    * @brief BaseGpbRequest class constructor
-   * @param parent pointer to VRModule
+   * @param parent pointer to ServiceModule
    * @param message Message from Mobile
    */
-  BaseGpbRequest(VRModule* parent, application_manager::MessagePtr message);
+  BaseGpbRequest(ServiceModule* parent, application_manager::MessagePtr message);
 
   /**
    * @brief BaseGpbRequest class destructor
@@ -90,7 +90,7 @@ class BaseGpbRequest : public BaseCommandRequest,
   /**
    * @brief Returns parent
    */
-  VRModule* parent() const {
+  ServiceModule* parent() const {
     return parent_;
   }
 
@@ -114,7 +114,7 @@ class BaseGpbRequest : public BaseCommandRequest,
   virtual void SendMessageToMobile(application_manager::MessagePtr message);
 
  private:
-  VRModule* parent_;
+  ServiceModule* parent_;
   application_manager::MessagePtr json_message_;
 };
 

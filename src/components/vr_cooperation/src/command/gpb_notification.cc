@@ -33,7 +33,7 @@
 #include "vr_cooperation/commands/gpb_notification.h"
 
 #include "utils/logger.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/service_module.h"
 
 namespace vr_cooperation {
 
@@ -41,7 +41,7 @@ namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-GpbNotification::GpbNotification(VRModule* parent,
+GpbNotification::GpbNotification(ServiceModule* parent,
                                  application_manager::MessagePtr message)
     : message_(message),
       parent_(parent) {
@@ -65,6 +65,7 @@ void GpbNotification::SendNotification(vr_hmi_api::ServiceMessage& message) {
   message.set_rpc_type(vr_hmi_api::NOTIFICATION);
   message.set_correlation_id(parent_->GetNextCorrelationID());
   parent_->SendMessageToHMI(message);
+  parent_->UnregisterRequest(message.correlation_id());
 }
 
 }  // namespace commands

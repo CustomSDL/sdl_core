@@ -34,7 +34,7 @@
 #include "vr_cooperation/commands/base_json_request.h"
 #include "vr_cooperation/event_engine/event_dispatcher.h"
 #include "vr_cooperation/message_helper.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/service_module.h"
 #include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
@@ -56,7 +56,7 @@ using event_engine::EventDispatcher;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-BaseJsonRequest::BaseJsonRequest(VRModule* parent,
+BaseJsonRequest::BaseJsonRequest(ServiceModule* parent,
                                  const vr_hmi_api::ServiceMessage& message)
     : parent_(parent),
       gpb_message_(message) {
@@ -131,6 +131,7 @@ void BaseJsonRequest::SendMessageToHMI(
     const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   parent_->SendMessageToHMI(message);
+  parent_->UnregisterRequest(message.correlation_id());
 }
 
 void BaseJsonRequest::SendMessageToMobile(
@@ -143,6 +144,7 @@ void BaseJsonRequest::SendMessageToMobile(
                      this);
   LOG4CXX_DEBUG(logger_, "Message to Mob: " << message->json_message());
   parent_->SendMessageToMobile(message);
+  parent_->UnregisterRequest(message->correlation_id());
 }
 
 void BaseJsonRequest::on_event(

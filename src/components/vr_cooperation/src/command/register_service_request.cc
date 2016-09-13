@@ -31,11 +31,10 @@
  */
 
 #include "vr_cooperation/commands/register_service_request.h"
-
+#include "vr_cooperation/service_module.h"
 #include "utils/logger.h"
 #include "json/json.h"
 #include "vr_cooperation/command_factory.h"
-#include "vr_cooperation/vr_module.h"
 #include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
@@ -50,7 +49,7 @@ using json_keys::kSuccess;
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 RegisterServiceRequest::RegisterServiceRequest(
-    VRModule* parent, application_manager::MessagePtr message)
+    ServiceModule* parent, application_manager::MessagePtr message)
     : BaseGpbRequest(parent, message) {
 }
 
@@ -90,7 +89,7 @@ void RegisterServiceRequest::SendResponseToMobile(bool success,
                                                   const std::string& info) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg_params;
-  msg_params[kId] = parent()->service()->GetNextCorrelationID();
+  msg_params[kId] = parent()->GetNextCorrelationID();
   msg_params[kSuccess] = success;
   msg_params[kResultCode] = result;
   msg_params[kInfo] = info;

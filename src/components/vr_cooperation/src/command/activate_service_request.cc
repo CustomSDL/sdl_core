@@ -32,6 +32,7 @@
 
 #include "functional_module/function_ids.h"
 #include "vr_cooperation/commands/activate_service_request.h"
+#include "vr_cooperation/service_module.h"
 #include "utils/logger.h"
 
 namespace vr_cooperation {
@@ -41,7 +42,7 @@ namespace commands {
 CREATE_LOGGERPTR_GLOBAL(logger_, "ActivateServiceRequest")
 
 ActivateServiceRequest::ActivateServiceRequest(
-      VRModule* parent,
+      ServiceModule* parent,
       const vr_hmi_api::ServiceMessage& message)
   : BaseJsonRequest(parent, message) {
 }

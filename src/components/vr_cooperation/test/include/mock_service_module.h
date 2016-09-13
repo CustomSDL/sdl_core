@@ -30,46 +30,48 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/commands/request_from_hmi.h"
+
+#ifndef SRC_COMPONENTS_VR_COOPERATION_TEST_INCLUDE_MOCK_SERVICE_MODULE_H_
+#define SRC_COMPONENTS_VR_COOPERATION_TEST_INCLUDE_MOCK_SERVICE_MODULE_H_
+
+#include "gmock/gmock.h"
 #include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
-namespace commands {
+using functional_modules::ProcessResult;
+using functional_modules::PluginInfo;
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
+class MockServiceModule : public ServiceModule {
+ public:
+  MOCK_METHOD0(GetNextCorrelationID,
+      int32_t());
+  MOCK_METHOD1(UnregisterRequest,
+      void(int32_t correlation_id));
+  MOCK_METHOD1(SendMessageToHMI,
+      void(const vr_hmi_api::ServiceMessage& message));
+  MOCK_METHOD1(SendMessageToMobile,
+      void(application_manager::MessagePtr msg));
+  MOCK_CONST_METHOD0(activated_connection_key,
+      int32_t());
+  MOCK_METHOD1(ActivateService,
+      void(int32_t app_id));
+  MOCK_METHOD0(DeactivateService,
+      void());
+  MOCK_CONST_METHOD1(IsDefaultService,
+      bool(int32_t app_id));
+  MOCK_METHOD1(SetDefaultService,
+      void(int32_t app_id));
+  MOCK_METHOD0(ResetDefaultService,
+      void());
+  MOCK_CONST_METHOD0(IsVRServiceSupported,
+      bool());
+  MOCK_METHOD0(EnableSupport,
+      void());
+  MOCK_METHOD0(DisableSupport,
+      void());
+};
 
-RequestFromHMI::RequestFromHMI(VRModule* parent,
-                               const vr_hmi_api::ServiceMessage& message)
-    : message_(message),
-      parent_(parent) {
-}
-
-RequestFromHMI::~RequestFromHMI() {
-}
-
-void RequestFromHMI::OnTimeout() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-
-void RequestFromHMI::Run() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  Execute();    // run child's logic
-}
-
-void RequestFromHMI::on_event() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  OnEvent();  // run child's logic
-}
-
-void RequestFromHMI::SendRequest() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-
-void RequestFromHMI::SendResponse() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-
-}  // namespace  commands
 }  // namespace vr_cooperation
 
+#endif  // SRC_COMPONENTS_VR_COOPERATION_TEST_INCLUDE_MOCK_SERVICE_MODULE_H_

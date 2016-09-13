@@ -31,7 +31,7 @@
  */
 
 #include "vr_cooperation/commands/process_data_request.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/service_module.h"
 #include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
 
@@ -45,7 +45,7 @@ using json_keys::kInfo;
 CREATE_LOGGERPTR_GLOBAL(logger_, "ProcessDataRequest")
 
 ProcessDataRequest::ProcessDataRequest(
-    VRModule* parent, const vr_hmi_api::ServiceMessage& message)
+    ServiceModule* parent, const vr_hmi_api::ServiceMessage& message)
     : BaseJsonRequest(parent, message) {
 }
 
