@@ -30,8 +30,9 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "vr_cooperation/commands/base_gpb_request.h"
+
 #include "utils/logger.h"
-#include "vr_cooperation/commands/base_json_request.h"
 #include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
@@ -39,11 +40,6 @@ namespace vr_cooperation {
 namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
-
-BaseGpbRequest::BaseGpbRequest(VRModule* parent)
-    : parent_(parent),
-      json_message_() {
-}
 
 BaseGpbRequest::BaseGpbRequest(VRModule* parent,
                                application_manager::MessagePtr message)
@@ -54,7 +50,7 @@ BaseGpbRequest::BaseGpbRequest(VRModule* parent,
 BaseGpbRequest::~BaseGpbRequest() {
 }
 
-void BaseGpbRequest::Execute() {
+void BaseGpbRequest::OnTimeout() {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
@@ -63,6 +59,18 @@ void BaseGpbRequest::on_event(
   LOG4CXX_AUTO_TRACE(logger_);
   ProcessEvent(event);  //runs child's logic
 
+}
+
+void BaseGpbRequest::SendMessageToHMI(
+    const vr_hmi_api::ServiceMessage& message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  parent_->SendMessageToHMI(message);
+}
+
+void BaseGpbRequest::SendMessageToMobile(
+    application_manager::MessagePtr message) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  parent_->SendMessageToMobile(message);
 }
 
 }  // namespace commands

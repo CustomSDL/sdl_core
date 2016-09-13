@@ -85,15 +85,33 @@ class BaseGpbRequest : public BaseCommandRequest,
   /**
    * @brief Interface method that executes specific logic of children classes
    */
-  virtual void Execute();
+  virtual void Execute() = 0;
 
- protected:
   /**
    * @brief Returns parent
    */
   VRModule* parent() const {
     return parent_;
   }
+
+  /**
+   * @brief Returns JSON message
+   */
+  application_manager::MessagePtr json_message() const {
+    return json_message_;
+  }
+
+  /**
+   * @brief send message (request/response) to HMI
+   * @param message gpb message for HMI
+   */
+  virtual void SendMessageToHMI(const vr_hmi_api::ServiceMessage& message);
+
+  /**
+   * @brief send message (request/response) to HMI
+   * @param message json message for Mobile
+   */
+  virtual void SendMessageToMobile(application_manager::MessagePtr message);
 
  private:
   VRModule* parent_;

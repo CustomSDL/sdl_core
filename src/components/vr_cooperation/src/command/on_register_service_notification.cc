@@ -33,6 +33,7 @@
 #include "vr_cooperation/commands/on_register_service_notification.h"
 
 #include "utils/logger.h"
+#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 

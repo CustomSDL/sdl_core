@@ -32,13 +32,18 @@
 
 #include "vr_cooperation/command_factory.h"
 
+#include "functional_module/function_ids.h"
 #include "utils/logger.h"
 #include "vr_cooperation/vr_module.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 #include "vr_cooperation/commands/on_default_service_chosen_notification.h"
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
+#include "vr_cooperation/commands/register_service_request.h"
+#include "vr_cooperation/commands/on_register_service_notification.h"
 
 namespace vr_cooperation {
+
+using functional_modules::MobileFunctionID;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
@@ -46,6 +51,27 @@ commands::Command* CommandFactory::Create(VRModule* parent,
                                           application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
   switch (msg->function_id()) {
+    case MobileFunctionID::REGISTER_SERVICE:
+      if (msg->type() == application_manager::MessageType::kRequest) {
+        return new commands::RegisterServiceRequest(parent, msg);
+      } else if (msg->type()
+          == application_manager::MessageType::kNotification) {
+        return new commands::OnRegisterServiceNotification(parent, msg);
+      } else {
+        return NULL;
+      }
+
+      //TODO(Thinh):this code for future implementation
+//    case MobileFunctionID::UNREGISTER_SERVICE:
+//      if (msg->type() == application_manager::MessageType::kRequest) {
+//        return new commands::UnregisterServiceRequest(parent, msg);
+//      } else if (msg->type()
+//          == application_manager::MessageType::kNotification) {
+//        return new commands::OnUnregisterServiceNotification(parent, msg);
+//      } else {
+//        return NULL;
+//      }
+
     default:
       return NULL;
   }

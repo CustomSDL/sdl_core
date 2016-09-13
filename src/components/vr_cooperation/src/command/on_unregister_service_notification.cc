@@ -1,22 +1,17 @@
 /*
  Copyright (c) 2016, Ford Motor Company
  All rights reserved.
-
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
-
  Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
-
  Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following
  disclaimer in the documentation and/or other materials provided with the
  distribution.
-
  Neither the name of the Ford Motor Company nor the names of its contributors
  may be used to endorse or promote products derived from this software
  without specific prior written permission.
-
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -30,65 +25,43 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REGISTER_SERVICE_REQUEST_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REGISTER_SERVICE_REQUEST_H_
+#include "vr_cooperation/commands/on_unregister_service_notification.h"
 
-#include "vr_cooperation/commands/base_gpb_request.h"
+#include "utils/logger.h"
+#include "vr_cooperation/vr_module.h"
 
 namespace vr_cooperation {
 
-class VRModule;
-
 namespace commands {
 
-/**
- * @brief RegisterServiceRequest command class
- */
-class RegisterServiceRequest : public BaseGpbRequest {
- public:
-  /**
-   * @brief RegisterServiceRequest class constructor
-   * @param parent pointer to VRModule
-   * @param message Message from mobile
-   **/
-  RegisterServiceRequest(VRModule* parent,
-                         application_manager::MessagePtr message);
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-  /**
-   * @brief RegisterServiceRequest class destructor
-   */
-  virtual ~RegisterServiceRequest();
+OnUnregisterServiceNotification::OnUnregisterServiceNotification(
+    VRModule* parent, application_manager::MessagePtr message)
+    : GpbNotification(parent, message) {
+}
 
-  /**
-   * @brief Execute command
-   */
-  virtual void Execute();
+OnUnregisterServiceNotification::~OnUnregisterServiceNotification() {
+}
 
-  /**
-   * @brief This method will be called whenever new event received
-   * @param event The received event
-   */
-  virtual void ProcessEvent(
-      const event_engine::Event<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>& event);
+void OnUnregisterServiceNotification::Execute() {
+  LOG4CXX_AUTO_TRACE(logger_);
 
- private:
-  /**
-   * @brief send notification to HMI
-   */
-  void SendNotificationToHMI();
+  vr_hmi_api::ServiceMessage service_message;
+  service_message.set_rpc(vr_hmi_api::ON_REGISTER);
 
-  /**
-   * @brief send response message to mobile
-   * @param success true if successful; false, if failed
-   * @param result Mobile result
-   * @param info Provides additional human readable info regarding the result(may be empty)
-   */
-  void SendResponseToMobile(bool success, const char* result,
-                            const std::string& info);
-};
+  vr_hmi_api::OnRegisterServiceNotification on_unregister_notification;
+  int32_t app_id = json_message()->connection_key();
+  on_unregister_notification.set_appid(app_id);
+
+  std::string params;
+  if (on_unregister_notification.SerializeToString(&params)) {
+    service_message.set_params(params);
+  }
+
+  SendNotification(service_message);
+}
 
 }  // namespace commands
 
 }  // namespace vr_cooperation
-
-#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_REGISTER_SERVICE_REQUEST_H_

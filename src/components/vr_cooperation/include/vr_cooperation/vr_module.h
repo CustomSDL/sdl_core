@@ -201,8 +201,9 @@ class VRModule : public functional_modules::GenericModule,
 
   /**
    * @brief send response message to mobile in case VRService is not supported
+   * @param msg message to send
    */
-  void SendUnsupportedServiceResponse(application_manager::MessagePtr& msg);
+  void SendUnsupportedServiceResponse(application_manager::MessagePtr msg);
 
   static const functional_modules::ModuleID kVRModuleID = 154;
   functional_modules::PluginInfo plugin_info_;

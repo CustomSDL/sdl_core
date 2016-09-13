@@ -286,7 +286,7 @@ bool VRModule::IsVRServiceSupported() const {
 }
 
 void VRModule::SendUnsupportedServiceResponse(
-    application_manager::MessagePtr& msg) {
+    application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg_params;
   msg_params[kId] = service()->GetNextCorrelationID();
