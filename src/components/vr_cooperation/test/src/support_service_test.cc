@@ -62,22 +62,20 @@ TEST_F(SupportServiceTest, Execute) {
   application_manager::MessagePtr msg = new application_manager::Message(
       protocol_handler::MessagePriority::kDefault);
 
-  SupportServiceRequest cmd(&service, msg); //input is json
+  SupportServiceRequest cmd(&service, msg);
 
   vr_hmi_api::ServiceMessage expected;
   expected.set_rpc(vr_hmi_api::SUPPORT_SERVICE);
   expected.set_rpc_type(vr_hmi_api::REQUEST);
   expected.set_correlation_id(kId);
   EXPECT_CALL(service, SendMessageToHMI(ServiceMessageEq(expected))).Times(1);
-  EXPECT_CALL(service, UnregisterRequest(kId)).Times(1);
   cmd.Execute();
 }
-#if 1
+
 TEST_F(SupportServiceTest, OnEventSuccess) {
   MockServiceModule service;
 
   const int32_t kId = 1;
-//  EXPECT_CALL(service, GetNextCorrelationID()).Times(1).WillOnce(Return(kId));
   application_manager::MessagePtr msg = new application_manager::Message(
       protocol_handler::MessagePriority::kDefault);
   SupportServiceRequest cmd(&service, msg);
@@ -102,7 +100,6 @@ TEST_F(SupportServiceTest, OnEventUnsupport) {
   MockServiceModule service;
 
   const int32_t kId = 1;
-//  EXPECT_CALL(service, GetNextCorrelationID()).Times(1).WillOnce(Return(kId));
   application_manager::MessagePtr msg = new application_manager::Message(
       protocol_handler::MessagePriority::kDefault);
   SupportServiceRequest cmd(&service, msg);
@@ -127,7 +124,6 @@ TEST_F(SupportServiceTest, OnEventNoParams) {
   MockServiceModule service;
 
   const int32_t kId = 1;
-//  EXPECT_CALL(service, GetNextCorrelationID()).Times(1).WillOnce(Return(kId));
   application_manager::MessagePtr msg = new application_manager::Message(
       protocol_handler::MessagePriority::kDefault);
   SupportServiceRequest cmd(&service, msg);
@@ -143,6 +139,6 @@ TEST_F(SupportServiceTest, OnEventNoParams) {
   EXPECT_CALL(service, UnregisterRequest(kId)).Times(1);
   cmd.ProcessEvent(event);
 }
-#endif
+
 }  // namespace commands
 }  // namespace vr_cooperation

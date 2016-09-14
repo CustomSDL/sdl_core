@@ -77,7 +77,6 @@ TEST_F(OnRegisterServiceTest, Execute) {
 
   EXPECT_CALL(service, IsDefaultService(3)).Times(1).WillOnce(Return(true));
   EXPECT_CALL(service, SendMessageToHMI(ServiceMessageEq(expected))).Times(1);
-  EXPECT_CALL(service, UnregisterRequest(kId)).Times(1);
   cmd.Execute();
 }
 

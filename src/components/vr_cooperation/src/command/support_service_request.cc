@@ -55,7 +55,6 @@ void SupportServiceRequest::Execute() {
   message_.set_rpc_type(vr_hmi_api::REQUEST);
   message_.set_correlation_id(parent()->GetNextCorrelationID());
   parent()->SendMessageToHMI(message_);
-  parent()->UnregisterRequest(message_.correlation_id());
 }
 
 void SupportServiceRequest::ProcessEvent(

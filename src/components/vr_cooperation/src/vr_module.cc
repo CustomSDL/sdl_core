@@ -117,7 +117,7 @@ functional_modules::ProcessResult VRModule::ProcessMessage(
     return ProcessResult::FAILED;
   }
 
-  if (!IsVRServiceSupported()) {
+  if (!IsServiceSupported()) {
     SendUnsupportedServiceResponse(msg);
     return ProcessResult::PROCESSED;
   }
@@ -245,11 +245,17 @@ void VRModule::SendMessageToHMI(const vr_hmi_api::ServiceMessage& msg) {
   if (!proxy_.Send(msg)) {
     LOG4CXX_ERROR(logger_, "Couldn't send GPB message");
   }
+  if(vr_hmi_api::RESPONSE == msg.rpc_type()) {
+    request_controller_.DeleteRequest(msg.correlation_id());
+  }
 }
 
 void VRModule::SendMessageToMobile(application_manager::MessagePtr msg) {
   LOG4CXX_DEBUG(logger_, "Message to mobile: " << msg->json_message());
   service()->SendMessageToMobile(msg);
+  if(application_manager::MessageType::kResponse == msg->type()) {
+    request_controller_.DeleteRequest(msg->correlation_id());
+  }
 }
 
 void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {

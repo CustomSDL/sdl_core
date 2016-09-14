@@ -51,12 +51,6 @@ class ServiceModule {
   virtual int32_t GetNextCorrelationID() = 0;
 
   /**
-   * Registers service
-   * @param correlation_id unique id of request
-   */
-//  virtual void RegisterService(int32_t correlation_id) = 0;
-
-  /**
    * Unregisters request
    * @param correlation_id unique id of request
    */
@@ -107,7 +101,7 @@ class ServiceModule {
    * Checks service is supported
    * @return true if it's supported
    */
-  virtual bool IsVRServiceSupported() const = 0;
+  virtual bool IsServiceSupported() const = 0;
 
   /**
    * Enables support of service

@@ -65,7 +65,6 @@ void GpbNotification::SendNotification(vr_hmi_api::ServiceMessage& message) {
   message.set_rpc_type(vr_hmi_api::NOTIFICATION);
   message.set_correlation_id(parent_->GetNextCorrelationID());
   parent_->SendMessageToHMI(message);
-  parent_->UnregisterRequest(message.correlation_id());
 }
 
 }  // namespace commands

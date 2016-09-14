@@ -87,7 +87,6 @@ TEST_F(OnDefaultServiceChosenTest, ExecuteNoParams) {
   OnDefaultServiceChosenNotification cmd(&service, input);
 
   EXPECT_CALL(service, ResetDefaultService()).Times(0);
-  EXPECT_CALL(service, ResetDefaultService()).Times(0);
   cmd.Execute();
 }
 

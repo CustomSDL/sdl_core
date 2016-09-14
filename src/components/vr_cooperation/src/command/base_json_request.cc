@@ -131,7 +131,6 @@ void BaseJsonRequest::SendMessageToHMI(
     const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   parent_->SendMessageToHMI(message);
-  parent_->UnregisterRequest(message.correlation_id());
 }
 
 void BaseJsonRequest::SendMessageToMobile(
@@ -144,7 +143,6 @@ void BaseJsonRequest::SendMessageToMobile(
                      this);
   LOG4CXX_DEBUG(logger_, "Message to Mob: " << message->json_message());
   parent_->SendMessageToMobile(message);
-  parent_->UnregisterRequest(message->correlation_id());
 }
 
 void BaseJsonRequest::on_event(

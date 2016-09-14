@@ -125,9 +125,9 @@ class VRModule : public functional_modules::GenericModule,
   virtual void UnregisterRequest(int32_t correlation_id);
 
   /**
-   * @brief IsVRServiceSupported return true if VR service is supported
+   * @brief IsServiceSupported return true if VR service is supported
    */
-  virtual bool IsVRServiceSupported() const {
+  virtual bool IsServiceSupported() const {
     return supported_;
   }
 
@@ -186,7 +186,7 @@ class VRModule : public functional_modules::GenericModule,
   virtual void SetDefaultService(int32_t app_id) {
     default_app_id_ = app_id;
   }
-  
+
   /**
    * @brief ResetDefaultService
    */

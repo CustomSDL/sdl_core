@@ -64,7 +64,7 @@ class MockServiceModule : public ServiceModule {
       void(int32_t app_id));
   MOCK_METHOD0(ResetDefaultService,
       void());
-  MOCK_CONST_METHOD0(IsVRServiceSupported,
+  MOCK_CONST_METHOD0(IsServiceSupported,
       bool());
   MOCK_METHOD0(EnableSupport,
       void());
