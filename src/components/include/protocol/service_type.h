@@ -64,7 +64,7 @@ const uint8_t SERVICE_TYPE_BULK = 0x0F;
 /**
  *\brief Constant: VR data type of session
  */
-const uint8_t SERVICE_TYPE_VR = 0x10;
+//const uint8_t SERVICE_TYPE_VR = 0x10;
 
 /**
  * \brief Enum describing possible types of sessions: RPC for API messages,
@@ -77,7 +77,7 @@ enum ServiceType {
   kAudio =     SERVICE_TYPE_AUDIO,
   kMobileNav = SERVICE_TYPE_NAVI,
   kBulk =      SERVICE_TYPE_BULK,
-  kVr =        SERVICE_TYPE_VR,
+  //kVr =        SERVICE_TYPE_VR,
   kInvalidServiceType
 };
 

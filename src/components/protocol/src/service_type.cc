@@ -47,7 +47,7 @@ bool IsValid(ServiceType service_type) {
     case kAudio:
     case kMobileNav:
     case kBulk:
-    case kVr:
+//    case kVr:
       return true;
     default:
       return false;

@@ -373,7 +373,7 @@ ModulePtr PluginManager::FindPluginForSpecifiedService(
   LOG4CXX_AUTO_TRACE(logger_);
   PluginRemoteServicePluginIterator it = remote_services_subscribers_.end();
 
-  if (type == protocol_handler::ServiceType::kVr) {
+  if (type == 0x10) {
     it = remote_services_subscribers_.find(ServiceType::VR);
   }
 

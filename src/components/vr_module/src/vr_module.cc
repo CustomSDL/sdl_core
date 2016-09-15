@@ -150,7 +150,7 @@ bool VRModule::SendToMobile(
       new protocol_handler::RawMessage(active_service_,
                                        protocol_handler::PROTOCOL_VERSION_2,
                                        data, size,
-                                       protocol_handler::ServiceType::kVr);
+                                       0x10);
 
   // TODO(VS): GenericModule may contain pointer to PluginManager(can be fixed if
   //           PluginManager will be redesigned from singleton)
