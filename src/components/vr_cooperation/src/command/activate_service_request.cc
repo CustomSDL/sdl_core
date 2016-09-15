@@ -52,6 +52,11 @@ ActivateServiceRequest::~ActivateServiceRequest() {
 
 void ActivateServiceRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
+  vr_hmi_api::ActivateServiceRequest params;
+  if (gpb_message().has_params() && params.ParseFromString(gpb_message().params())) {
+    int32_t app_id = params.appid();
+    parent()->ActivateService(app_id);
+   }
   application_manager::MessagePtr message_to_send;
   SendMessageToMobile(message_to_send);
 }
@@ -66,7 +71,6 @@ void ActivateServiceRequest::ProcessEvent(
 
   vr_hmi_api::ServiceMessage message_to_hmi;
   PrepareGpbMessage(value, message_to_hmi);
-
   SendMessageToHMI(message_to_hmi);
 }
 
@@ -77,6 +81,9 @@ std::string ActivateServiceRequest::GetParams(
   ParseMobileResultCode(value, result_code);
   vr_hmi_api::ActivateServiceResponse response;
   response.set_result(result_code);
+  if (vr_hmi_api::SUCCESS != result_code) {
+    parent()->DeactivateService();
+  }
   std::string params;
   response.SerializeToString(&params);
 
