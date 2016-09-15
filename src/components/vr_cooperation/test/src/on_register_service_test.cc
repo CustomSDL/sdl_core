@@ -30,46 +30,55 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/commands/request_from_hmi.h"
-#include "vr_cooperation/vr_module.h"
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "mock_service_module.h"
+#include "vr_cooperation/commands/on_register_service_notification.h"
+#include "vr_cooperation/interface/hmi.pb.h"
+
+using ::testing::Return;
 
 namespace vr_cooperation {
-
 namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
-
-RequestFromHMI::RequestFromHMI(VRModule* parent,
-                               const vr_hmi_api::ServiceMessage& message)
-    : message_(message),
-      parent_(parent) {
+MATCHER_P(ServiceMessageEq, expected, "") {
+  return arg.rpc() == expected.rpc()
+      && arg.rpc_type() == expected.rpc_type()
+      && arg.correlation_id() == expected.correlation_id()
+      && arg.params() == expected.params();
 }
 
-RequestFromHMI::~RequestFromHMI() {
+class OnRegisterServiceTest : public ::testing::Test {
+ protected:
+};
+
+TEST_F(OnRegisterServiceTest, Execute) {
+  MockServiceModule service;
+
+  const int32_t kId = 1;
+  EXPECT_CALL(service, GetNextCorrelationID()).Times(1).WillOnce(
+      Return(kId));
+
+  application_manager::MessagePtr msg = new application_manager::Message(
+      protocol_handler::MessagePriority::kDefault);
+  msg->set_connection_key(3);
+  OnRegisterServiceNotification cmd(&service, msg);
+
+  vr_hmi_api::ServiceMessage expected;
+  expected.set_rpc(vr_hmi_api::ON_REGISTER);
+  expected.set_rpc_type(vr_hmi_api::NOTIFICATION);
+  expected.set_correlation_id(kId);
+  vr_hmi_api::OnRegisterServiceNotification hmi_notification;
+  hmi_notification.set_default_(true);
+  hmi_notification.set_appid(3);
+  std::string hmi_params;
+  hmi_notification.SerializeToString(&hmi_params);
+  expected.set_params(hmi_params);
+
+  EXPECT_CALL(service, IsDefaultService(3)).Times(1).WillOnce(Return(true));
+  EXPECT_CALL(service, SendMessageToHMI(ServiceMessageEq(expected))).Times(1);
+  cmd.Execute();
 }
 
-void RequestFromHMI::OnTimeout() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-
-void RequestFromHMI::Run() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  Execute();    // run child's logic
-}
-
-void RequestFromHMI::on_event() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  OnEvent();  // run child's logic
-}
-
-void RequestFromHMI::SendRequest() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-
-void RequestFromHMI::SendResponse() {
-  LOG4CXX_AUTO_TRACE(logger_);
-}
-
-}  // namespace  commands
+}  // namespace commands
 }  // namespace vr_cooperation
-

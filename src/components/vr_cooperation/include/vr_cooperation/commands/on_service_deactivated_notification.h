@@ -41,7 +41,7 @@ class ServiceMessage;
 }  // namespace vr_hmi_api
 
 namespace vr_cooperation {
-class VRModule;
+class ServiceModule;
 
 namespace commands {
 
@@ -49,19 +49,16 @@ class OnServiceDeactivatedNotification: public JsonNotification {
  public:
   /**
    * @brief OnServiceDeactivatedNotification class constructor
-   * @param parent VRModule parent pointer
+   * @param parent ServiceModule parent pointer
    * @param message GPB message
    */
-  OnServiceDeactivatedNotification(VRModule* parent,
+  OnServiceDeactivatedNotification(ServiceModule* parent,
                                    const vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief Execute command
    */
   virtual void Execute();
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(OnServiceDeactivatedNotification);
 };
 
 }  // namespace commands

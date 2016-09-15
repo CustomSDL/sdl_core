@@ -30,44 +30,48 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/commands/on_service_deactivated_notification.h"
 
-#include "functional_module/function_ids.h"
-#include "json/json.h"
-#include "utils/logger.h"
-#include "vr_cooperation/message_helper.h"
-#include "vr_cooperation/vr_module_constants.h"
+#ifndef SRC_COMPONENTS_VR_COOPERATION_TEST_INCLUDE_MOCK_SERVICE_MODULE_H_
+#define SRC_COMPONENTS_VR_COOPERATION_TEST_INCLUDE_MOCK_SERVICE_MODULE_H_
+
+#include "gmock/gmock.h"
 #include "vr_cooperation/vr_module.h"
-#include "vr_cooperation/interface/hmi.pb.h"
-#include "vr_cooperation/service_module.h"
 
 namespace vr_cooperation {
 
-namespace commands {
-const int kVoiceRecognition = 0;
+using functional_modules::ProcessResult;
+using functional_modules::PluginInfo;
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
-
-OnServiceDeactivatedNotification::OnServiceDeactivatedNotification(
-    ServiceModule* parent, const vr_hmi_api::ServiceMessage& message)
-    : JsonNotification(parent, message) {
-}
-
-void OnServiceDeactivatedNotification::Execute() {
-  LOG4CXX_AUTO_TRACE(logger_);
-
-  Json::Value msg_params;
-  msg_params[json_keys::kService] = kVoiceRecognition;
-
-  application_manager::MessagePtr mobile_msg = new application_manager::Message(
-      protocol_handler::MessagePriority::kDefault);
-  mobile_msg->set_function_id(
-      functional_modules::MobileFunctionID::ON_SERVICE_DEACTIVATED);
-  mobile_msg->set_json_message(MessageHelper::ValueToString(msg_params));
-  SendNotification(mobile_msg);
-  parent()->DeactivateService();
-}
-
-}  // namespace commands
+class MockServiceModule : public ServiceModule {
+ public:
+  MOCK_METHOD0(GetNextCorrelationID,
+      int32_t());
+  MOCK_METHOD1(UnregisterRequest,
+      void(int32_t correlation_id));
+  MOCK_METHOD1(SendMessageToHMI,
+      void(const vr_hmi_api::ServiceMessage& message));
+  MOCK_METHOD1(SendMessageToMobile,
+      void(application_manager::MessagePtr msg));
+  MOCK_CONST_METHOD0(activated_connection_key,
+      int32_t());
+  MOCK_METHOD1(ActivateService,
+      void(int32_t app_id));
+  MOCK_METHOD0(DeactivateService,
+      void());
+  MOCK_CONST_METHOD1(IsDefaultService,
+      bool(int32_t app_id));
+  MOCK_METHOD1(SetDefaultService,
+      void(int32_t app_id));
+  MOCK_METHOD0(ResetDefaultService,
+      void());
+  MOCK_CONST_METHOD0(IsServiceSupported,
+      bool());
+  MOCK_METHOD0(EnableSupport,
+      void());
+  MOCK_METHOD0(DisableSupport,
+      void());
+};
 
 }  // namespace vr_cooperation
+
+#endif  // SRC_COMPONENTS_VR_COOPERATION_TEST_INCLUDE_MOCK_SERVICE_MODULE_H_

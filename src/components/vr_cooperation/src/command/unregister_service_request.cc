@@ -35,7 +35,7 @@
 #include "utils/logger.h"
 #include "json/json.h"
 #include "vr_cooperation/command_factory.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/service_module.h"
 #include "vr_cooperation/vr_module_constants.h"
 
 namespace vr_cooperation {
@@ -50,7 +50,7 @@ using json_keys::kSuccess;
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 UnregisterServiceRequest::UnregisterServiceRequest(
-    VRModule* parent, application_manager::MessagePtr message)
+    ServiceModule* parent, application_manager::MessagePtr message)
     : BaseGpbRequest(parent, message) {
 }
 

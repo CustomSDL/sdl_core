@@ -38,7 +38,7 @@
 #include "vr_cooperation/interface/hmi.pb.h"
 
 namespace vr_cooperation {
-class VRModule;
+class ServiceModule;
 
 namespace commands {
 
@@ -49,10 +49,10 @@ class GpbNotification : public Command {
  public:
   /**
    * @brief GpbNotification class constructor
-   * @param parent VRModule pointer
+   * @param parent ServiceModule pointer
    * @param message Message from mobile
    **/
-  GpbNotification(VRModule* parent, application_manager::MessagePtr message);
+  GpbNotification(ServiceModule* parent, application_manager::MessagePtr message);
 
   /**
    * @brief GpbNotification class destructor
@@ -82,9 +82,9 @@ class GpbNotification : public Command {
   virtual void Execute() = 0;
 
   /**
-   * @brief Returns parent VRModule
+   * @brief Returns parent ServiceModule
    */
-  VRModule* parent() const { return parent_; }
+  ServiceModule* parent() const { return parent_; }
 
   /**
    * @brief Returns JSON message
@@ -94,7 +94,7 @@ class GpbNotification : public Command {
  private:
   application_manager::MessagePtr message_;
 
-  VRModule* parent_;
+  ServiceModule* parent_;
 };
 
 }  // namespace commands

@@ -46,7 +46,6 @@ set (SOURCES
 #    ./src/command/on_unregister_service_notification.cc
     ./src/command/process_data_request.cc
     ./src/command/register_service_request.cc
-    ./src/command/request_from_hmi.cc
     ./src/command/support_service_request.cc
 #    ./src/command/unregister_service_request.cc
     ./src/gpb_data_sender_receiver.cc
@@ -87,3 +86,12 @@ install(TARGETS ${target}
     GROUP_READ GROUP_EXECUTE
     WORLD_READ WORLD_EXECUTE
 )
+
+install(
+  FILES ${FILES_FOR_COPY}
+  DESTINATION ${install_destination}
+)
+
+if(BUILD_TESTS)
+  add_subdirectory(test)
+endif()

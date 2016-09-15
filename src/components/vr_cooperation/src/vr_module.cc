@@ -70,7 +70,7 @@ VRModule::VRModule()
       activated_connection_key_(-1),
       default_app_id_(-1),
       supported_(false) {
-  plugin_info_.name = "VRModule";
+  plugin_info_.name = "VRModulePlugin";
   plugin_info_.version = 1;
   SubcribeToRPCMessage();
 }
@@ -117,7 +117,7 @@ functional_modules::ProcessResult VRModule::ProcessMessage(
     return ProcessResult::FAILED;
   }
 
-  if (!IsVRServiceSupported()) {
+  if (!IsServiceSupported()) {
     SendUnsupportedServiceResponse(msg);
     return ProcessResult::PROCESSED;
   }
@@ -245,13 +245,17 @@ void VRModule::SendMessageToHMI(const vr_hmi_api::ServiceMessage& msg) {
   if (!proxy_.Send(msg)) {
     LOG4CXX_ERROR(logger_, "Couldn't send GPB message");
   }
-  request_controller_.DeleteRequest(msg.correlation_id());
+  if(vr_hmi_api::RESPONSE == msg.rpc_type()) {
+    request_controller_.DeleteRequest(msg.correlation_id());
+  }
 }
 
 void VRModule::SendMessageToMobile(application_manager::MessagePtr msg) {
   LOG4CXX_DEBUG(logger_, "Message to mobile: " << msg->json_message());
   service()->SendMessageToMobile(msg);
-  request_controller_.DeleteRequest(msg->correlation_id());
+  if(application_manager::MessageType::kResponse == msg->type()) {
+    request_controller_.DeleteRequest(msg->correlation_id());
+  }
 }
 
 void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
@@ -280,11 +284,6 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
   }
 }
 
-bool VRModule::IsVRServiceSupported() const {
-  LOG4CXX_DEBUG(logger_, "VR supported: " << static_cast<int32_t>(supported_));
-  return supported_;
-}
-
 void VRModule::SendUnsupportedServiceResponse(
     application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
@@ -302,7 +301,7 @@ void VRModule::SendUnsupportedServiceResponse(
   SendMessageToMobile(msg);
 }
 
-void VRModule::UnregisterRequest(uint32_t correlation_id) {
+void VRModule::UnregisterRequest(int32_t correlation_id) {
   LOG4CXX_AUTO_TRACE(logger_);
   request_controller_.DeleteRequest(correlation_id);
 }

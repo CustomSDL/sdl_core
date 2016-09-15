@@ -36,6 +36,7 @@
 #include "vr_cooperation/commands/base_json_request.h"
 
 namespace vr_cooperation {
+class ServiceModule;
 
 namespace commands {
 
@@ -46,10 +47,10 @@ class ProcessDataRequest : public BaseJsonRequest {
  public:
   /**
    * @brief ProcessDataRequest class constructor
-   * @param parent pointer to VRModule
+   * @param parent pointer to ServiceModule
    * @param message Message from HMI
    */
-  ProcessDataRequest(VRModule* parent,
+  ProcessDataRequest(ServiceModule* parent,
                      const vr_hmi_api::ServiceMessage& message);
 
   /**

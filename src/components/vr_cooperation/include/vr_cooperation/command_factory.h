@@ -42,7 +42,7 @@ class ServiceMessage;
 }  // namespace vr_hmi_api
 
 namespace vr_cooperation {
-class VRModule;
+class ServiceModule;
 
 /**
  * @brief Factory class for command creation
@@ -51,12 +51,12 @@ class CommandFactory {
  public:
   /**
    * @brief Create command object and return pointer to it
-   * @param parent pointer to VRmodule
+   * @param parent pointer to ServiceModule
    * @param msg Message shared pointer.
    * @return Pointer to created command object.
    */
   static commands::Command* Create(
-      VRModule* parent, application_manager::MessagePtr msg);
+      ServiceModule* parent, application_manager::MessagePtr msg);
 
   /**
    * @brief Create command object and return pointer to it
@@ -65,7 +65,7 @@ class CommandFactory {
    * @return Pointer to created command object.
    */
   static commands::Command* Create(
-      VRModule* parent, const vr_hmi_api::ServiceMessage& message);
+      ServiceModule* parent, const vr_hmi_api::ServiceMessage& message);
 
  private:
   CommandFactory();

@@ -30,44 +30,48 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/commands/on_service_deactivated_notification.h"
+#include <dlfcn.h>
 
-#include "functional_module/function_ids.h"
-#include "json/json.h"
-#include "utils/logger.h"
-#include "vr_cooperation/message_helper.h"
-#include "vr_cooperation/vr_module_constants.h"
+#include "gtest/gtest.h"
 #include "vr_cooperation/vr_module.h"
-#include "vr_cooperation/interface/hmi.pb.h"
-#include "vr_cooperation/service_module.h"
+
+using functional_modules::PluginInfo;
 
 namespace vr_cooperation {
 
-namespace commands {
-const int kVoiceRecognition = 0;
-
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
-
-OnServiceDeactivatedNotification::OnServiceDeactivatedNotification(
-    ServiceModule* parent, const vr_hmi_api::ServiceMessage& message)
-    : JsonNotification(parent, message) {
+::testing::AssertionResult IsError(void* error) {
+  if (error) {
+    return ::testing::AssertionSuccess() << static_cast<const char*>(error);
+  } else {
+    return ::testing::AssertionFailure() << error;
+  }
 }
 
-void OnServiceDeactivatedNotification::Execute() {
-  LOG4CXX_AUTO_TRACE(logger_);
+TEST(VRModuleLibraryTest, Load) {
+  const std::string kLibraryPath = "libVRCooperation.so";
 
-  Json::Value msg_params;
-  msg_params[json_keys::kService] = kVoiceRecognition;
+  void* handle = dlopen(kLibraryPath.c_str(), RTLD_LAZY);
+  EXPECT_FALSE(IsError(dlerror()));
+  ASSERT_TRUE(handle != NULL);
 
-  application_manager::MessagePtr mobile_msg = new application_manager::Message(
-      protocol_handler::MessagePriority::kDefault);
-  mobile_msg->set_function_id(
-      functional_modules::MobileFunctionID::ON_SERVICE_DEACTIVATED);
-  mobile_msg->set_json_message(MessageHelper::ValueToString(msg_params));
-  SendNotification(mobile_msg);
-  parent()->DeactivateService();
+  const std::string kSymbol = "Create";
+  void* symbol = dlsym(handle, kSymbol.c_str());
+  EXPECT_FALSE(IsError(dlerror()));
+  ASSERT_TRUE(symbol != NULL);
+
+  typedef VRModule* (*Create)();
+  Create create_manager = reinterpret_cast<Create>(symbol);
+  VRModule* module = create_manager();
+  ASSERT_TRUE(module != NULL);
+
+  PluginInfo plugin = module->GetPluginInfo();
+  EXPECT_EQ(plugin.name, "VRModulePlugin");
+  EXPECT_EQ(plugin.version, 1);
+
+  delete module;
+  int ret = dlclose(handle);
+  EXPECT_FALSE(ret);
+  EXPECT_FALSE(IsError(dlerror()));
 }
-
-}  // namespace commands
 
 }  // namespace vr_cooperation

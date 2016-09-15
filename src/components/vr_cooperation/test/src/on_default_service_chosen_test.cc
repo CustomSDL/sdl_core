@@ -30,44 +30,65 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_cooperation/commands/on_service_deactivated_notification.h"
-
-#include "functional_module/function_ids.h"
-#include "json/json.h"
-#include "utils/logger.h"
-#include "vr_cooperation/message_helper.h"
-#include "vr_cooperation/vr_module_constants.h"
-#include "vr_cooperation/vr_module.h"
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "mock_service_module.h"
+#include "vr_cooperation/commands/on_default_service_chosen_notification.h"
 #include "vr_cooperation/interface/hmi.pb.h"
-#include "vr_cooperation/service_module.h"
+
+using ::testing::_;
+using ::testing::Return;
 
 namespace vr_cooperation {
-
 namespace commands {
-const int kVoiceRecognition = 0;
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
+class OnDefaultServiceChosenTest : public ::testing::Test {
+ protected:
+};
 
-OnServiceDeactivatedNotification::OnServiceDeactivatedNotification(
-    ServiceModule* parent, const vr_hmi_api::ServiceMessage& message)
-    : JsonNotification(parent, message) {
+TEST_F(OnDefaultServiceChosenTest, Execute) {
+  MockServiceModule service;
+
+  vr_hmi_api::ServiceMessage input;
+  input.set_rpc(vr_hmi_api::ON_DEFAULT_CHOSEN);
+  vr_hmi_api::OnDefaultServiceChosenNotification notification;
+  notification.set_appid(1);
+  std::string params;
+  notification.SerializeToString(&params);
+  input.set_params(params);
+  OnDefaultServiceChosenNotification cmd(&service, input);
+
+  EXPECT_CALL(service, ResetDefaultService()).Times(0);
+  EXPECT_CALL(service, SetDefaultService(1)).Times(1);
+  cmd.Execute();
 }
 
-void OnServiceDeactivatedNotification::Execute() {
-  LOG4CXX_AUTO_TRACE(logger_);
+TEST_F(OnDefaultServiceChosenTest, ExecuteReset) {
+  MockServiceModule service;
 
-  Json::Value msg_params;
-  msg_params[json_keys::kService] = kVoiceRecognition;
+  vr_hmi_api::ServiceMessage input;
+  input.set_rpc(vr_hmi_api::ON_DEFAULT_CHOSEN);
+  vr_hmi_api::OnDefaultServiceChosenNotification notification;
+  std::string params;
+  notification.SerializeToString(&params);
+  input.set_params(params);
+  OnDefaultServiceChosenNotification cmd(&service, input);
 
-  application_manager::MessagePtr mobile_msg = new application_manager::Message(
-      protocol_handler::MessagePriority::kDefault);
-  mobile_msg->set_function_id(
-      functional_modules::MobileFunctionID::ON_SERVICE_DEACTIVATED);
-  mobile_msg->set_json_message(MessageHelper::ValueToString(msg_params));
-  SendNotification(mobile_msg);
-  parent()->DeactivateService();
+  EXPECT_CALL(service, SetDefaultService(_)).Times(0);
+  EXPECT_CALL(service, ResetDefaultService()).Times(1);
+  cmd.Execute();
+}
+
+TEST_F(OnDefaultServiceChosenTest, ExecuteNoParams) {
+  MockServiceModule service;
+
+  vr_hmi_api::ServiceMessage input;
+  input.set_rpc(vr_hmi_api::ON_DEFAULT_CHOSEN);
+  OnDefaultServiceChosenNotification cmd(&service, input);
+
+  EXPECT_CALL(service, ResetDefaultService()).Times(0);
+  cmd.Execute();
 }
 
 }  // namespace commands
-
 }  // namespace vr_cooperation

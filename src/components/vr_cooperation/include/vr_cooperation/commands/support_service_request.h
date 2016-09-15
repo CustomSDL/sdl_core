@@ -37,7 +37,7 @@
 
 namespace vr_cooperation {
 
-class VRModule;
+class ServiceModule;
 
 namespace commands {
 
@@ -48,10 +48,10 @@ class SupportServiceRequest : public BaseGpbRequest {
  public:
   /**
    * @brief RequestFromHMI class constructor
-   * @param parent pointer to VRmodule
+   * @param parent pointer to ServiceModule
    * @param message Message from HMI
    */
-  SupportServiceRequest(VRModule* parent,
+  SupportServiceRequest(ServiceModule* parent,
                         application_manager::MessagePtr message);
 
   /**

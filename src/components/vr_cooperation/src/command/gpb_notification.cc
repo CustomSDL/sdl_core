@@ -33,7 +33,7 @@
 #include "vr_cooperation/commands/gpb_notification.h"
 
 #include "utils/logger.h"
-#include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/service_module.h"
 
 namespace vr_cooperation {
 
@@ -41,7 +41,7 @@ namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
-GpbNotification::GpbNotification(VRModule* parent,
+GpbNotification::GpbNotification(ServiceModule* parent,
                                  application_manager::MessagePtr message)
     : message_(message),
       parent_(parent) {

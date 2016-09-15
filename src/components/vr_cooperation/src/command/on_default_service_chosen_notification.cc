@@ -37,6 +37,7 @@
 #include "vr_cooperation/vr_module_constants.h"
 #include "vr_cooperation/vr_module.h"
 #include "vr_cooperation/interface/hmi.pb.h"
+#include "vr_cooperation/service_module.h"
 
 namespace vr_cooperation {
 
@@ -45,7 +46,7 @@ namespace commands {
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
 OnDefaultServiceChosenNotification::OnDefaultServiceChosenNotification(
-    VRModule* parent, const vr_hmi_api::ServiceMessage& message)
+    ServiceModule* parent, const vr_hmi_api::ServiceMessage& message)
     : JsonNotification(parent, message) {
 }
 
@@ -58,8 +59,11 @@ void OnDefaultServiceChosenNotification::Execute() {
   vr_hmi_api::OnDefaultServiceChosenNotification params;
   vr_hmi_api::ServiceMessage msg = message();
   if (msg.has_params() && params.ParseFromString(msg.params())) {
-    int32_t app_id = params.has_appid() ? params.appid() : -1;
-    parent()->set_default_app_id(app_id);
+    if(params.has_appid()) {
+      parent()->SetDefaultService(params.appid());
+    } else {
+      parent()->ResetDefaultService();
+    }
   } else {
     LOG4CXX_WARN(logger_, "Could not get result from message");
   }
