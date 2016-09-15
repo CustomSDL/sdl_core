@@ -68,6 +68,10 @@ class ServiceModule {
    */
   virtual void SendMessageToMobile(application_manager::MessagePtr msg) = 0;
 
+  /**
+   * @brief Returns key of application that process VR requests.
+   * @return mobile application connection key
+   */
   virtual int32_t activated_connection_key() const = 0;
   /**
    * Marks the application to use as service
