@@ -100,8 +100,11 @@ functional_modules::MobileFunctionID BaseJsonRequest::GetMobileFunctionID(
       return functional_modules::ACTIVATE_SERVICE;
     case vr_hmi_api::ON_DEACTIVATED:
       return functional_modules::ON_SERVICE_DEACTIVATED;
-    default:
+    case vr_hmi_api::PROCESS_DATA:
       return functional_modules::PROCESS_DATA;
+    default:
+      LOG4CXX_ERROR(logger_, "Unknown Mobile function id ");
+      return functional_modules::VR_UNKNOWN;
   }
 }
 
