@@ -284,6 +284,14 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
   }
 }
 
+void VRModule::OnReady() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  vr_hmi_api::ServiceMessage message;
+  message.set_rpc(vr_hmi_api::SUPPORT_SERVICE);
+  commands::Command* command = CommandFactory::Create(this, message);
+  command->Run();
+}
+
 void VRModule::SendUnsupportedServiceResponse(
     application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);

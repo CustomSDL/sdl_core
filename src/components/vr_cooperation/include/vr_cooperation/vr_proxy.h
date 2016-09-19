@@ -35,50 +35,95 @@
 
 #include <queue>
 
+#include "utils/lock.h"
+#include "utils/macro.h"
 #include "utils/threads/message_loop_thread.h"
 #include "vr_cooperation/interface/hmi.pb.h"
 
+namespace threads {
+class Thread;
+}  // namespace threads
+
 namespace vr_cooperation {
 
+class Channel;
 class VRProxyListener;
 
 typedef std::queue<vr_hmi_api::ServiceMessage> MessageQueue;
 
 class VRProxy : public threads::MessageLoopThread<MessageQueue>::Handler {
  public:
-  /**
-   * @brief Constructor
-   */
-  explicit VRProxy(VRProxyListener* listener);
-
-  /**
-   * @brief Destructor
-   */
+  explicit VRProxy(VRProxyListener *listener);
+  VRProxy(VRProxyListener *listener, Channel *channel);
   ~VRProxy();
 
   /**
-   * @brief Receives GPB message
-   * @param message received message
+   * Starts channel to connect to HMI(Applink)
    */
-  void OnReceived(const vr_hmi_api::ServiceMessage& message);
+  bool Start();
 
   /**
-   * @brief Sends GPB message
+   * Stops channel to HMI(Applink)
+   */
+  void Stop();
+
+  /**
+   * Sends message to HMI(Applink)
    * @param message to send
    * @return true if success
    */
   bool Send(const vr_hmi_api::ServiceMessage& message);
 
  private:
+  /**
+   * Create thread to receive data from HMI(Applink)
+   */
+  inline void CreateThread();
+
+  /**
+   * Routine to receive messages from HMI(Applink)
+   */
+  void Receive();
+
+  /**
+   * Handles message from queue from HMI(Applink)
+   * @param message received message
+   */
   void Handle(vr_hmi_api::ServiceMessage message);
+
+  /**
+   * Handles that channel to HMI is established successfully.
+   */
+  void OnEstablished();
+
+  /**
+   * Handles receiving message from channel
+   * @param message received message
+   */
+  void OnReceived(const vr_hmi_api::ServiceMessage& message);
+
+  /**
+   * Converts size of message to string
+   * @param value integer presentaiont of size
+   * @return string presentation of size
+   */
+  std::string SizeToString(uint32_t value);
+
+  /**
+   * Converts string to size of message
+   * @param value string presentaiont of size
+   * @return integer presentaiont of size
+   */
+  uint32_t SizeFromString(const std::string& value);
+
   VRProxyListener *listener_;
-
   threads::MessageLoopThread<MessageQueue> incoming_;
-
+  Channel *channel_;
+  threads::Thread *channel_thread_;
+  friend class Receiver;
   DISALLOW_COPY_AND_ASSIGN(VRProxy);
 };
 
 }  // namespace vr_cooperation
 
 #endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_H_
-

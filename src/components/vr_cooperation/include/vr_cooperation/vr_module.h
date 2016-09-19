@@ -119,6 +119,11 @@ class VRModule : public functional_modules::GenericModule,
   virtual void OnReceived(const vr_hmi_api::ServiceMessage& message);
 
   /**
+   * Handles starting channel
+   */
+  virtual void OnReady();
+
+  /**
    * Removed request from request controller
    * @param correlation_id request id
    */

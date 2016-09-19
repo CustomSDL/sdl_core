@@ -33,6 +33,7 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_JSON_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_JSON_REQUEST_H_
 
+#include "functional_module/function_ids.h"
 #include "vr_cooperation/commands/base_command_request.h"
 #include "vr_cooperation/event_engine/event_observer.h"
 #include "json/json.h"
@@ -93,12 +94,18 @@ class BaseJsonRequest : public BaseCommandRequest,
 
   /**
    * @brief Parse result code from response
-   *
    * @param value message in response from Mobile
    * @param result_code Outgoing param with result code
    */
   void ParseMobileResultCode(const Json::Value& value,
                              vr_hmi_api::ResultCode& result_code);
+
+  /**
+   * @brief Returns mobile function id
+   * @param function_id hmi function id
+   */
+  functional_modules::MobileFunctionID GetMobileFunctionID(
+      vr_hmi_api::RPCName function_id);
 
   /**
    * @brief Prepares request message for Mobile
@@ -132,6 +139,13 @@ class BaseJsonRequest : public BaseCommandRequest,
    */
   ServiceModule* parent() const {
     return parent_;
+  }
+
+  /**
+   * @brief Returns gpb message
+   */
+  const vr_hmi_api::ServiceMessage& gpb_message() const {
+    return gpb_message_;
   }
 
  private:

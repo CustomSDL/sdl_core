@@ -30,32 +30,44 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
-
-namespace vr_hmi_api {
-class ServiceMessage;
-}  // namespace vr_hmi_api
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_CHANNEL_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_CHANNEL_H_
 
 namespace vr_cooperation {
 
-class VRProxyListener {
+class Channel {
  public:
-  virtual ~VRProxyListener() {
+  virtual ~Channel() {
   }
 
   /**
-   * Handles receiving GPB message from HMI
-   * @param message GPB message according with hmi.proto file
+   * Stars channel to communicate
+   * @return true if success
    */
-  virtual void OnReceived(const vr_hmi_api::ServiceMessage& message) = 0;
+  virtual bool Start() = 0;
 
   /**
-   * Handles starting channel
+   * Stops channel to communicate
+   * @return true if success
    */
-  virtual void OnReady() = 0;
+  virtual bool Stop() = 0;
+
+  /**
+   * Sends data to other side
+   * @param data raw data to send
+   * @return true if success
+   */
+  virtual bool Send(const std::string& data) = 0;
+
+  /**
+   * Receives data from other side
+   * @param size maximum of bytes to receive
+   * @param buffer container to keep received data
+   * @return true if size of received data less or equal expected size
+   */
+  virtual bool Receive(size_t size, std::string *buffer) = 0;
 };
 
 }  // namespace vr_cooperation
 
-#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_CHANNEL_H_

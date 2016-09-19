@@ -22,6 +22,7 @@ if (CMAKE_BUILD_TYPE)
 endif()
 
 include_directories (
+  ${CMAKE_CURRENT_SOURCE_DIR}
   ./include/
   ../include/
   ../functional_module/include/
@@ -52,6 +53,7 @@ set (SOURCES
     ./src/message_helper.cc
     ./src/command_factory.cc
     ./src/request_controller.cc
+    ./src/socket_channel.cc
     ./src/vr_module_event_gpb.cc
     ./src/vr_module_event.cc
     ./src/vr_module.cc
@@ -64,6 +66,8 @@ set (LIBRARIES
     ApplicationManager
     Utils
     ConfigProfile
+    Utils
+    Net
     protobuf
     HMIProto
 )
@@ -91,6 +95,8 @@ install(
   FILES ${FILES_FOR_COPY}
   DESTINATION ${install_destination}
 )
+
+add_subdirectory(net)
 
 if(BUILD_TESTS)
   add_subdirectory(test)
