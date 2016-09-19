@@ -30,32 +30,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
+#include "net/connected_socket.h"
 
-namespace vr_hmi_api {
-class ServiceMessage;
-}  // namespace vr_hmi_api
+namespace net {
 
-namespace vr_cooperation {
+ConnectedSocket::ConnectedSocket(Domain domain, const char* address, UInt32 port)
+  : Socket(domain, address, port) {
+}
 
-class VRProxyListener {
- public:
-  virtual ~VRProxyListener() {
-  }
+ConnectedSocket::ConnectedSocket(Domain domain, Int32 handle)
+  : Socket(domain, handle) {
+}
 
-  /**
-   * Handles receiving GPB message from HMI
-   * @param message GPB message according with hmi.proto file
-   */
-  virtual void OnReceived(const vr_hmi_api::ServiceMessage& message) = 0;
+ConnectedSocket::~ConnectedSocket() {
+  shutdown();
+  close();
+}
 
-  /**
-   * Handles starting channel
-   */
-  virtual void OnReady() = 0;
-};
+bool ConnectedSocket::set_opt(Int32 level, Int32 optname,
+                     const void* optval, socklen_t opt_len) {
+  return Socket::set_opt(level, optname, optval, opt_len);
+}
 
-}  // namespace vr_cooperation
+void ConnectedSocket::close() {
+  Socket::close();
+}
 
-#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
+void ConnectedSocket::shutdown() {
+  Socket::shutdown();
+}
+
+void ConnectedSocket::set_blocking_mode(bool is_blocking) {
+  Socket::set_blocking_mode(is_blocking);
+}
+
+}  // namespace net

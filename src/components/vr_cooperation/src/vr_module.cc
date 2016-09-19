@@ -240,16 +240,6 @@ void VRModule::OnDeviceRemoved(const connection_handler::DeviceHandle& device) {
   LOG4CXX_AUTO_TRACE(logger_);
 }
 
-void VRModule::OnServiceStateChanged(functional_modules::ServiceState state) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  if (functional_modules::HMI_ADAPTER_INITIALIZED == state) {
-    vr_hmi_api::ServiceMessage message;
-    message.set_rpc(vr_hmi_api::SUPPORT_SERVICE);
-    commands::Command* command = CommandFactory::Create(this, message);
-    command->Run();
-  }
-}
-
 void VRModule::SendMessageToHMI(const vr_hmi_api::ServiceMessage& msg) {
   LOG4CXX_DEBUG(logger_, "Message to HMI: " << msg.DebugString());
   if (!proxy_.Send(msg)) {
@@ -292,6 +282,14 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
       }
     }
   }
+}
+
+void VRModule::OnReady() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  vr_hmi_api::ServiceMessage message;
+  message.set_rpc(vr_hmi_api::SUPPORT_SERVICE);
+  commands::Command* command = CommandFactory::Create(this, message);
+  command->Run();
 }
 
 void VRModule::SendUnsupportedServiceResponse(

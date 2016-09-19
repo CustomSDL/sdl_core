@@ -30,32 +30,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
-#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
+#ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_SOCKET_CHANNEL_H_
+#define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_SOCKET_CHANNEL_H_
 
-namespace vr_hmi_api {
-class ServiceMessage;
-}  // namespace vr_hmi_api
+#include <string>
+
+#include "vr_cooperation/channel.h"
+
+namespace net {
+class ConnectedSocket;
+}  // namespace net
 
 namespace vr_cooperation {
 
-class VRProxyListener {
+class SocketChannel : public Channel {
  public:
-  virtual ~VRProxyListener() {
-  }
+  SocketChannel();
+  explicit SocketChannel(net::ConnectedSocket *socket);
+  ~SocketChannel();
+  virtual bool Start();
+  virtual bool Stop();
+  virtual bool Send(const std::string& data);
+  virtual bool Receive(size_t size, std::string *buffer);
 
-  /**
-   * Handles receiving GPB message from HMI
-   * @param message GPB message according with hmi.proto file
-   */
-  virtual void OnReceived(const vr_hmi_api::ServiceMessage& message) = 0;
-
-  /**
-   * Handles starting channel
-   */
-  virtual void OnReady() = 0;
+ private:
+  net::ConnectedSocket *socket_;
+  std::string address_;
+  uint32_t port_;
 };
 
 }  // namespace vr_cooperation
 
-#endif // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_PROXY_LISTENER_H_
+#endif  // SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_SOCKET_CHANNEL_H_

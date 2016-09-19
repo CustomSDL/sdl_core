@@ -101,12 +101,6 @@ class VRModule : public functional_modules::GenericModule,
   virtual void OnDeviceRemoved(const connection_handler::DeviceHandle& device);
 
   /**
-   * @brief Notify about change of ServiceState
-   * @param state current service state
-   */
-  virtual void OnServiceStateChanged(functional_modules::ServiceState state);
-
-  /**
    * @brief send gpb message to HMI
    * @param message gpb message that will be sent to HMI
    */
@@ -123,6 +117,11 @@ class VRModule : public functional_modules::GenericModule,
    * @param message is GPB message according with protocol
    */
   virtual void OnReceived(const vr_hmi_api::ServiceMessage& message);
+
+  /**
+   * Handles starting channel
+   */
+  virtual void OnReady();
 
   /**
    * Removed request from request controller
