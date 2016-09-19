@@ -40,6 +40,8 @@
 #include "vr_cooperation/commands/on_service_deactivated_notification.h"
 #include "vr_cooperation/commands/register_service_request.h"
 #include "vr_cooperation/commands/on_register_service_notification.h"
+#include "vr_cooperation/commands/activate_service_request.h"
+#include "vr_cooperation/commands/support_service_request.h"
 
 namespace vr_cooperation {
 
@@ -85,6 +87,10 @@ commands::Command* CommandFactory::Create(
       return new commands::OnServiceDeactivatedNotification(parent, message);
     case vr_hmi_api::ON_DEFAULT_CHOSEN:
       return new commands::OnDefaultServiceChosenNotification(parent, message);
+    case vr_hmi_api::ACTIVATE:
+      return new commands::ActivateServiceRequest(parent, message);
+    case vr_hmi_api::SUPPORT_SERVICE:
+      return new commands::SupportServiceRequest(parent, message);
     default:
       return NULL;
   }
