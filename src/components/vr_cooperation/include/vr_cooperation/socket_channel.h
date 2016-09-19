@@ -35,6 +35,7 @@
 
 #include <string>
 
+#include "utils/types.h"
 #include "vr_cooperation/channel.h"
 
 namespace net {
@@ -56,7 +57,7 @@ class SocketChannel : public Channel {
  private:
   net::ConnectedSocket *socket_;
   std::string address_;
-  uint32_t port_;
+  UInt32 port_;
 };
 
 }  // namespace vr_cooperation
