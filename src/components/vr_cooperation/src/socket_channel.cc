@@ -36,7 +36,7 @@
 #include "net/connected_socket_impl.h"
 #include "utils/logger.h"
 #include "utils/macro.h"
-//#include "utils/scope_guard.h"
+#include "utils/scope_guard.h"
 
 namespace vr_cooperation {
 
@@ -86,10 +86,9 @@ bool SocketChannel::Send(const std::string& data) {
   size_t size_to_send = total_size < kChunkSize ? total_size : kChunkSize;
   UInt8* data_bytes = new UInt8[size_to_send];
 
-  //TODO (KKarlash): add guard util
-  //utils::ScopeGuard ppsdata_guard = utils::MakeGuard(
-  //    utils::ArrayDeleter<UInt8*>, data_bytes);
-  //UNUSED(ppsdata_guard);
+  utils::ScopeGuard ppsdata_guard = utils::MakeGuard(
+      utils::ArrayDeleter<UInt8*>, data_bytes);
+  UNUSED(ppsdata_guard);
 
   size_t data_sent = 0;
   while (total_size > data_sent) {
@@ -114,6 +113,11 @@ bool SocketChannel::Receive(size_t size, std::string* buffer) {
 
   size_t received = 0;
   UInt8* data_bytes = new UInt8[size];
+
+  utils::ScopeGuard ppsdata_guard = utils::MakeGuard(
+      utils::ArrayDeleter<UInt8*>, data_bytes);
+  UNUSED(ppsdata_guard);
+
   while (size > received) {
     ssize_t rev_size = socket_->recv(data_bytes, to_recv, 0);
     if (rev_size <= 0) {
