@@ -30,146 +30,88 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <net/connected_socket.h>
+#include "net/socket.h"
+
+#include <fcntl.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/un.h>
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+
+#include "utils/logger.h"
+
+CREATE_LOGGERPTR_GLOBAL(logger_, "VRModule")
 
 namespace net {
 
-/**
- * Generic client socket operations implementation
- */
-class ConnectedSocketImpl : public virtual ConnectedSocket {
- public:
-  /**
-   * Default constructor
-   *
-   * @param address Specifies socket address
-   * @param port    Specifies socket port
-   */
-  ConnectedSocketImpl(const char* address, UInt32 port);
+Socket::Socket(Domain domain, const char* address, UInt32 port)
+    : domain_(domain),
+      address_(address),
+      port_number_(port),
+      socket_(INVALID_SOCKET) {
+  create_socket();
+}
 
-  friend class ServerSocketImpl;
+Socket::Socket(Domain domain, Int32 handle)
+    : domain_(domain), address_(), port_number_(), socket_(handle) {}
 
-  /**
-   * Provides connected socket to the remote host
-   *
-   * @param address Specifies socket address
-   * @param port    Specifies socket port
-   * @param attempts    attempts to connect to host.
-   * It attempts = 0, try to connecto to  host infinitely
-   *
-   * @return ConnectedSocket object, that must be deleted by caller
-   */
-  static ConnectedSocket* ConnectToHost(const char* address, UInt32 port,
-                                        UInt32 attempts = 30);
+Socket::~Socket() {}
 
-  /**
-   * Provides connected socket to the local host
-   *
-   * @param path_name Specifies socket path
-   *
-   * @return ConnectedSocket object, that must be deleted by caller
-   */
-  static ConnectedSocket* ConnectToHost(const char* path_name);
+bool Socket::set_opt(Int32 level, Int32 optname, const void* optval,
+                     socklen_t opt_len) {
+  if (-1 == setsockopt(socket_, level, optname,
+                       static_cast<const void*>(&optval),
+                       static_cast<socklen_t>(sizeof opt_len))) {
+    LOG4CXX_FATAL(logger_, "Unable to set sockopt " << strerror(errno));
+    return false;
+  }
 
-  /**
-   * Default Destructor
-   */
-  virtual ~ConnectedSocketImpl();
+  return true;
+}
 
-  /**
-   * Sets options on socket
-   * Wrapper around the setsockopt system call.
-   */
-  virtual bool set_opt(Int32 level, Int32 optname, const void* optval,
-                       socklen_t optlen);
+void Socket::close() {
+  if (INVALID_SOCKET == socket_) {
+    LOG4CXX_WARN(logger_, "Trying to close invalid socket");
+    return;
+  }
 
-  /**
-   * Closes socket
-   */
-  virtual void close();
+  if (-1 == ::close(socket_)) {
+    LOG4CXX_ERROR(logger_, "Unable to close socket " << strerror(errno));
+    return;
+  }
+  socket_ = INVALID_SOCKET;
+}
 
-  /**
-   * Shudowns socket using SHUT_RDWR option
-   */
-  virtual void shutdown();
+void Socket::shutdown() {
+  if (INVALID_SOCKET == socket_) {
+    LOG4CXX_WARN(logger_, "Trying to close invalid socket");
+    return;
+  }
 
-  /**
-   * Sets the blocking mode of this socket. If set to nonblocking,
-   * read/write calls will always return immediately, but possibly
-   * not all of the data has been read/written.
-   *
-   * @param is_blocking Whether to operate in blocking mode or not.
-   */
-  virtual void set_blocking_mode(bool is_blocking);
+  if (-1 == ::shutdown(socket_, SHUT_RDWR)) {
+    LOG4CXX_ERROR(logger_, "Unable to shutdown socket " << strerror(errno));
+    return;
+  }
+}
 
-  /**
-   * Sends size bytes over socket.
-   *
-   * @param buffer Data to send
-   * @param size   Number of bytes to send
-   * @param flags  The flags argument
-   *
-   * @return number of bytes sent.
-   */
-  virtual ssize_t send(const UInt8* buffer, size_t size, Int32 flags);
+void Socket::set_blocking_mode(bool is_blocking) {
+  if (is_blocking) {
+    ::fcntl(socket_, F_SETFL, ::fcntl(socket_, F_GETFL, 0) & ~O_NDELAY);
+  } else {
+    ::fcntl(socket_, F_SETFL, ::fcntl(socket_, F_GETFL, 0) | O_NDELAY);
+  }
+}
 
-  /**
-   * Sends file descriptor in control messages(ancillary data)
-   *
-   * @param file_fd The file descriptor to send
-   * @param flags   The flags argument
-   *
-   * @return number of bytes sent.
-   */
-  virtual ssize_t send(Int32 file_fd, Int32 flags);
-
-  /**
-   * Reads bytes from socket. This function call may return a value lower than
-   *size in case of
-   * signals interrupting the call.
-   *
-   * @param buffer buffer for read data
-   * @param size Maximum number of bytes that could be read
-   * @param flags  The flags argument
-   *
-   * @return number of bytes read.
-   */
-  virtual ssize_t recv(UInt8* buffer, size_t, Int32 flags);
-
-  /**
-   * Reads from socket control-related messages
-   *
-   * @param msg msghdr structure
-   * @param flags  The flags argument
-   *
-   * @return number of bytes read.
-   */
-  virtual ssize_t recv(struct msghdr* msg, Int32 flags);
-
- protected:
-  /**
- * Connects a client to a remote server socket.
- *
- * @return TRUE in case of success, otherwise FALSE.
- *
- */
-  virtual bool connect();
-
- private:
-  /**
-   * Default constructor for AF_UNIX domain sockets
-   *
-   * @param path_name   Specifies socket communication domain
-   */
-  explicit ConnectedSocketImpl(const char* path_name);
-
-  /**
-   * Constructor used by Server to create accepted connection
-   *
-   * @param domain    Specifies socket domain
-   * @param handle    Specifies socket handle returned by accept call
-   */
-  ConnectedSocketImpl(Domain domain, Int32 handle);
-};
+void Socket::create_socket() {
+  // socket type is SOCK_STREAM by default
+  socket_ = socket(domain_, SOCK_STREAM, 0);
+  if (-1 == socket_) {
+    LOG4CXX_FATAL(logger_, "Unable to create socket " << strerror(errno));
+  }
+}
 
 }  // namespace net

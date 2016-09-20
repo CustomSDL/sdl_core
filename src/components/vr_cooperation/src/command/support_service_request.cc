@@ -40,9 +40,8 @@ namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "SupportServiceRequest")
 
-SupportServiceRequest::SupportServiceRequest(
-    ServiceModule* parent, application_manager::MessagePtr message)
-    : BaseGpbRequest(parent, message),
+SupportServiceRequest::SupportServiceRequest(ServiceModule* parent)
+    : BaseGpbRequest(parent),
       message_() {
 }
 

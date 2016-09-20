@@ -47,6 +47,11 @@ BaseGpbRequest::BaseGpbRequest(ServiceModule* parent,
       json_message_(message) {
 }
 
+BaseGpbRequest::BaseGpbRequest(ServiceModule* parent)
+    : parent_(parent),
+      json_message_() {
+}
+
 BaseGpbRequest::~BaseGpbRequest() {
 }
 
