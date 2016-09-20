@@ -107,6 +107,16 @@ functional_modules::PluginInfo VRModule::GetPluginInfo() const {
   return plugin_info_;
 }
 
+void VRModule::Start() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  proxy_.Start();
+}
+
+void VRModule::Stop() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  proxy_.Stop();
+}
+
 functional_modules::ProcessResult VRModule::ProcessMessage(
     application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);

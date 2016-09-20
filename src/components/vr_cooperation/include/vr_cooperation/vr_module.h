@@ -60,6 +60,16 @@ class VRModule : public functional_modules::GenericModule,
   virtual functional_modules::PluginInfo GetPluginInfo() const;
 
   /**
+   * Starts routines of the plugin
+   */
+  virtual void Start();
+
+  /**
+   * Stops routines of the plugin
+   */
+  virtual void Stop();
+
+  /**
    * @brief process message from mobile
    * @param msg message from mobile
    */
