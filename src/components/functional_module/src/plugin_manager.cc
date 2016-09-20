@@ -117,6 +117,7 @@ int PluginManager::LoadPlugins(const std::string& plugin_path) {
       }
       module->set_service(service_);
       module->AddObserver(this);
+      module->Start();
     }
   }
   return plugins_.size();
@@ -124,7 +125,9 @@ int PluginManager::LoadPlugins(const std::string& plugin_path) {
 
 void PluginManager::UnloadPlugins() {
   for (Modules::iterator it = plugins_.begin(); plugins_.end() != it; ++it) {
-    it->second->RemoveObserver(this);
+    ModulePtr module = it->second;
+    module->Stop();
+    module->RemoveObserver(this);
   }
   plugins_.clear();
 

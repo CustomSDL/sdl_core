@@ -42,6 +42,16 @@ void GenericModule::NotifyObservers(ModuleObserver::Errors error) {
   }
 }
 
+void GenericModule::Start() {
+  // Default it does nothing
+  // Derived classes might override this if they need this.
+}
+
+void GenericModule::Stop() {
+  // Default it does nothing
+  // Derived classes might override this if they need this.
+}
+
 void GenericModule::set_service(application_manager::ServicePtr service) {
   service_ = service;
 }
