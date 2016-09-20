@@ -190,29 +190,16 @@ bool VRModule::SetMessageType(application_manager::MessagePtr msg) const {
   reader.parse(msg->json_message(), value);
   bool result = true;
 
-  if (value.isMember(json_keys::kMethod)) {
-    value.isMember(json_keys::kId) ?
-        msg->set_message_type(application_manager::MessageType::kRequest) :
-        msg->set_message_type(application_manager::MessageType::kNotification);
-  } else if (value.isMember(json_keys::kResult)
-             && value[json_keys::kResult].isMember(json_keys::kMethod)) {
+  if (value.isMember(json_keys::kService)) {
+    msg->set_message_type(application_manager::MessageType::kRequest);
+  } else if (value.isMember(json_keys::kSuccess)
+      && value.isMember(json_keys::kResultCode)) {
     msg->set_message_type(application_manager::MessageType::kResponse);
-  } else if (value.isMember(json_keys::kError)
-             && value[json_keys::kError].isMember(json_keys::kData)
-             && value[json_keys::kError][json_keys::kData].isMember(
-                 json_keys::kMethod)) {
-    msg->set_message_type(application_manager::MessageType::kErrorResponse);
   } else {
     DCHECK(false);
     result = false;
   }
 
-  if (value.isMember(json_keys::kId)) {
-    msg->set_correlation_id(value[json_keys::kId].asInt());
-  } else if (application_manager::MessageType::kNotification != msg->type()) {
-    DCHECK(false);
-    result = false;
-  }
   return result;
 }
 
@@ -304,7 +291,6 @@ void VRModule::SendUnsupportedServiceResponse(
     application_manager::MessagePtr msg) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg_params;
-  msg_params[kId] = service()->GetNextCorrelationID();
   msg_params[kSuccess] = false;
   msg_params[kResultCode] = mobile_apis::Result::UNSUPPORTED_RESOURCE;
   msg_params[kInfo] = "VR Service is not supported";
@@ -312,9 +298,7 @@ void VRModule::SendUnsupportedServiceResponse(
   msg->set_message_type(application_manager::MessageType::kResponse);
   Json::FastWriter writer;
   msg->set_json_message(writer.write(msg_params));
-  msg->set_correlation_id(msg_params[kId].asInt());
-  msg->set_protocol_version(application_manager::ProtocolVersion::kV2);
-  SendMessageToMobile(msg);
+  service()->SendMessageToMobile(msg);
 }
 
 void VRModule::UnregisterRequest(int32_t correlation_id) {

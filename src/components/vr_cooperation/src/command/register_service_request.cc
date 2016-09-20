@@ -89,7 +89,6 @@ void RegisterServiceRequest::SendResponseToMobile(bool success,
                                                   const std::string& info) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg_params;
-  msg_params[kId] = parent()->GetNextCorrelationID();
   msg_params[kSuccess] = success;
   msg_params[kResultCode] = result;
   msg_params[kInfo] = info;
@@ -98,8 +97,6 @@ void RegisterServiceRequest::SendResponseToMobile(bool success,
   json_msg->set_message_type(application_manager::MessageType::kResponse);
   Json::FastWriter writer;
   json_msg->set_json_message(writer.write(msg_params));
-  json_msg->set_correlation_id(msg_params[kId].asInt());
-  json_msg->set_protocol_version(application_manager::ProtocolVersion::kV2);
   parent()->SendMessageToMobile(json_msg);
 }
 
