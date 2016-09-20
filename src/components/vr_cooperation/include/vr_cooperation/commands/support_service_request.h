@@ -49,10 +49,8 @@ class SupportServiceRequest : public BaseGpbRequest {
   /**
    * @brief RequestFromHMI class constructor
    * @param parent pointer to ServiceModule
-   * @param message Message from HMI
    */
-  SupportServiceRequest(ServiceModule* parent,
-                        application_manager::MessagePtr message);
+  SupportServiceRequest(ServiceModule* parent);
 
   /**
    * @brief SupportServiceRequest class destructor

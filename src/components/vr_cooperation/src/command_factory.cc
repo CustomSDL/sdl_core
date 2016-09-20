@@ -89,11 +89,14 @@ commands::Command* CommandFactory::Create(
       return new commands::OnDefaultServiceChosenNotification(parent, message);
     case vr_hmi_api::ACTIVATE:
       return new commands::ActivateServiceRequest(parent, message);
-    case vr_hmi_api::SUPPORT_SERVICE:
-      return new commands::SupportServiceRequest(parent, message);
     default:
       return NULL;
   }
+}
+
+commands::Command* CommandFactory::Create(ServiceModule* parent) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  return new commands::SupportServiceRequest(parent);
 }
 
 }  // namespace vr_cooperation

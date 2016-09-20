@@ -67,6 +67,13 @@ class CommandFactory {
   static commands::Command* Create(
       ServiceModule* parent, const vr_hmi_api::ServiceMessage& message);
 
+  /**
+   * @brief Create command object and return pointer to it
+   * @param parent pointer to VRmodule
+   * @return Pointer to created command object.
+   */
+  static commands::Command* Create(ServiceModule* parent);
+
  private:
   CommandFactory();
   DISALLOW_COPY_AND_ASSIGN(CommandFactory);

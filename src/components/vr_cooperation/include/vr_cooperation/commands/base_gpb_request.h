@@ -53,6 +53,12 @@ class BaseGpbRequest : public BaseCommandRequest,
   /**
    * @brief BaseGpbRequest class constructor
    * @param parent pointer to ServiceModule
+   */
+  explicit BaseGpbRequest(ServiceModule* parent);
+
+  /**
+   * @brief BaseGpbRequest class constructor
+   * @param parent pointer to ServiceModule
    * @param message Message from Mobile
    */
   BaseGpbRequest(ServiceModule* parent, application_manager::MessagePtr message);

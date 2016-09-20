@@ -286,9 +286,7 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
 
 void VRModule::OnReady() {
   LOG4CXX_AUTO_TRACE(logger_);
-  vr_hmi_api::ServiceMessage message;
-  message.set_rpc(vr_hmi_api::SUPPORT_SERVICE);
-  commands::Command* command = CommandFactory::Create(this, message);
+  commands::Command* command = CommandFactory::Create(this);
   command->Run();
 }
 
