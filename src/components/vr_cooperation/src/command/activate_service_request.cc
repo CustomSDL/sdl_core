@@ -33,11 +33,13 @@
 #include "functional_module/function_ids.h"
 #include "vr_cooperation/commands/activate_service_request.h"
 #include "vr_cooperation/service_module.h"
+#include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
 
 namespace vr_cooperation {
 
 namespace commands {
+const int kVoiceRecognition = 0;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "ActivateServiceRequest")
 
@@ -56,9 +58,16 @@ void ActivateServiceRequest::Execute() {
   if (gpb_message().has_params() && params.ParseFromString(gpb_message().params())) {
     int32_t app_id = params.appid();
     parent()->ActivateService(app_id);
-   }
-  application_manager::MessagePtr message_to_send;
-  SendMessageToMobile(message_to_send);
+  }
+
+  Json::Value msg;
+  msg[json_keys::kService] = kVoiceRecognition;
+
+  Json::FastWriter writer;
+  application_manager::MessagePtr message =
+      new application_manager::Message(protocol_handler::MessagePriority::kDefault);
+  message->set_json_message(writer.write(msg));
+  SendMessageToMobile(message);
 }
 
 void ActivateServiceRequest::ProcessEvent(

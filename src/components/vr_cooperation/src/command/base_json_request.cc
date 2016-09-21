@@ -133,25 +133,13 @@ void BaseJsonRequest::SendMessageToMobile(
     application_manager::MessagePtr message) {
   LOG4CXX_AUTO_TRACE(logger_);
 
-  message = new application_manager::Message(protocol_handler::MessagePriority::kDefault);
   message->set_protocol_version(application_manager::ProtocolVersion::kV2);
-  message->set_correlation_id(parent()->GetNextCorrelationID());
+  message->set_correlation_id(gpb_message_.correlation_id());
+  message->set_function_id(GetMobileFunctionID(gpb_message_.rpc()));
 
-  Json::Value msg;
-  msg[kId] = parent()->GetNextCorrelationID();
-  msg[kJsonrpc] = kJsonRpc;
-  msg[kMethod] = GetMobileFunctionID(gpb_message_.rpc());
-  if (!gpb_message_.has_params()) {
-    msg[kParams] = gpb_message_.params();
-  }
-  msg[kParams][json_keys::kAppId] = parent()->activated_connection_key();
-
-  Json::FastWriter writer;
-  message->set_json_message(writer.write(msg));
   message->set_message_type(application_manager::MessageType::kRequest);
   EventDispatcher<application_manager::MessagePtr, vr_hmi_api::RPCName>::instance()
       ->add_observer(gpb_message_.rpc(), message->correlation_id(), this);
-
   LOG4CXX_DEBUG(logger_, "Message to Mob: " << message->json_message());
   parent_->SendMessageToMobile(message);
 }

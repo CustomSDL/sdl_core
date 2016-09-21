@@ -307,17 +307,18 @@ void VRModule::UnregisterRequest(int32_t correlation_id) {
 }
 
 bool VRModule::IsServiceSupported() const {
+  LOG4CXX_AUTO_TRACE(logger_);
   return supported_;
 }
 
 void VRModule::EnableSupport() {
   LOG4CXX_AUTO_TRACE(logger_);
-supported_ = true;
+  supported_ = true;
 }
 
 void VRModule::DisableSupport() {
   LOG4CXX_AUTO_TRACE(logger_);
-    supported_ = false;
+  supported_ = false;
 }
 
 int32_t VRModule::activated_connection_key() const {
