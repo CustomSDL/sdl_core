@@ -54,7 +54,7 @@ void SupportServiceRequest::Execute() {
   message_.set_rpc_type(vr_hmi_api::REQUEST);
   message_.set_correlation_id(parent()->GetNextCorrelationID());
   parent()->RegisterRequest(message_.correlation_id(), this);
-  parent()->SendMessageToHMI(message_);
+  SendMessageToHMI(message_);
 }
 
 void SupportServiceRequest::ProcessEvent(
@@ -63,6 +63,8 @@ void SupportServiceRequest::ProcessEvent(
   const vr_hmi_api::ServiceMessage message = event.event_message();
   vr_hmi_api::SupportServiceResponse response;
   if (message.has_params() && response.ParseFromString(message.params())) {
+    LOG4CXX_DEBUG(logger_, "SupportServiceResponse result: "
+                  << static_cast<int32_t>(response.result()));
     vr_hmi_api::SUCCESS == response.result() ?
         parent()->EnableSupport() : parent()->DisableSupport();
   } else {

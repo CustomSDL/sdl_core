@@ -34,10 +34,13 @@
 
 #include "utils/logger.h"
 #include "vr_cooperation/vr_module.h"
+#include "vr_cooperation/event_engine/event_dispatcher.h"
 
 namespace vr_cooperation {
 
 namespace commands {
+
+using event_engine::EventDispatcher;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRCooperation")
 
@@ -69,6 +72,8 @@ void BaseGpbRequest::on_event(
 void BaseGpbRequest::SendMessageToHMI(
     const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
+  EventDispatcher<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>::instance()
+      ->add_observer(message.rpc(), message.correlation_id(), this);
   parent_->SendMessageToHMI(message);
 }
 
