@@ -108,16 +108,6 @@ class BaseJsonRequest : public BaseCommandRequest,
       vr_hmi_api::RPCName function_id);
 
   /**
-   * @brief Prepares request message for Mobile
-   * @param function_id request ID
-   * @param msg_params params from gpb message
-   * @param message that will be sent to mobile
-   */
-  void PrepareRequestMessageForMobile(vr_hmi_api::RPCName function_id,
-                                      const std::string& message_params,
-                                      application_manager::MessagePtr message);
-
-  /**
    * @brief send message (request/response) to HMI
    * @param message gpb message for HMI
    */

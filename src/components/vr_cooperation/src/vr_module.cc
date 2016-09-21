@@ -306,5 +306,49 @@ void VRModule::UnregisterRequest(int32_t correlation_id) {
   request_controller_.DeleteRequest(correlation_id);
 }
 
+bool VRModule::IsServiceSupported() const {
+  return supported_;
+}
+
+void VRModule::EnableSupport() {
+  LOG4CXX_AUTO_TRACE(logger_);
+supported_ = true;
+}
+
+void VRModule::DisableSupport() {
+  LOG4CXX_AUTO_TRACE(logger_);
+    supported_ = false;
+}
+
+int32_t VRModule::activated_connection_key() const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  return activated_connection_key_;
+}
+
+void VRModule::ActivateService(int32_t connection_key) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  activated_connection_key_ = connection_key;
+}
+
+void VRModule::DeactivateService() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  activated_connection_key_ = 0;
+}
+
+bool VRModule::IsDefaultService(int32_t app_id) const {
+  LOG4CXX_AUTO_TRACE(logger_);
+  return default_app_id_ == app_id;
+}
+
+void VRModule::SetDefaultService(int32_t app_id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  default_app_id_ = app_id;
+}
+
+void VRModule::ResetDefaultService() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  default_app_id_ = 0;
+}
+
 }  // namespace vr_cooperation
 

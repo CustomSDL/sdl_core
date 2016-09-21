@@ -123,28 +123,6 @@ void BaseJsonRequest::ParseMobileResultCode(
   result_code = GetHMIResultCode(mobile_result_code);
 }
 
-void BaseJsonRequest::PrepareRequestMessageForMobile(
-    vr_hmi_api::RPCName function_id, const std::string& message_params,
-    application_manager::MessagePtr message) {
-  LOG4CXX_AUTO_TRACE(logger_);
-  Json::Value msg;
-  msg[kId] = parent()->GetNextCorrelationID();
-  msg[kJsonrpc] = kJsonRpc;
-  msg[kMethod] = GetMobileFunctionID(function_id);
-  if (!message_params.empty()) {
-    msg[kParams] = message_params;
-  }
-  msg[kParams][json_keys::kAppId] = parent()->activated_connection_key();
-
-  message = new application_manager::Message(
-      protocol_handler::MessagePriority::kDefault);
-  message->set_protocol_version(application_manager::ProtocolVersion::kV2);
-  message->set_correlation_id(msg[kId].asInt());
-  Json::FastWriter writer;
-  message->set_json_message(writer.write(msg));
-  message->set_message_type(application_manager::MessageType::kRequest);
-}
-
 void BaseJsonRequest::SendMessageToHMI(
     const vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
@@ -154,10 +132,26 @@ void BaseJsonRequest::SendMessageToHMI(
 void BaseJsonRequest::SendMessageToMobile(
     application_manager::MessagePtr message) {
   LOG4CXX_AUTO_TRACE(logger_);
-  PrepareRequestMessageForMobile(gpb_message_.rpc(), gpb_message_.params(),
-                                 message);
+
+  message = new application_manager::Message(protocol_handler::MessagePriority::kDefault);
+  message->set_protocol_version(application_manager::ProtocolVersion::kV2);
+  message->set_correlation_id(parent()->GetNextCorrelationID());
+
+  Json::Value msg;
+  msg[kId] = parent()->GetNextCorrelationID();
+  msg[kJsonrpc] = kJsonRpc;
+  msg[kMethod] = GetMobileFunctionID(gpb_message_.rpc());
+  if (!gpb_message_.has_params()) {
+    msg[kParams] = gpb_message_.params();
+  }
+  msg[kParams][json_keys::kAppId] = parent()->activated_connection_key();
+
+  Json::FastWriter writer;
+  message->set_json_message(writer.write(msg));
+  message->set_message_type(application_manager::MessageType::kRequest);
   EventDispatcher<application_manager::MessagePtr, vr_hmi_api::RPCName>::instance()
       ->add_observer(gpb_message_.rpc(), message->correlation_id(), this);
+
   LOG4CXX_DEBUG(logger_, "Message to Mob: " << message->json_message());
   parent_->SendMessageToMobile(message);
 }
