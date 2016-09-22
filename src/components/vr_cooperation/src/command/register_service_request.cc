@@ -75,9 +75,14 @@ void RegisterServiceRequest::ProcessEvent(
 
 void RegisterServiceRequest::SendNotificationToHMI() {
   LOG4CXX_AUTO_TRACE(logger_);
-  application_manager::MessagePtr json_msg = json_message();
-  json_msg->set_message_type(application_manager::MessageType::kNotification);
-  commands::Command* command = CommandFactory::Create(parent(), json_msg);
+  application_manager::MessagePtr request_json_msg = json_message();
+  application_manager::Message* notification_message =
+      new application_manager::Message(*(request_json_msg.get()));
+  application_manager::MessagePtr notification_json_msg(notification_message);
+  notification_json_msg->set_message_type(
+      application_manager::MessageType::kNotification);
+  commands::Command* command = CommandFactory::Create(parent(),
+                                                      notification_json_msg);
   if (command) {
     command->Run();
     delete command;

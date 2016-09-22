@@ -294,7 +294,7 @@ void VRModule::SendUnsupportedServiceResponse(
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value msg_params;
   msg_params[kSuccess] = false;
-  msg_params[kResultCode] = mobile_apis::Result::UNSUPPORTED_RESOURCE;
+  msg_params[kResultCode] = result_codes::kUnsupportedResource;
   msg_params[kInfo] = "VR Service is not supported";
 
   msg->set_message_type(application_manager::MessageType::kResponse);
