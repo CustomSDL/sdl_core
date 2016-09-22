@@ -41,7 +41,7 @@
 namespace vr_cooperation {
 
 class VRModuleEvent : public event_engine::Event<
-    application_manager::MessagePtr, functional_modules::MobileFunctionID> {
+    application_manager::MessagePtr, int32_t> {
  public:
   /**
    * @brief Constructor with parameters

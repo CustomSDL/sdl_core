@@ -33,6 +33,7 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_JSON_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_BASE_JSON_REQUEST_H_
 
+#include <string>
 #include "functional_module/function_ids.h"
 #include "vr_cooperation/commands/base_command_request.h"
 #include "vr_cooperation/event_engine/event_observer.h"
@@ -48,8 +49,7 @@ namespace commands {
  * @brief Base command class for json requests
  */
 class BaseJsonRequest : public BaseCommandRequest,
-    public event_engine::EventObserver<application_manager::MessagePtr,
-        vr_hmi_api::RPCName> {
+    public event_engine::EventObserver<application_manager::MessagePtr, int32_t> {
  public:
   /**
    * @brief BaseJsonRequest class constructor
@@ -74,8 +74,7 @@ class BaseJsonRequest : public BaseCommandRequest,
    * @param event The received event
    */
   virtual void on_event(
-      const event_engine::Event<application_manager::MessagePtr,
-          vr_hmi_api::RPCName>& event);
+      const event_engine::Event<application_manager::MessagePtr, int32_t>& event);
 
  protected:
   /**
@@ -88,9 +87,8 @@ class BaseJsonRequest : public BaseCommandRequest,
   /**
    * @brief Calls child logic to process received event
    */
-  virtual void ProcessEvent (
-      const event_engine::Event<application_manager::MessagePtr,
-          vr_hmi_api::RPCName>& event) = 0;
+  virtual void ProcessEvent(
+      const event_engine::Event<application_manager::MessagePtr, int32_t>& event) = 0;
 
   /**
    * @brief Parse result code from response
@@ -106,6 +104,16 @@ class BaseJsonRequest : public BaseCommandRequest,
    */
   functional_modules::MobileFunctionID GetMobileFunctionID(
       vr_hmi_api::RPCName function_id);
+
+  /**
+   * @brief Prepares message for Mobile
+   * @param function_id request ID
+   * @param msg_params params from gpb message
+   * @param message that will be sent to mobile
+   */
+  void PrepareMessageForMobile(vr_hmi_api::RPCName function_id,
+                               const std::string& message_params,
+                               application_manager::MessagePtr message);
 
   /**
    * @brief send message (request/response) to HMI

@@ -69,7 +69,7 @@ VRModule::VRModule()
       proxy_(this),
       activated_connection_key_(-1),
       default_app_id_(-1),
-      supported_(false) {
+      supported_(true) {
   plugin_info_.name = "VRModulePlugin";
   plugin_info_.version = 1;
   SubcribeToRPCMessage();
@@ -147,15 +147,13 @@ functional_modules::ProcessResult VRModule::HandleMessage(
     return ProcessResult::FAILED;
   }
   msg->set_protocol_version(application_manager::ProtocolVersion::kV3);
-
   switch (msg->type()) {
     case application_manager::MessageType::kResponse:
     case application_manager::MessageType::kErrorResponse: {
-      if (functional_modules::hmi_api::activate_service
-          == msg->function_name()) {
+      if(MobileFunctionID::ACTIVATE_SERVICE == msg->function_id()) {
         VRModuleEvent event(msg, MobileFunctionID::ACTIVATE_SERVICE);
-        EventDispatcher<application_manager::MessagePtr,
-          functional_modules::MobileFunctionID>::instance()->raise_event(event);
+        EventDispatcher<application_manager::MessagePtr, int32_t>::instance()
+            ->raise_event(event);
       }
       break;
     }
