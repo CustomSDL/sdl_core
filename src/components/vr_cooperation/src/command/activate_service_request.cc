@@ -33,13 +33,11 @@
 #include "functional_module/function_ids.h"
 #include "vr_cooperation/commands/activate_service_request.h"
 #include "vr_cooperation/service_module.h"
-#include "vr_cooperation/vr_module_constants.h"
 #include "utils/logger.h"
 
 namespace vr_cooperation {
 
 namespace commands {
-const int kVoiceRecognition = 0;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "ActivateServiceRequest")
 

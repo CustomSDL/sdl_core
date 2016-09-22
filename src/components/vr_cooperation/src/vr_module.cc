@@ -69,7 +69,7 @@ VRModule::VRModule()
       proxy_(this),
       activated_connection_key_(-1),
       default_app_id_(-1),
-      supported_(true) {
+      supported_(false) {
   plugin_info_.name = "VRModulePlugin";
   plugin_info_.version = 1;
   SubcribeToRPCMessage();
