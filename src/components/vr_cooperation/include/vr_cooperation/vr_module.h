@@ -150,72 +150,54 @@ class VRModule : public functional_modules::GenericModule,
   /**
    * @brief IsServiceSupported return true if VR service is supported
    */
-  virtual bool IsServiceSupported() const {
-    return supported_;
-  }
+  virtual bool IsServiceSupported() const;
 
   /**
    * @brief EnableSupport
    */
-  virtual void EnableSupport() {
-    supported_ = true;
-  }
+  virtual void EnableSupport();
 
   /**
    * @brief DisableSupport
    */
-  virtual void DisableSupport() {
-    supported_ = false;
-  }
+  virtual void DisableSupport();
 
   /**
    * @brief Returns key of application that process VR requests.
    * @return mobile application connection key
    */
-  virtual int32_t activated_connection_key() const {
-    return activated_connection_key_;
-  }
+  virtual int32_t activated_connection_key() const;
 
   /**
    * @brief Sets key of application that process VR requests. It happens
    *        when ActivateServiceRequest come from HU
    * @param connection_key key of activate application
    */
-  virtual void ActivateService(int32_t connection_key) {
-    activated_connection_key_ = connection_key;
-  }
+  virtual void ActivateService(int32_t connection_key);
 
   /**
    * @brief Reset key of application that process VR requests. It happens
    *        when OnDeactivatedService notification come from HU
    */
-  virtual void DeactivateService() {
-    activated_connection_key_ = 0;
-  }
+  virtual void DeactivateService();
 
   /**
    * @brief IsDefaultService return true if app is default for service
    * false otherwise
    * @param app_id application id
    */
-  virtual bool IsDefaultService(int32_t app_id) const {
-    return default_app_id_ == app_id;
-  }
+  virtual bool IsDefaultService(int32_t app_id) const;
 
   /**
    * @brief SetDefaultService setter for default vr-service app id
    * @param app_id default vr-service app id
    */
-  virtual void SetDefaultService(int32_t app_id) {
-    default_app_id_ = app_id;
-  }
+  virtual void SetDefaultService(int32_t app_id);
 
   /**
    * @brief ResetDefaultService
    */
-  virtual void ResetDefaultService() {
-    default_app_id_ = 0;
-  }
+  virtual void ResetDefaultService();
 
   /**
    * @brief Returns unique correlation ID for next HMI request

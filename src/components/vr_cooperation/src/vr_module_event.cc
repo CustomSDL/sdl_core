@@ -36,8 +36,7 @@ namespace vr_cooperation {
 
 VRModuleEvent::VRModuleEvent(const application_manager::MessagePtr& message,
                              const functional_modules::MobileFunctionID& id)
-    : event_engine::Event<application_manager::MessagePtr,
-        functional_modules::MobileFunctionID>(message, id) {
+    : event_engine::Event<application_manager::MessagePtr, int32_t>(message, id) {
 }
 
 VRModuleEvent::~VRModuleEvent() {

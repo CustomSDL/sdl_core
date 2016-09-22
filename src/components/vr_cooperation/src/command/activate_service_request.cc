@@ -56,14 +56,15 @@ void ActivateServiceRequest::Execute() {
   if (gpb_message().has_params() && params.ParseFromString(gpb_message().params())) {
     int32_t app_id = params.appid();
     parent()->ActivateService(app_id);
-   }
-  application_manager::MessagePtr message_to_send;
+  }
+  application_manager::MessagePtr message_to_send =
+      new application_manager::Message(protocol_handler::MessagePriority::kDefault);
+  message_to_send->set_message_type(application_manager::MessageType::kRequest);
   SendMessageToMobile(message_to_send);
 }
 
 void ActivateServiceRequest::ProcessEvent(
-    const event_engine::Event<application_manager::MessagePtr,
-                              vr_hmi_api::RPCName>& event) {
+    const event_engine::Event<application_manager::MessagePtr, int32_t>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value value;
   Json::Reader reader;

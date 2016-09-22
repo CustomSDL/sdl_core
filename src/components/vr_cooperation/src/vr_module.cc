@@ -69,7 +69,7 @@ VRModule::VRModule()
       proxy_(this),
       activated_connection_key_(-1),
       default_app_id_(-1),
-      supported_(false) {
+      supported_(true) {
   plugin_info_.name = "VRModulePlugin";
   plugin_info_.version = 1;
   SubcribeToRPCMessage();
@@ -147,15 +147,13 @@ functional_modules::ProcessResult VRModule::HandleMessage(
     return ProcessResult::FAILED;
   }
   msg->set_protocol_version(application_manager::ProtocolVersion::kV3);
-
   switch (msg->type()) {
     case application_manager::MessageType::kResponse:
     case application_manager::MessageType::kErrorResponse: {
-      if (functional_modules::hmi_api::activate_service
-          == msg->function_name()) {
+      if (MobileFunctionID::ACTIVATE_SERVICE == msg->function_id()) {
         VRModuleEvent event(msg, MobileFunctionID::ACTIVATE_SERVICE);
-        EventDispatcher<application_manager::MessagePtr,
-          functional_modules::MobileFunctionID>::instance()->raise_event(event);
+        EventDispatcher<application_manager::MessagePtr, int32_t>::instance()
+            ->raise_event(event);
       }
       break;
     }
@@ -314,6 +312,51 @@ void VRModule::RegisterRequest(int32_t correlation_id,
 void VRModule::UnregisterRequest(int32_t correlation_id) {
   LOG4CXX_AUTO_TRACE(logger_);
   request_controller_.DeleteRequest(correlation_id);
+}
+
+bool VRModule::IsServiceSupported() const {
+  LOG4CXX_DEBUG(logger_, "Value of supported_: " << supported_);
+  return supported_;
+}
+
+void VRModule::EnableSupport() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  supported_ = true;
+}
+
+void VRModule::DisableSupport() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  supported_ = false;
+}
+
+int32_t VRModule::activated_connection_key() const {
+  LOG4CXX_DEBUG(logger_, "activated_connection_key_: " << activated_connection_key_);
+  return activated_connection_key_;
+}
+
+void VRModule::ActivateService(int32_t connection_key) {
+  LOG4CXX_DEBUG(logger_, "Activated app_id: " << connection_key);
+  activated_connection_key_ = connection_key;
+}
+
+void VRModule::DeactivateService() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  activated_connection_key_ = 0;
+}
+
+bool VRModule::IsDefaultService(int32_t app_id) const {
+  LOG4CXX_DEBUG(logger_, "Default service is: " << (default_app_id_ == app_id));
+  return default_app_id_ == app_id;
+}
+
+void VRModule::SetDefaultService(int32_t app_id) {
+  LOG4CXX_DEBUG(logger_, "AppId for default service: " << app_id);
+  default_app_id_ = app_id;
+}
+
+void VRModule::ResetDefaultService() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  default_app_id_ = 0;
 }
 
 }  // namespace vr_cooperation

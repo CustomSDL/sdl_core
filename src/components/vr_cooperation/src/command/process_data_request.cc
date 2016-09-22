@@ -54,7 +54,9 @@ ProcessDataRequest::~ProcessDataRequest() {
 
 void ProcessDataRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-  application_manager::MessagePtr message_to_send;
+  application_manager::MessagePtr message_to_send =
+      new application_manager::Message(protocol_handler::MessagePriority::kDefault);
+  message_to_send->set_message_type(application_manager::MessageType::kRequest);
   SendMessageToMobile(message_to_send);
 }
 

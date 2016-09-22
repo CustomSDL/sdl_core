@@ -33,6 +33,7 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_COMMANDS_ACTIVATE_SERVICE_REQUEST_H_
 
+#include <string>
 #include "vr_cooperation/commands/base_json_request.h"
 
 namespace vr_cooperation {
@@ -67,8 +68,7 @@ class ActivateServiceRequest : public BaseJsonRequest {
    * @brief Handles received event
    */
   virtual void ProcessEvent(
-      const event_engine::Event<application_manager::MessagePtr,
-                                vr_hmi_api::RPCName>& event);
+      const event_engine::Event<application_manager::MessagePtr, int32_t>& event);
 
  private:
   /**
