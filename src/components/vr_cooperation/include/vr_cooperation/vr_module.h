@@ -134,6 +134,14 @@ class VRModule : public functional_modules::GenericModule,
   virtual void OnReady();
 
   /**
+   * Adds request from request controller
+   * @param command pointer to command
+   * @param correlation_id request id
+   */
+  virtual void RegisterRequest(int32_t correlation_id,
+                               commands::Command* command);
+
+  /**
    * Removed request from request controller
    * @param correlation_id request id
    */

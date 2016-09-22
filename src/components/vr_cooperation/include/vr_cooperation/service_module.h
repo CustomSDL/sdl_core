@@ -51,6 +51,14 @@ class ServiceModule {
   virtual int32_t GetNextCorrelationID() = 0;
 
   /**
+   * Adds request from request controller
+   * @param command pointer to command
+   * @param correlation_id request id
+   */
+  virtual void RegisterRequest(int32_t correlation_id,
+                               commands::Command* command) = 0;
+
+  /**
    * Unregisters request
    * @param correlation_id unique id of request
    */

@@ -284,7 +284,11 @@ void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
 void VRModule::OnReady() {
   LOG4CXX_AUTO_TRACE(logger_);
   commands::Command* command = CommandFactory::Create(this);
-  command->Run();
+  if (NULL != command) {
+    command->Run();
+  } else {
+    LOG4CXX_ERROR(logger_, "Couldn't create support service command");
+  }
 }
 
 void VRModule::SendUnsupportedServiceResponse(
@@ -299,6 +303,12 @@ void VRModule::SendUnsupportedServiceResponse(
   Json::FastWriter writer;
   msg->set_json_message(writer.write(msg_params));
   service()->SendMessageToMobile(msg);
+}
+
+void VRModule::RegisterRequest(int32_t correlation_id,
+                               commands::Command* command) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  request_controller_.AddRequest(correlation_id, command);
 }
 
 void VRModule::UnregisterRequest(int32_t correlation_id) {
