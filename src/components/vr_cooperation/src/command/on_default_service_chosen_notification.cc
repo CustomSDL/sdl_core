@@ -69,7 +69,7 @@ void OnDefaultServiceChosenNotification::Execute() {
       LOG4CXX_WARN(logger_, "Could not parse params from message");
     }
   } else {
-    LOG4CXX_ERROR(logger_, "Error: Message doesn't contain OnDefaultServiceChosenNotification params");
+    parent()->ResetDefaultService();
   }
 }
 
