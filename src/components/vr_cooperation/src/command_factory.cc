@@ -41,6 +41,7 @@
 #include "vr_cooperation/commands/register_service_request.h"
 #include "vr_cooperation/commands/on_register_service_notification.h"
 #include "vr_cooperation/commands/activate_service_request.h"
+#include "vr_cooperation/commands/process_data_request.h"
 #include "vr_cooperation/commands/support_service_request.h"
 
 namespace vr_cooperation {
@@ -89,6 +90,8 @@ commands::Command* CommandFactory::Create(
       return new commands::OnDefaultServiceChosenNotification(parent, message);
     case vr_hmi_api::ACTIVATE:
       return new commands::ActivateServiceRequest(parent, message);
+    case vr_hmi_api::PROCESS_DATA:
+      return new commands::ProcessDataRequest(parent, message);
     default:
       return NULL;
   }

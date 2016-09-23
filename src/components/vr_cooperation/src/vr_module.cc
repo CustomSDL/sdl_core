@@ -154,6 +154,10 @@ functional_modules::ProcessResult VRModule::HandleMessage(
         VRModuleEvent event(msg, MobileFunctionID::ACTIVATE_SERVICE);
         EventDispatcher<application_manager::MessagePtr, int32_t>::instance()
             ->raise_event(event);
+      } else if (MobileFunctionID::PROCESS_DATA == msg->function_id()) {
+        VRModuleEvent event(msg, MobileFunctionID::PROCESS_DATA);
+        EventDispatcher<application_manager::MessagePtr, int32_t>::instance()
+            ->raise_event(event);
       }
       break;
     }
@@ -316,7 +320,7 @@ void VRModule::UnregisterRequest(int32_t correlation_id) {
 
 bool VRModule::IsServiceSupported() const {
   LOG4CXX_DEBUG(logger_, "Value of supported_: " << supported_);
-  return supported_;
+  return true;
 }
 
 void VRModule::EnableSupport() {
