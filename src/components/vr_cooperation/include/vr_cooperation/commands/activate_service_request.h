@@ -70,6 +70,11 @@ class ActivateServiceRequest : public BaseJsonRequest {
   virtual void ProcessEvent(
       const event_engine::Event<application_manager::MessagePtr, int32_t>& event);
 
+  /**
+   * @brief ActivateServiceRequest on timeout reaction
+   */
+  virtual void OnTimeout();
+
  private:
   /**
    * @brief Gets params from json value

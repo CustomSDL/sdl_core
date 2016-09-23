@@ -66,7 +66,7 @@ class BaseJsonRequest : public BaseCommandRequest,
   /**
    * @brief BaseJsonRequest on timeout reaction
    */
-  virtual void OnTimeout();
+  virtual void OnTimeout() = 0;
 
   /**
    * @brief This method will be called when receive an event

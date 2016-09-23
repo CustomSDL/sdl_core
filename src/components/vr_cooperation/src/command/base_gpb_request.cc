@@ -75,12 +75,18 @@ void BaseGpbRequest::SendMessageToHMI(
   EventDispatcher<vr_hmi_api::ServiceMessage, vr_hmi_api::RPCName>::instance()
       ->add_observer(message.rpc(), message.correlation_id(), this);
   parent_->SendMessageToHMI(message);
+  if(vr_hmi_api::RESPONSE == message.rpc_type()) {
+    parent_->UnregisterRequest(message.correlation_id());
+  }
 }
 
 void BaseGpbRequest::SendMessageToMobile(
     application_manager::MessagePtr message) {
   LOG4CXX_AUTO_TRACE(logger_);
   parent_->SendMessageToMobile(message);
+  if(application_manager::MessageType::kResponse == message->type()) {
+    parent_->UnregisterRequest(message->correlation_id());
+  }
 }
 
 }  // namespace commands
