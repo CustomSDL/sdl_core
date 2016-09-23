@@ -376,21 +376,21 @@ void VRModule::RegisterService(int32_t app_id) {
 
 void VRModule::UnregisterService(int32_t app_id) {
   LOG4CXX_AUTO_TRACE(logger_);
-  std::vector<int32_t>::iterator it = registered_apps_.begin();
-  for (it = registered_apps_.begin(); it != registered_apps_.end(); ++it) {
-    if (*it == app_id) {
-      registered_apps_.erase(it);
-      application_manager::MessagePtr notification_msg =
-          new application_manager::Message(
-              protocol_handler::MessagePriority::kDefault);
-      notification_msg->set_message_type(
-          application_manager::MessageType::kNotification);
-      commands::Command* command = CommandFactory::Create(this,
-                                                          notification_msg);
-      if (command) {
-        command->Run();
-        delete command;
-      }
+  std::vector<int32_t>::iterator it = std::find(registered_apps_.begin(),
+                                                registered_apps_.end(), app_id);
+  if (it != registered_apps_.end()) {
+    registered_apps_.erase(it);
+    application_manager::MessagePtr notification_msg =
+        new application_manager::Message(
+            protocol_handler::MessagePriority::kDefault);
+    notification_msg->set_message_type(
+        application_manager::MessageType::kNotification);
+    notification_msg->set_connection_key(app_id);
+    notification_msg->set_function_id(MobileFunctionID::UNREGISTER_SERVICE);
+    commands::Command* command = CommandFactory::Create(this, notification_msg);
+    if (command) {
+      command->Run();
+      delete command;
     }
   }
 }
