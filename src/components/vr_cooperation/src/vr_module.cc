@@ -154,6 +154,10 @@ functional_modules::ProcessResult VRModule::HandleMessage(
         VRModuleEvent event(msg, MobileFunctionID::ACTIVATE_SERVICE);
         EventDispatcher<application_manager::MessagePtr, int32_t>::instance()
             ->raise_event(event);
+      } else if (MobileFunctionID::PROCESS_DATA == msg->function_id()) {
+        VRModuleEvent event(msg, MobileFunctionID::PROCESS_DATA);
+        EventDispatcher<application_manager::MessagePtr, int32_t>::instance()
+            ->raise_event(event);
       }
       break;
     }

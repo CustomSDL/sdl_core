@@ -75,8 +75,7 @@ void ProcessDataRequest::Execute() {
 }
 
 void ProcessDataRequest::ProcessEvent(
-    const event_engine::Event<application_manager::MessagePtr,
-        vr_hmi_api::RPCName>& event) {
+    const event_engine::Event<application_manager::MessagePtr, int32_t>& event) {
   LOG4CXX_AUTO_TRACE(logger_);
   Json::Value value;
   Json::Reader reader;

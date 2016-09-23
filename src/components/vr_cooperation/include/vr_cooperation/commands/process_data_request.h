@@ -67,8 +67,7 @@ class ProcessDataRequest : public BaseJsonRequest {
    * @brief Handles received event
    */
   virtual void ProcessEvent(
-      const event_engine::Event<application_manager::MessagePtr,
-                                vr_hmi_api::RPCName>& event);
+      const event_engine::Event<application_manager::MessagePtr, int32_t>& event);
 
  private:
   /**
