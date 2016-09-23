@@ -77,7 +77,7 @@ void RegisterServiceRequest::SendNotificationToHMI() {
   LOG4CXX_AUTO_TRACE(logger_);
   application_manager::MessagePtr request_json_msg = json_message();
   application_manager::Message* notification_message =
-      new application_manager::Message(*(request_json_msg.get()));
+      new application_manager::Message(*request_json_msg);
   application_manager::MessagePtr notification_json_msg(notification_message);
   notification_json_msg->set_message_type(
       application_manager::MessageType::kNotification);
