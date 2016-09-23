@@ -58,14 +58,18 @@ void OnDefaultServiceChosenNotification::Execute() {
 
   vr_hmi_api::OnDefaultServiceChosenNotification params;
   vr_hmi_api::ServiceMessage msg = message();
-  if (msg.has_params() && params.ParseFromString(msg.params())) {
-    if(params.has_appid()) {
-      parent()->SetDefaultService(params.appid());
+  if (msg.has_params()) {
+    if (params.ParseFromString(msg.params())) {
+      if (params.has_appid()) {
+        parent()->SetDefaultService(params.appid());
+      } else {
+        parent()->ResetDefaultService();
+      }
     } else {
-      parent()->ResetDefaultService();
+      LOG4CXX_WARN(logger_, "Could not parse params from message");
     }
   } else {
-    LOG4CXX_WARN(logger_, "Could not get result from message");
+    parent()->ResetDefaultService();
   }
 }
 
