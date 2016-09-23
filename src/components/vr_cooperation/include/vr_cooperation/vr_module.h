@@ -33,6 +33,7 @@
 #ifndef SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_H_
 #define SRC_COMPONENTS_VR_COOPERATION_INCLUDE_VR_COOPERATION_VR_MODULE_H_
 
+#include <vector>
 #include "functional_module/generic_module.h"
 #include "utils/macro.h"
 #include "vr_cooperation/request_controller.h"
@@ -206,6 +207,18 @@ class VRModule : public functional_modules::GenericModule,
     return service()->GetNextCorrelationID();
   }
 
+  /**
+   * @brief Register service
+   * @param app_id application id
+   */
+  void RegisterService(int32_t app_id);
+
+  /**
+   * @brief Unregister service
+   * @param app_id application id
+   */
+  void UnregisterService(int32_t app_id);
+
  protected:
   /**
    * @brief Remove extension for all applications
@@ -245,6 +258,7 @@ class VRModule : public functional_modules::GenericModule,
   int32_t activated_connection_key_;
   int32_t default_app_id_;
   bool supported_;
+  std::vector<int32_t> registered_apps_;
 
   DISALLOW_COPY_AND_ASSIGN(VRModule);
 };

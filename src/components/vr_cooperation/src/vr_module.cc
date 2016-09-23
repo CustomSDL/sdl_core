@@ -207,8 +207,11 @@ bool VRModule::SetMessageType(application_manager::MessagePtr msg) const {
 
 void VRModule::RemoveAppExtension(uint32_t app_id) {
   LOG4CXX_AUTO_TRACE(logger_);
-  // This function is not implemented since there is no app extension
-  // functionality in VR Service
+  int32_t appplication_id = static_cast<int32_t>(app_id);
+  UnregisterService(appplication_id);
+  if (appplication_id == activated_connection_key_) {
+    DeactivateService();
+  }
 }
 
 void VRModule::RemoveAppExtensions() {
@@ -361,6 +364,35 @@ void VRModule::SetDefaultService(int32_t app_id) {
 void VRModule::ResetDefaultService() {
   LOG4CXX_AUTO_TRACE(logger_);
   default_app_id_ = 0;
+}
+
+void VRModule::RegisterService(int32_t app_id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  if (std::find(registered_apps_.begin(), registered_apps_.end(), app_id)
+      == registered_apps_.end()) {
+    registered_apps_.push_back(app_id);
+  }
+}
+
+void VRModule::UnregisterService(int32_t app_id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  std::vector<int32_t>::iterator it = std::find(registered_apps_.begin(),
+                                                registered_apps_.end(), app_id);
+  if (it != registered_apps_.end()) {
+    registered_apps_.erase(it);
+    application_manager::MessagePtr notification_msg =
+        new application_manager::Message(
+            protocol_handler::MessagePriority::kDefault);
+    notification_msg->set_message_type(
+        application_manager::MessageType::kNotification);
+    notification_msg->set_connection_key(app_id);
+    notification_msg->set_function_id(MobileFunctionID::UNREGISTER_SERVICE);
+    commands::Command* command = CommandFactory::Create(this, notification_msg);
+    if (command) {
+      command->Run();
+      delete command;
+    }
+  }
 }
 
 }  // namespace vr_cooperation

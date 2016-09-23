@@ -124,6 +124,18 @@ class ServiceModule {
    * Disables support of service
    */
   virtual void DisableSupport() = 0;
+
+  /**
+   * @brief Register service
+   * @param app_id application id
+   */
+  virtual void RegisterService(int32_t app_id) = 0;
+
+  /**
+   * @brief Unregister service
+   * @param app_id application id
+   */
+  virtual void UnregisterService(int32_t app_id) = 0;
 };
 }  // namespace vr_cooperation
 

@@ -62,6 +62,7 @@ void RegisterServiceRequest::Execute() {
   bool success = true;
   std::string info;
 
+  parent()->RegisterService(json_message()->connection_key());
   SendResponseToMobile(success, result.c_str(), info);
   if (success) {
     SendNotificationToHMI();

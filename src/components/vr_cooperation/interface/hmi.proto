@@ -24,6 +24,7 @@ enum RPCName{
   PROCESS_DATA = 3;
   ON_DEFAULT_CHOSEN = 4;
   SUPPORT_SERVICE = 5;
+  ON_UNREGISTER = 6;
 }
 
 //----------------SDL <=> HU- valid for SDL-RC Services approach only----------  
