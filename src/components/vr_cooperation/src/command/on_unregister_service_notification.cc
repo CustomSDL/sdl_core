@@ -47,7 +47,7 @@ void OnUnregisterServiceNotification::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
 
   vr_hmi_api::ServiceMessage service_message;
-  service_message.set_rpc(vr_hmi_api::ON_REGISTER);
+  service_message.set_rpc(vr_hmi_api::ON_UNREGISTER);
 
   vr_hmi_api::OnRegisterServiceNotification on_unregister_notification;
   int32_t app_id = json_message()->connection_key();

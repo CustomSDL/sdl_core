@@ -44,7 +44,7 @@ set (SOURCES
     ./src/command/on_default_service_chosen_notification.cc
     ./src/command/on_service_deactivated_notification.cc
     ./src/command/on_register_service_notification.cc
-#    ./src/command/on_unregister_service_notification.cc
+    ./src/command/on_unregister_service_notification.cc
     ./src/command/process_data_request.cc
     ./src/command/register_service_request.cc
     ./src/command/support_service_request.cc
