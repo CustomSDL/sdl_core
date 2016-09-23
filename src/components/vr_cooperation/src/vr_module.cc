@@ -320,7 +320,7 @@ void VRModule::UnregisterRequest(int32_t correlation_id) {
 
 bool VRModule::IsServiceSupported() const {
   LOG4CXX_DEBUG(logger_, "Value of supported_: " << supported_);
-  return true;
+  return supported_;
 }
 
 void VRModule::EnableSupport() {
