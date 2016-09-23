@@ -55,8 +55,22 @@ ProcessDataRequest::~ProcessDataRequest() {
 void ProcessDataRequest::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
   application_manager::MessagePtr message_to_send =
-      new application_manager::Message(protocol_handler::MessagePriority::kDefault);
+      new application_manager::Message(
+          protocol_handler::MessagePriority::kDefault);
   message_to_send->set_message_type(application_manager::MessageType::kRequest);
+  vr_hmi_api::ProcessDataRequest params;
+  if (gpb_message().has_params()
+      && params.ParseFromString(gpb_message().params())) {
+    std::vector<uint8_t> *binary_data = NULL;
+    if (params.has_raw()) {
+      binary_data = new std::vector<uint8_t>();
+      binary_data->assign(params.raw().begin(), params.raw().end());
+    }
+    if (NULL != binary_data) {
+      message_to_send->set_binary_data(binary_data);
+      message_to_send->set_data_size(binary_data->size());
+    }
+  }
   SendMessageToMobile(message_to_send);
 }
 

@@ -133,11 +133,6 @@ void BaseJsonRequest::PrepareMessageForMobile(
   msg[kId] = parent()->GetNextCorrelationID();
   msg[kJsonrpc] = kJsonRpc;
   msg[kMethod] = GetMobileFunctionID(function_id);
-  if (!message_params.empty()) {
-    // TODO(KKarlash):
-    // msg[kParams] = message_params;
-    // msg[kParams][json_keys::kAppId] = parent()->activated_connection_key();
-  }
   message->set_protocol_version(application_manager::ProtocolVersion::kV2);
   message->set_correlation_id(gpb_message_.correlation_id());
   Json::FastWriter writer;
