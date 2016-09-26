@@ -128,10 +128,10 @@ class BaseJsonRequest : public BaseCommandRequest,
   virtual void SendMessageToMobile(application_manager::MessagePtr message);
 
   /**
-   * @brief send response to hmi
+   * @brief send timeout response to hmi
    * @param message gpb message to hmi
    */
-  virtual void SendResponse(vr_hmi_api::ServiceMessage& message);
+  virtual void SendOnTimeoutResponse(vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief Interface method that executes specific logic of children classes

@@ -109,7 +109,7 @@ void ActivateServiceRequest::OnTimeout() {
   response.SerializeToString(&params);
   vr_hmi_api::ServiceMessage message;
   message.set_params(params);
-  SendResponse(message);
+  SendOnTimeoutResponse(message);
 }
 
 }  // namespace commands

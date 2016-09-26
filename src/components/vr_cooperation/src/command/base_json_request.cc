@@ -162,7 +162,7 @@ void BaseJsonRequest::SendMessageToMobile(
   }
 }
 
-void BaseJsonRequest::SendResponse(vr_hmi_api::ServiceMessage& message) {
+void BaseJsonRequest::SendOnTimeoutResponse(vr_hmi_api::ServiceMessage& message) {
   LOG4CXX_AUTO_TRACE(logger_);
   message.set_rpc(gpb_message_.rpc());
   message.set_rpc_type(vr_hmi_api::RESPONSE);
