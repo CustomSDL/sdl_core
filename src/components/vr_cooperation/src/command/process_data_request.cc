@@ -115,6 +115,17 @@ void ProcessDataRequest::PrepareGpbMessage(
   message.set_params(GetParams(value));
 }
 
+void ProcessDataRequest::OnTimeout() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  vr_hmi_api::ProcessDataResponse response;
+  response.set_result(vr_hmi_api::TIMED_OUT);
+  std::string params;
+  response.SerializeToString(&params);
+  vr_hmi_api::ServiceMessage message;
+  message.set_params(params);
+  SendOnTimeoutResponse(message);
+}
+
 }  // namespace commands
 
 }  // namespace vr_cooperation

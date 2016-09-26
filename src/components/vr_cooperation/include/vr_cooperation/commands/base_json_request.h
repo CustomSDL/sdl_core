@@ -66,7 +66,7 @@ class BaseJsonRequest : public BaseCommandRequest,
   /**
    * @brief BaseJsonRequest on timeout reaction
    */
-  virtual void OnTimeout();
+  virtual void OnTimeout() = 0;
 
   /**
    * @brief This method will be called when receive an event
@@ -126,6 +126,12 @@ class BaseJsonRequest : public BaseCommandRequest,
    * @param message json message for Mobile
    */
   virtual void SendMessageToMobile(application_manager::MessagePtr message);
+
+  /**
+   * @brief send timeout response to hmi
+   * @param message gpb message to hmi
+   */
+  virtual void SendOnTimeoutResponse(vr_hmi_api::ServiceMessage& message);
 
   /**
    * @brief Interface method that executes specific logic of children classes

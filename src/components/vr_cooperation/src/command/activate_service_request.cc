@@ -97,8 +97,19 @@ void ActivateServiceRequest::PrepareGpbMessage(
   LOG4CXX_AUTO_TRACE(logger_);
   message.set_rpc(vr_hmi_api::ACTIVATE);
   message.set_rpc_type(vr_hmi_api::RESPONSE);
-  message.set_correlation_id(parent()->GetNextCorrelationID());
+  message.set_correlation_id(gpb_message().correlation_id());
   message.set_params(GetParams(value));
+}
+
+void ActivateServiceRequest::OnTimeout() {
+  LOG4CXX_AUTO_TRACE(logger_);
+  vr_hmi_api::ActivateServiceResponse response;
+  response.set_result(vr_hmi_api::TIMED_OUT);
+  std::string params;
+  response.SerializeToString(&params);
+  vr_hmi_api::ServiceMessage message;
+  message.set_params(params);
+  SendOnTimeoutResponse(message);
 }
 
 }  // namespace commands
