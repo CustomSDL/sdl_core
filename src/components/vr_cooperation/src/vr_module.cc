@@ -336,7 +336,7 @@ int32_t VRModule::activated_connection_key() const {
 }
 
 void VRModule::ActivateService(int32_t connection_key) {
-  LOG4CXX_DEBUG(logger_, "Activated app_id: " << connection_key);
+  LOG4CXX_DEBUG(logger_, "Set activated app_id: " << connection_key);
   activated_connection_key_ = connection_key;
 }
 

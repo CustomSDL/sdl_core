@@ -117,16 +117,13 @@ void ProcessDataRequest::PrepareGpbMessage(
 
 void ProcessDataRequest::OnTimeout() {
   LOG4CXX_AUTO_TRACE(logger_);
-  vr_hmi_api::ServiceMessage message;
-  message.set_rpc(vr_hmi_api::PROCESS_DATA);
-  message.set_rpc_type(vr_hmi_api::RESPONSE);
-  message.set_correlation_id(gpb_message().correlation_id());
   vr_hmi_api::ProcessDataResponse response;
   response.set_result(vr_hmi_api::TIMED_OUT);
   std::string params;
   response.SerializeToString(&params);
+  vr_hmi_api::ServiceMessage message;
   message.set_params(params);
-  parent()->SendMessageToHMI(message);
+  SendResponse(message);
 }
 
 }  // namespace commands
