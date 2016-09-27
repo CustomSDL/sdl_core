@@ -111,7 +111,7 @@ void ProcessDataRequest::PrepareGpbMessage(
   LOG4CXX_AUTO_TRACE(logger_);
   message.set_rpc(vr_hmi_api::PROCESS_DATA);
   message.set_rpc_type(vr_hmi_api::RESPONSE);
-  message.set_correlation_id(parent()->GetNextCorrelationID());
+  message.set_correlation_id(gpb_message().correlation_id());
   message.set_params(GetParams(value));
 }
 
