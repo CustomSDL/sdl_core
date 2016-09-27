@@ -311,7 +311,7 @@ void VRModule::RegisterRequest(int32_t correlation_id,
 }
 
 void VRModule::UnregisterRequest(int32_t correlation_id) {
-  LOG4CXX_AUTO_TRACE(logger_);
+  LOG4CXX_DEBUG(logger_, "Unregister request for correlation_id: " << correlation_id);
   request_controller_.DeleteRequest(correlation_id);
 }
 
