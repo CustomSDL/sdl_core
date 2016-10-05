@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2013, Ford Motor Company
+ Copyright (c) 2016, Ford Motor Company
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_CAN_COOPERATION_INCLUDE_CAN_COOPERATION_VALIDATORS_STRUCT_VALIDATORS_CLIMATE_CONTROL_DATA_VALIDATOR_H_
-#define SRC_COMPONENTS_CAN_COOPERATION_INCLUDE_CAN_COOPERATION_VALIDATORS_STRUCT_VALIDATORS_CLIMATE_CONTROL_DATA_VALIDATOR_H_
+#ifndef SRC_COMPONENTS_CAN_COOPERATION_INCLUDE_CAN_COOPERATION_VALIDATORS_STRUCT_VALIDATORS_TEMPERATURE_VALIDATOR_H_
+#define SRC_COMPONENTS_CAN_COOPERATION_INCLUDE_CAN_COOPERATION_VALIDATORS_STRUCT_VALIDATORS_TEMPERATURE_VALIDATOR_H_
 
 #include "can_cooperation/validators/validator.h"
 #include "utils/singleton.h"
@@ -41,9 +41,10 @@ namespace can_cooperation {
 namespace validators {
 
 /**
- * @brief ClimateControlDataValidator class
+ * @brief TemperatureValidator class
  */
-class ClimateControlDataValidator : public Validator, public utils::Singleton<ClimateControlDataValidator> {
+class TemperatureValidator : public Validator, public utils::Singleton<
+    TemperatureValidator> {
  public:
 
   /**
@@ -56,29 +57,19 @@ class ClimateControlDataValidator : public Validator, public utils::Singleton<Cl
    */
   ValidationResult Validate(const Json::Value& json,
                             Json::Value& outgoing_json);
-  /**
-   * @brief Remove read only params from json
-   *
-   * @param json incoming json. Read only params will be cut off.
-   */
-  void RemoveReadOnlyParams(Json::Value& json);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(ClimateControlDataValidator);
-  FRIEND_BASE_SINGLETON_CLASS(ClimateControlDataValidator);
-  ClimateControlDataValidator();
+  DISALLOW_COPY_AND_ASSIGN(TemperatureValidator);
+  FRIEND_BASE_SINGLETON_CLASS(TemperatureValidator);
+  TemperatureValidator();
 
-  ValidationScope fan_speed_;
-  ValidationScope ac_enable_;
-  ValidationScope circulate_air_enable_;
-  ValidationScope auto_mode_enable_;
-  ValidationScope defrost_zone_;
-  ValidationScope dual_mode_enable_;
-  ValidationScope ac_max_enable_;
+  ValidationScope value_c_;
+  ValidationScope value_f_;
+
 };
 
 }  // namespace valdiators
 
 }  // namespace can_cooperation
 
-#endif  // SRC_COMPONENTS_CAN_COOPERATION_INCLUDE_CAN_COOPERATION_VALIDATORS_STRUCT_VALIDATORS_CLIMATE_CONTROL_DATA_VALIDATOR_H_
+#endif  // SRC_COMPONENTS_CAN_COOPERATION_INCLUDE_CAN_COOPERATION_VALIDATORS_STRUCT_VALIDATORS_TEMPERATURE_VALIDATOR_H_

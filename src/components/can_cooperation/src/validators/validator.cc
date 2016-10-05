@@ -136,12 +136,12 @@ ValidationResult Validator::Validate(const Json::Value& json,
 
     return ValidateIntValue(json.asInt(), validation_scope);
   } else if (ValueType::DOUBLE == validation_scope[ValidationParams::TYPE]) {
-      if (!json.isDouble()) {
-        LOG4CXX_ERROR(logger_, "Must be fractional!");
-        return ValidationResult::INVALID_DATA;
-      }
+    if ((!json.isDouble()) && (!json.isInt())) {     // Mobile SDK may to cut the floating point in some cases
+      LOG4CXX_ERROR(logger_, "Must be fractional!"); // for exmple: "35.0", "1.0". So it would be parsed like Integer
+      return ValidationResult::INVALID_DATA;         // by json reader.
+    }
 
-      return ValidateDoubleValue(json.asDouble(), validation_scope);
+    return ValidateDoubleValue(json.asDouble(), validation_scope);
   } else if (ValueType::BOOL == validation_scope[ValidationParams::TYPE]) {
     if (!json.isBool()) {
       LOG4CXX_ERROR(logger_, "Must be boolean!");
@@ -236,14 +236,6 @@ ValidationResult Validator::ValidateEnumValue(const std::string& value,
         value != enums_value::kRear  &&
         value != enums_value::kAll) {
       LOG4CXX_ERROR(logger_, "Wrong DefrostZone enum value!");
-      return ValidationResult::INVALID_DATA;
-    }
-  } else if (validation_scope[ValidationParams::ENUM_TYPE] ==
-      EnumType::TEMPERATURE_UNIT) {
-    if (value != enums_value::kKelvin      &&
-        value != enums_value::kFahrenheit  &&
-        value != enums_value::kCelsius) {
-      LOG4CXX_ERROR(logger_, "Wrong TemperatureUnit enum value!");
       return ValidationResult::INVALID_DATA;
     }
   } else if (validation_scope[ValidationParams::ENUM_TYPE] ==
