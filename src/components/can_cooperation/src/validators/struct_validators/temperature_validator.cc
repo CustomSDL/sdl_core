@@ -55,7 +55,7 @@ TemperatureValidator::TemperatureValidator() {
   // name="ValueF"
   value_f_[ValidationParams::TYPE] = ValueType::DOUBLE;
   value_f_[ValidationParams::MIN_VALUE] = 60;
-  value_f_[ValidationParams::MAX_VALUE] = 80;
+  value_f_[ValidationParams::MAX_VALUE] = 90;
   value_f_[ValidationParams::ARRAY] = 0;
   value_f_[ValidationParams::MANDATORY] = 0;
 
