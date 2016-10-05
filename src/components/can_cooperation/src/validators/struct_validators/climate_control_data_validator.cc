@@ -31,7 +31,9 @@
  */
 
 #include "can_cooperation/validators/struct_validators/climate_control_data_validator.h"
+#include "can_cooperation/validators/struct_validators/temperature_validator.h"
 #include "can_cooperation/can_module_constants.h"
+#include "can_cooperation/message_helper.h"
 
 namespace can_cooperation {
 
@@ -42,8 +44,8 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "ClimateControlDataValidator")
 using message_params::kFanSpeed;
 using message_params::kCurrentTemp;
 using message_params::kDesiredTemp;
-using message_params::kTemperatureUnit;
 using message_params::kACEnable;
+using message_params::kACMaxEnable;
 using message_params::kCirculateAirEnable;
 using message_params::kAutoModeEnable;
 using message_params::kDefrostZone;
@@ -57,30 +59,15 @@ ClimateControlDataValidator::ClimateControlDataValidator() {
   fan_speed_[ValidationParams::ARRAY] = 0;
   fan_speed_[ValidationParams::MANDATORY] = 0;
 
-  // name="currentTemp"
-  current_temp_[ValidationParams::TYPE] = ValueType::INT;
-  current_temp_[ValidationParams::MIN_VALUE] = 0;
-  current_temp_[ValidationParams::MAX_VALUE] = 100;
-  current_temp_[ValidationParams::ARRAY] = 0;
-  current_temp_[ValidationParams::MANDATORY] = 0;
-
-  // name="desiredTemp"
-  desired_temp_[ValidationParams::TYPE] = ValueType::INT;
-  desired_temp_[ValidationParams::MIN_VALUE] = 0;
-  desired_temp_[ValidationParams::MAX_VALUE] = 100;
-  desired_temp_[ValidationParams::ARRAY] = 0;
-  desired_temp_[ValidationParams::MANDATORY] = 0;
-
-  // name="temperatureUnit"
-  temperature_unit_[ValidationParams::TYPE] = ValueType::ENUM;
-  temperature_unit_[ValidationParams::ENUM_TYPE] = EnumType::TEMPERATURE_UNIT;
-  temperature_unit_[ValidationParams::ARRAY] = 0;
-  temperature_unit_[ValidationParams::MANDATORY] = 0;
-
   // name="acEnable"
   ac_enable_[ValidationParams::TYPE] = ValueType::BOOL;
   ac_enable_[ValidationParams::ARRAY] = 0;
   ac_enable_[ValidationParams::MANDATORY] = 0;
+
+  // name="acMaxEnable"
+  ac_max_enable_[ValidationParams::TYPE] = ValueType::BOOL;
+  ac_max_enable_[ValidationParams::ARRAY] = 0;
+  ac_max_enable_[ValidationParams::MANDATORY] = 0;
 
   // name="circulateAirEnable"
   circulate_air_enable_[ValidationParams::TYPE] = ValueType::BOOL;
@@ -104,11 +91,9 @@ ClimateControlDataValidator::ClimateControlDataValidator() {
   dual_mode_enable_[ValidationParams::MANDATORY] = 0;
 
   validation_scope_map_[kFanSpeed] = &fan_speed_;
-  validation_scope_map_[kCurrentTemp] =  &current_temp_;
-  validation_scope_map_[kTemperatureUnit] = &temperature_unit_;
   validation_scope_map_[kACEnable] = &ac_enable_;
+  validation_scope_map_[kACMaxEnable] = &ac_max_enable_;
   validation_scope_map_[kCirculateAirEnable] = &circulate_air_enable_;
-  validation_scope_map_[kDesiredTemp] = &desired_temp_;
   validation_scope_map_[kAutoModeEnable] = &auto_mode_enable_;
   validation_scope_map_[kDefrostZone] = &defrost_zone_;
   validation_scope_map_[kDualModeEnable] = &dual_mode_enable_;
@@ -125,8 +110,32 @@ ValidationResult ClimateControlDataValidator::Validate(const Json::Value& json,
 
   ValidationResult result = ValidateSimpleValues(json, outgoing_json);
 
+  if (result != ValidationResult::SUCCESS) {
+    return result;
+  }
+
+  if (IsMember(json, kCurrentTemp)) {
+    result = ClimateControlDataValidator::instance()->Validate(
+                                             json[kCurrentTemp],
+                                             outgoing_json[kCurrentTemp]);
+
+    if (result != ValidationResult::SUCCESS) {
+      return result;
+    }
+  }
+
+  if (IsMember(json, kDesiredTemp)) {
+    result = ClimateControlDataValidator::instance()->Validate(
+                                             json[kDesiredTemp],
+                                             outgoing_json[kDesiredTemp]);
+
+    if (result != ValidationResult::SUCCESS) {
+      return result;
+    }
+  }
+
   if (!outgoing_json.size()) {
-    return INVALID_DATA;
+    result = INVALID_DATA;
   }
 
   return result;
