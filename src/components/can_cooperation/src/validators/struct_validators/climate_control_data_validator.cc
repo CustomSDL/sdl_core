@@ -115,7 +115,7 @@ ValidationResult ClimateControlDataValidator::Validate(const Json::Value& json,
   }
 
   if (IsMember(json, kCurrentTemp)) {
-    result = ClimateControlDataValidator::instance()->Validate(
+    result = TemperatureValidator::instance()->Validate(
                                              json[kCurrentTemp],
                                              outgoing_json[kCurrentTemp]);
 
@@ -125,7 +125,7 @@ ValidationResult ClimateControlDataValidator::Validate(const Json::Value& json,
   }
 
   if (IsMember(json, kDesiredTemp)) {
-    result = ClimateControlDataValidator::instance()->Validate(
+    result = TemperatureValidator::instance()->Validate(
                                              json[kDesiredTemp],
                                              outgoing_json[kDesiredTemp]);
 

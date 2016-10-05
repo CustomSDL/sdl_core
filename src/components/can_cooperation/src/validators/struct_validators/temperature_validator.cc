@@ -64,20 +64,20 @@ TemperatureValidator::TemperatureValidator() {
 }
 
 ValidationResult TemperatureValidator::Validate(const Json::Value& json,
-                                                 Json::Value& outgoing_json) {
+                                                Json::Value& outgoing_json) {
   LOG4CXX_AUTO_TRACE(logger_);
 
   if (json.isMember(kUnit)) {
     if (enums_value::kFahrenheit == json[kUnit]) {
       if (!json.isMember(kValueF)) {
-        LOG4CXX_ERROR(logger_, "Param " <<kValueF <<"is missed!");
+        LOG4CXX_ERROR(logger_, "Param " <<kValueF <<" is missed!");
         return INVALID_DATA;
       }
 
       json.removeMember(kValueC);
     } else if (enums_value::kCelsius == json[kUnit]) {
       if (!json.isMember(kValueC)) {
-        LOG4CXX_ERROR(logger_, "Param " <<kValueC <<"is missed!");
+        LOG4CXX_ERROR(logger_, "Param " <<kValueC <<" is missed!");
         return INVALID_DATA;
       }
 
@@ -87,7 +87,7 @@ ValidationResult TemperatureValidator::Validate(const Json::Value& json,
       return ValidationResult::INVALID_DATA;
     }
   } else {
-    LOG4CXX_ERROR(logger_, "Mandatory param " <<kUnit <<"is missed!");
+    LOG4CXX_ERROR(logger_, "Mandatory param " <<kUnit <<" is missed!");
     return INVALID_DATA;
   }
 
