@@ -80,7 +80,7 @@
 #define APR_HAVE_LIMITS_H        1
 #define APR_HAVE_NETDB_H         1
 #define APR_HAVE_NETINET_IN_H    1
-#define APR_HAVE_NETINET_SCTP_H  1
+#define APR_HAVE_NETINET_SCTP_H  0
 #define APR_HAVE_NETINET_SCTP_UIO_H 0
 #define APR_HAVE_NETINET_TCP_H   1
 #define APR_HAVE_PROCESS_H       0
@@ -260,7 +260,7 @@ extern "C" {
 #define APR_HAVE_MEMCHR         1
 #define APR_HAVE_STRUCT_RLIMIT  1
 #define APR_HAVE_UNION_SEMUN    0
-#define APR_HAVE_SCTP           1
+#define APR_HAVE_SCTP           0
 #define APR_HAVE_IOVEC          1
 
 /*  APR Feature Macros */
@@ -278,7 +278,7 @@ extern "C" {
 #define APR_HAS_USER              1
 #define APR_HAS_LARGE_FILES       1
 #define APR_HAS_XTHREAD_FILES     0
-#define APR_HAS_OS_UUID           1
+#define APR_HAS_OS_UUID           0
 
 #define APR_PROCATTR_USER_SET_REQUIRES_PASSWORD 0
 
