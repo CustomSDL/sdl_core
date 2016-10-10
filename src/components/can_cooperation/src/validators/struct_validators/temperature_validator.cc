@@ -93,6 +93,8 @@ ValidationResult TemperatureValidator::Validate(const Json::Value& json,
     return INVALID_DATA;
   }
 
+  outgoing_json[kUnit] = json[kUnit];
+
   return ValidateSimpleValues(desiredJson, outgoing_json);
 }
 
