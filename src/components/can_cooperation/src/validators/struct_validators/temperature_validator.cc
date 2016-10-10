@@ -67,23 +67,21 @@ ValidationResult TemperatureValidator::Validate(const Json::Value& json,
                                                 Json::Value& outgoing_json) {
   LOG4CXX_AUTO_TRACE(logger_);
 
-  Json::Value desiredJson;
-
   if (json.isMember(kUnit)) {
-    if (enums_value::kFahrenheit == json[kUnit].asString()) {
+    if (enums_value::kFahrenheit == json[kUnit]) {
       if (!json.isMember(kValueF)) {
         LOG4CXX_ERROR(logger_, "Param " <<kValueF <<" is missed!");
         return INVALID_DATA;
       }
 
-      desiredJson[kValueF] = json[kValueF];
-    } else if (enums_value::kCelsius == json[kUnit].asString()) {
+      json.removeMember(kValueC);
+    } else if (enums_value::kCelsius == json[kUnit]) {
       if (!json.isMember(kValueC)) {
         LOG4CXX_ERROR(logger_, "Param " <<kValueC <<" is missed!");
         return INVALID_DATA;
       }
 
-      desiredJson[kValueC] = json[kValueC];
+      json.removeMember(kValueF);
     } else {
       LOG4CXX_ERROR(logger_, "Wrong TemperatureUnit enum value!");
       return ValidationResult::INVALID_DATA;
@@ -93,7 +91,7 @@ ValidationResult TemperatureValidator::Validate(const Json::Value& json,
     return INVALID_DATA;
   }
 
-  return ValidateSimpleValues(desiredJson, outgoing_json);
+  return ValidateSimpleValues(json, outgoing_json);
 }
 
 }  // namespace validators
