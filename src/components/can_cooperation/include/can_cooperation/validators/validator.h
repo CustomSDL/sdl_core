@@ -78,7 +78,8 @@ enum EnumType {
   RADIO_BAND,
   RADIO_STATE,
   DEFROST_ZONE,
-  BUTTON_PRESS_MODE
+  BUTTON_PRESS_MODE,
+  VENTILATION_MODE
 };
 
 // validation_scope map with data that will be used for validation(minlength. maxlength, etc.)

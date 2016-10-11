@@ -32,6 +32,7 @@
 
 #include "can_cooperation/validators/struct_validators/temperature_validator.h"
 #include "can_cooperation/can_module_constants.h"
+#include "can_cooperation/message_helper.h"
 
 namespace can_cooperation {
 
@@ -69,7 +70,7 @@ ValidationResult TemperatureValidator::Validate(const Json::Value& json,
 
   Json::Value desiredJson;
 
-  if (json.isMember(kUnit)) {
+  if (IsMember(json, kUnit)) {
     if (enums_value::kFahrenheit == json[kUnit].asString()) {
       if (!json.isMember(kValueF)) {
         LOG4CXX_ERROR(logger_, "Param " <<kValueF <<" is missed!");

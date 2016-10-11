@@ -302,6 +302,11 @@ const char kFahrenheit[] = "FAHRENHEIT";
 const char kCelsius[]    = "CELSIUS";
 // TemperatureUnit enum
 
+// VentilationMode  enum
+const char kUpper[] = "UPPER";
+const char kLower[] = "LOWER";
+const char kBoth[] = "BOTH";
+// VentilationMode  enum
 
 // ButtonName enum
 const char kACMax[]       = "AC_MAX";
