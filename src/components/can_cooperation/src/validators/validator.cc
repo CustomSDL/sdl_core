@@ -239,6 +239,14 @@ ValidationResult Validator::ValidateEnumValue(const std::string& value,
       return ValidationResult::INVALID_DATA;
     }
   } else if (validation_scope[ValidationParams::ENUM_TYPE] ==
+        EnumType::VENTILATION_MODE) {
+      if (value != enums_value::kUpper &&
+          value != enums_value::kLower &&
+          value != enums_value::kBoth) {
+        LOG4CXX_ERROR(logger_, "Wrong VentilationMode enum value!");
+        return ValidationResult::INVALID_DATA;
+      }
+  } else if (validation_scope[ValidationParams::ENUM_TYPE] ==
       EnumType::BUTTON_NAME) {
     if (value != enums_value::kACMax       &&
         value != enums_value::kAC          &&

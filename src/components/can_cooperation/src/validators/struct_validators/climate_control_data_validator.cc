@@ -50,6 +50,7 @@ using message_params::kCirculateAirEnable;
 using message_params::kAutoModeEnable;
 using message_params::kDefrostZone;
 using message_params::kDualModeEnable;
+using message_params::kVentilationMode;
 
 ClimateControlDataValidator::ClimateControlDataValidator() {
   // name="fanSpeed"
@@ -85,6 +86,12 @@ ClimateControlDataValidator::ClimateControlDataValidator() {
   defrost_zone_[ValidationParams::ARRAY] = 0;
   defrost_zone_[ValidationParams::MANDATORY] = 0;
 
+  // name="ventilationMode"
+  ventilation_mode_[ValidationParams::TYPE] = ValueType::ENUM;
+  ventilation_mode_[ValidationParams::ENUM_TYPE] = EnumType::VENTILATION_MODE;
+  ventilation_mode_[ValidationParams::ARRAY] = 0;
+  ventilation_mode_[ValidationParams::MANDATORY] = 0;
+
   // name="dualModeEnable"
   dual_mode_enable_[ValidationParams::TYPE] = ValueType::BOOL;
   dual_mode_enable_[ValidationParams::ARRAY] = 0;
@@ -97,6 +104,7 @@ ClimateControlDataValidator::ClimateControlDataValidator() {
   validation_scope_map_[kAutoModeEnable] = &auto_mode_enable_;
   validation_scope_map_[kDefrostZone] = &defrost_zone_;
   validation_scope_map_[kDualModeEnable] = &dual_mode_enable_;
+  validation_scope_map_[kVentilationMode] = &ventilation_mode_;
 }
 
 ValidationResult ClimateControlDataValidator::Validate(const Json::Value& json,

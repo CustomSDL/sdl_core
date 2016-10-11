@@ -75,6 +75,7 @@ class ClimateControlDataValidator : public Validator, public utils::Singleton<Cl
   ValidationScope defrost_zone_;
   ValidationScope dual_mode_enable_;
   ValidationScope ac_max_enable_;
+  ValidationScope ventilation_mode_;
 };
 
 }  // namespace valdiators
