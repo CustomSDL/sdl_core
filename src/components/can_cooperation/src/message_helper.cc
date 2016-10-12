@@ -102,6 +102,10 @@ bool IsMember(const Json::Value& value, const std::string& key) {
   return value.isMember(key);
 }
 
+bool IsEqual(const Json::Value& value, const std::string& str) {
+  return value.isString() && str == value.asString();
+}
+
 // TODO(KKolodiy): after creating commands for notification from HMI
 // this validate methods may move to commands
 bool MessageHelper::ValidateDeviceInfo(const Json::Value& value) {

@@ -106,6 +106,14 @@ class MessageHelper {
  */
 bool IsMember(const Json::Value& value, const std::string& key);
 
+/**
+ * Compares value with string value
+ * @param value Json value
+ * @param str string value
+ * @return true if parameters are equal
+ */
+bool IsEqual(const Json::Value& value, const std::string& str);
+
 }  // namespace can_cooperation
 
 #endif  // SRC_COMPONENTS_CAN_COOPERATION_INCLUDE_CAN_COOPERATION_MESSAGE_HELPER_H_
