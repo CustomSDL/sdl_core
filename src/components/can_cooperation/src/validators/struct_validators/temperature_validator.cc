@@ -71,16 +71,16 @@ ValidationResult TemperatureValidator::Validate(const Json::Value& json,
   Json::Value desiredJson;
 
   if (IsMember(json, kUnit)) {
-    if (enums_value::kFahrenheit == json[kUnit].asString()) {
-      if (!json.isMember(kValueF)) {
-        LOG4CXX_ERROR(logger_, "Param " <<kValueF <<" is missed!");
+    if (IsEqual(json[kUnit], enums_value::kFahrenheit)) {
+      if (!IsMember(json, kValueF)) {
+        LOG4CXX_ERROR(logger_, "Param " << kValueF << " is missed!");
         return INVALID_DATA;
       }
 
       desiredJson[kValueF] = json[kValueF];
-    } else if (enums_value::kCelsius == json[kUnit].asString()) {
-      if (!json.isMember(kValueC)) {
-        LOG4CXX_ERROR(logger_, "Param " <<kValueC <<" is missed!");
+    } else if (IsEqual(json[kUnit], enums_value::kCelsius)) {
+      if (!IsMember(json, kValueC)) {
+        LOG4CXX_ERROR(logger_, "Param " << kValueC << " is missed!");
         return INVALID_DATA;
       }
 
@@ -90,7 +90,7 @@ ValidationResult TemperatureValidator::Validate(const Json::Value& json,
       return ValidationResult::INVALID_DATA;
     }
   } else {
-    LOG4CXX_ERROR(logger_, "Mandatory param " <<kUnit <<" is missed!");
+    LOG4CXX_ERROR(logger_, "Mandatory param " << kUnit << " is missed!");
     return INVALID_DATA;
   }
 
