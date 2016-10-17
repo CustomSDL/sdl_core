@@ -32,9 +32,15 @@ function compile_protoc {
 			echo "Rebuild protoc"
 		fi
 	fi
-	echo "Compile protobuf in "$PROTOC_BUILD_PATH
 	rm -rf $PROTOC_BUILD_PATH
 	mkdir -p $PROTOC_BUILD_PATH
+	version=`automake --version | grep 1.14`
+	if [ -z "$version" ]; then
+		echo "Reconfigure protobuf to build using current version of automake tools"
+		cd $PATH_TO_PROTOBUF_REPO
+		./autogen.sh
+	fi
+	echo "Compile protobuf in "$PROTOC_BUILD_PATH
 	cd $PROTOC_BUILD_PATH
 	$PATH_TO_PROTOBUF_REPO/configure
 	make
