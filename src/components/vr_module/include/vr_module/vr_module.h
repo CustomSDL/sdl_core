@@ -51,13 +51,18 @@ typedef std::queue<protocol_handler::RawMessagePtr> ServiceMessageQueue;
 
 typedef Json::Value MessageFromMobile;
 class Channel;
+class PluginSender;
 
 class VRModule : public functional_modules::GenericModule,
     public VRProxyListener, public ServiceModule,
     public threads::MessageLoopThread<ServiceMessageQueue>::Handler {
  public:
   VRModule();
-  explicit VRModule(Channel *channel);
+
+#ifdef BUILD_TESTS
+  VRModule(PluginSender* sender, Channel* channel);
+#endif  // BUILD_TESTS
+
   ~VRModule();
   virtual const functional_modules::PluginInfo& GetPluginInfo() const;
   virtual void Start();
@@ -81,8 +86,7 @@ class VRModule : public functional_modules::GenericModule,
       mobile_apis::HMILevel::eType old_level);
 
   virtual int32_t GetNextCorrelationID() {
-    static int32_t next_correlation_id = 1;
-    return next_correlation_id++;
+    return ++next_correlation_id_;
   }
 
   virtual void OnReady();
@@ -117,14 +121,48 @@ class VRModule : public functional_modules::GenericModule,
     supported_ = false;
   }
 
+  /**
+   * @brief Function for processing remote services messages
+   * @param message Message with supporting params received
+   * @return processing result
+   */
+  virtual void ProcessMessageFromRemoteMobileService(
+      const protocol_handler::RawMessagePtr message);
+
+  /**
+   * @brief Function for processing remote service starting
+   * @param connection_key Key of started session.
+   */
+  virtual bool OnServiceStartedCallback(const uint32_t& connection_key,
+                                        const std::string& device_mac_address);
+
+  /**
+   * @brief Function for processing remote service stoping
+   * @param connection_key Key of started session.
+   */
+  virtual void OnServiceEndedCallback(const uint32_t& connection_key);
+
  private:
+  struct MobileService {
+    std::string app_id;
+    std::string device_id;
+  };
+
   static const functional_modules::ModuleID kModuleID = 405;
 
   /**
    * Registers service
    * @param app_id unique application ID
+   * @param device_id unique device ID
+   * @return true if service was registered on SDL side
    */
-  void RegisterService(int32_t app_id);
+  bool RegisterService(int32_t app_id, const std::string& device_id);
+
+  /**
+   * Unregisters service
+   * @param app_id unique application ID
+   */
+  void UnregisterService(int32_t app_id);
 
   /**
    * @brief Subscribes plugin to mobie rpc messages
@@ -147,38 +185,35 @@ class VRModule : public functional_modules::GenericModule,
    */
   void Handle(protocol_handler::RawMessagePtr message);
 
-  /**
-   * @brief Function for processing remote services messages
-   * @param message Message with supporting params received
-   * @return processing result
-   */
-  virtual void ProcessMessageFromRemoteMobileService(
-      const protocol_handler::RawMessagePtr message);
-
-  /**
-   * @brief Function for processing remote service starting
-   * @param connection_key Key of started session.
-   */
-  virtual void OnServiceStartedCallback(const uint32_t& connection_key);
-
-  /**
-   * @brief Function for processing remote service stoping
-   * @param connection_key Key of started session.
-   */
-  virtual void OnServiceEndedCallback(const uint32_t& connection_key);
-
   functional_modules::PluginInfo plugin_info_;
 
+#ifdef BUILD_TESTS
+  PluginSender* sender_;
+#endif  // BUILD_TESTS
   VRProxy proxy_;
   const commands::FactoryInterface* factory_;
   request_controller::RequestController request_controller_;
   bool supported_;
   int32_t active_service_;
-  int32_t default_service_;
+  MobileService default_service_;
   threads::MessageLoopThread<ServiceMessageQueue> messages_from_mobile_service_;
+  std::map<uint32_t, MobileService> services_;
+  int32_t next_correlation_id_;
 
   DISALLOW_COPY_AND_ASSIGN(VRModule);
+
+  friend bool operator==(const VRModule::MobileService& a,
+      const VRModule::MobileService& b);
+  FRIEND_TEST(IntegrationTest, SupportService);
+  FRIEND_TEST(IntegrationTest, OnRegisterService);
+  FRIEND_TEST(IntegrationTest, ActivateService);
+  FRIEND_TEST(IntegrationTest, OnDefaultServiceChosen);
+  FRIEND_TEST(IntegrationTest, OnDeactivateService);
+  FRIEND_TEST(IntegrationTest, ProcessData);
 };
+
+bool operator==(const VRModule::MobileService& a,
+    const VRModule::MobileService& b);
 
 EXPORT_FUNCTION(VRModule)
 

@@ -30,40 +30,56 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_module/commands/on_register_service.h"
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#include "mock_service_module.h"
+#include "vr_module/commands/on_unregister_service.h"
+#include "vr_module/interface/hmi.pb.h"
+#include "vr_module/interface/mobile.pb.h"
 
-#include "utils/logger.h"
-#include "vr_module/service_module.h"
+using ::testing::_;
+using ::testing::Return;
 
 namespace vr_module {
 namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRModule")
-
-OnRegisterService::OnRegisterService(const vr_hmi_api::ServiceMessage& message,
-                                     ServiceModule* module)
-    : module_(module),
-      message_(message) {
-  message_.set_rpc_type(vr_hmi_api::NOTIFICATION);
-  message_.set_correlation_id(module_->GetNextCorrelationID());
+MATCHER_P(ServiceMessageEq, expected, "") {
+  return arg.rpc() == expected.rpc()
+      && arg.rpc_type() == expected.rpc_type()
+      && arg.correlation_id() == expected.correlation_id()
+      && arg.params() == expected.params();
 }
 
-bool OnRegisterService::Execute() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  vr_hmi_api::OnRegisterServiceNotification notification;
-  if (notification.ParseFromString(message_.params())) {
-    notification.set_default_(module_->IsDefaultService(notification.appid()));
-    std::string params;
-    if (notification.SerializeToString(&params)) {
-      message_.set_params(params);
-      return module_->SendToHmi(message_);
-    } else {
-      LOG4CXX_ERROR(logger_, "Could not serialize message");
-    }
-  } else {
-    LOG4CXX_ERROR(logger_, "Could not get application id from message");
-  }
-  return false;
+class OnUnregisterServiceTest : public ::testing::Test {
+ protected:
+};
+
+TEST_F(OnUnregisterServiceTest, Execute) {
+  MockServiceModule service;
+
+  const int32_t kId = 1;
+  EXPECT_CALL(service, GetNextCorrelationID()).Times(1).WillOnce(Return(kId));
+  vr_hmi_api::ServiceMessage input;
+  input.set_rpc(vr_hmi_api::ON_UNREGISTER);
+  vr_hmi_api::OnUnregisterServiceNotification notification;
+  notification.set_appid(3);
+  std::string params;
+  notification.SerializeToString(&params);
+  input.set_params(params);
+  OnUnregisterService cmd(input, &service);
+
+  vr_hmi_api::ServiceMessage expected;
+  expected.set_rpc(vr_hmi_api::ON_UNREGISTER);
+  expected.set_rpc_type(vr_hmi_api::NOTIFICATION);
+  expected.set_correlation_id(kId);
+  vr_hmi_api::OnUnregisterServiceNotification hmi_notification;
+  hmi_notification.set_appid(3);
+  std::string hmi_params;
+  hmi_notification.SerializeToString(&hmi_params);
+  expected.set_params(hmi_params);
+  EXPECT_CALL(service, SendToHmi(ServiceMessageEq(expected))).Times(1).WillOnce(
+      Return(true));
+  EXPECT_TRUE(cmd.Execute());
 }
 
 }  // namespace commands

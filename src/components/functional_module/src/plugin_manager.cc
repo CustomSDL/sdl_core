@@ -400,14 +400,14 @@ bool PluginManager::OnMessageReceived(
 
 bool PluginManager::OnServiceStartedCallback(
     const uint32_t& connection_key,
-    const protocol_handler::ServiceType& type) const {
+    const protocol_handler::ServiceType& type,
+    const std::string& device_mac_address) const {
   LOG4CXX_AUTO_TRACE(logger_);
 
   ModulePtr ptr = FindPluginForSpecifiedService(type);
 
   if (ptr) {
-    ptr->OnServiceStartedCallback(connection_key);
-    return true;
+    return ptr->OnServiceStartedCallback(connection_key, device_mac_address);
   }
 
   return false;

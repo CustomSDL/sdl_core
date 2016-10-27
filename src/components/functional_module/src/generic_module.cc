@@ -67,8 +67,10 @@ void GenericModule::ProcessMessageFromRemoteMobileService(
   DCHECK(false); // must be processed only in plugins for remote services
 }
 
-void GenericModule::OnServiceStartedCallback(const uint32_t& connection_key) {
+bool GenericModule::OnServiceStartedCallback(const uint32_t& connection_key,
+                                             const std::string& device_mac_address) {
   DCHECK(false); // must be processed only in plugins for remote services
+  return false;
 }
 
 void GenericModule::OnServiceEndedCallback(const uint32_t& connection_key) {

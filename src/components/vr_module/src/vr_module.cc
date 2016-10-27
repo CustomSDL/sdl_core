@@ -37,6 +37,10 @@
 #include "vr_module/commands/factory.h"
 #include "vr_module/event_engine/event_dispatcher.h"
 #include "vr_module/hmi_event.h"
+#include "vr_module/interface/hmi.pb.h"
+#ifdef BUILD_TESTS
+#  include "vr_module/plugin_sender.h"
+#endif  // BUILD_TESTS
 #include "vr_module/mobile_event.h"
 //#include "protocol/common.h"
 #include "functional_module/plugin_manager.h"
@@ -57,32 +61,38 @@ PLUGIN_FACTORY(VRModule)
 VRModule::VRModule()
     : GenericModule(kModuleID),
       proxy_(this),
-      factory_(new commands::Factory(this)),
       supported_(false),
       active_service_(0),
-      default_service_(0),
-      messages_from_mobile_service_("IncomingFromMobileRemoteService", this) {
+      default_service_(),
+      messages_from_mobile_service_("IncomingFromMobileRemoteService", this),
+      next_correlation_id_(0) {
+  factory_ = new commands::Factory(this);
   plugin_info_.name = "VRModulePlugin";
   plugin_info_.version = 1;
   plugin_info_.service_type = functional_modules::ServiceType::VR;
   SubscribeToRpcMessages();
 }
 
-VRModule::VRModule(Channel* channel)
+#ifdef BUILD_TESTS
+VRModule::VRModule(PluginSender* sender, Channel* channel)
     : GenericModule(kModuleID),
+      sender_(sender),
       proxy_(this, channel),
-      factory_(new commands::Factory(this)),
       supported_(false),
       active_service_(0),
-      default_service_(0),
-      messages_from_mobile_service_("IncomingFromMobileRemoteService", this) {
+      default_service_(),
+      messages_from_mobile_service_("IncomingFromMobileRemoteService", this),
+      next_correlation_id_(0) {
+  factory_ = new commands::Factory(this);
   plugin_info_.name = "VRModulePlugin";
   plugin_info_.version = 1;
   plugin_info_.service_type = functional_modules::ServiceType::VR;
   SubscribeToRpcMessages();
 }
+#endif  // BUILD_TESTS
 
 VRModule::~VRModule() {
+  delete factory_;
 }
 
 void VRModule::CheckSupport() {
@@ -93,7 +103,9 @@ void VRModule::CheckSupport() {
 }
 
 void VRModule::OnReady() {
+#ifndef BUILD_TESTS
   CheckSupport();
+#endif  // BUILD_TESTS
 }
 
 void VRModule::OnReceived(const vr_hmi_api::ServiceMessage& message) {
@@ -152,10 +164,14 @@ bool VRModule::SendToMobile(
                                        data, size,
                                        0x10);
 
+#ifdef BUILD_TESTS
+  sender_->SendMessageToRemoteMobileService(messageToMobile);
+#else  // BUILD_TESTS
   // TODO(VS): GenericModule may contain pointer to PluginManager(can be fixed if
   //           PluginManager will be redesigned from singleton)
   functional_modules::PluginManager::instance()
       ->SendMessageToRemoteMobileService(messageToMobile);
+#endif  // BUILD_TESTS
 
   return true;
 }
@@ -288,21 +304,45 @@ bool VRModule::HasActivatedService() const {
 
 void VRModule::SetDefaultService(int32_t app_id) {
   LOG4CXX_AUTO_TRACE(logger_);
-  default_service_ = app_id;
+  bool is_exist = services_.find(app_id) != services_.end();
+  if (is_exist) {
+    LOG4CXX_DEBUG(logger_, "app_id: " << app_id);
+    default_service_ = services_[app_id];
+  } else {
+    LOG4CXX_WARN(logger_, "Service " << app_id << " is not exist");
+  }
 }
 
 void VRModule::ResetDefaultService() {
   LOG4CXX_AUTO_TRACE(logger_);
-  default_service_ = 0;
+  default_service_ = MobileService();
 }
 
 bool VRModule::IsDefaultService(int32_t app_id) const {
   LOG4CXX_AUTO_TRACE(logger_);
-  return default_service_ == app_id;
+  std::map<uint32_t, MobileService>::const_iterator i = services_.find(app_id);
+  bool is_exist = (i != services_.end());
+  if (is_exist) {
+    LOG4CXX_DEBUG(logger_, "app_id: " << app_id);
+    return default_service_ == i->second;
+  } else {
+    LOG4CXX_WARN(logger_, "Service " << app_id << " is not exist");
+    return false;
+  }
 }
 
-void VRModule::RegisterService(int32_t app_id) {
+bool VRModule::RegisterService(int32_t app_id, const std::string& device_id) {
   LOG4CXX_AUTO_TRACE(logger_);
+  application_manager::ApplicationSharedPtr app =
+      service()->GetApplication(app_id);
+  if (app) {
+    std::string mobile_app_id = app->mobile_app_id();
+    services_[app_id] = { mobile_app_id, device_id };
+  } else {
+    LOG4CXX_ERROR(logger_, "Could not find application " << app_id);
+    return false;
+  }
+
   vr_hmi_api::ServiceMessage message;
   message.set_rpc(vr_hmi_api::ON_REGISTER);
   vr_hmi_api::OnRegisterServiceNotification notification;
@@ -313,6 +353,7 @@ void VRModule::RegisterService(int32_t app_id) {
   }
   commands::CommandPtr command = factory_->Create(message);
   RunCommand(command);
+  return true;
 }
 
 void VRModule::Handle(protocol_handler::RawMessagePtr message) {
@@ -335,9 +376,35 @@ void VRModule::ProcessMessageFromRemoteMobileService(
   messages_from_mobile_service_.PostMessage(message);
 }
 
-void VRModule::OnServiceStartedCallback(const uint32_t& connection_key) {
+bool VRModule::OnServiceStartedCallback(const uint32_t& connection_key,
+                                        const std::string& device_mac_address) {
   LOG4CXX_AUTO_TRACE(logger_);
-  RegisterService(connection_key);
+
+  if (!IsSupported()) {
+    return false;
+  }
+
+  return RegisterService(connection_key, device_mac_address);
+}
+
+bool operator ==(const VRModule::MobileService& a,
+    const VRModule::MobileService& b) {
+  return a.app_id == b.app_id && a.device_id == b.device_id;
+}
+
+void VRModule::UnregisterService(int32_t app_id) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  services_.erase(app_id);
+  vr_hmi_api::ServiceMessage message;
+  message.set_rpc(vr_hmi_api::ON_UNREGISTER);
+  vr_hmi_api::OnUnregisterServiceNotification notification;
+  notification.set_appid(app_id);
+  std::string params;
+  if (notification.SerializeToString(&params)) {
+    message.set_params(params);
+  }
+  commands::CommandPtr command = factory_->Create(message);
+  RunCommand(command);
 }
 
 void VRModule::OnServiceEndedCallback(const uint32_t& connection_key) {
@@ -347,14 +414,16 @@ void VRModule::OnServiceEndedCallback(const uint32_t& connection_key) {
     DeactivateService();
   }
 
-  // TODO(VSemenyuk): here should be implemented reaction on service stopping(need to notify HMI)
+  UnregisterService(connection_key);
 }
 
 void VRModule::Start() {
+  LOG4CXX_AUTO_TRACE(logger_);
   proxy_.Start();
 }
 
 void VRModule::Stop() {
+  LOG4CXX_AUTO_TRACE(logger_);
   proxy_.Stop();
 }
 

@@ -30,41 +30,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_module/commands/on_register_service.h"
+#ifndef SRC_COMPONENTS_VR_MODULE_TEST_INCLUDE_MOCK_PLUGIN_SENDER_H_
+#define SRC_COMPONENTS_VR_MODULE_TEST_INCLUDE_MOCK_PLUGIN_SENDER_H_
 
-#include "utils/logger.h"
-#include "vr_module/service_module.h"
+#include "gmock/gmock.h"
+#include "vr_module/plugin_sender.h"
 
 namespace vr_module {
-namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRModule")
+class MockPluginSender : public PluginSender {
+ public:
+  MOCK_CONST_METHOD1(SendMessageToRemoteMobileService,
+      void(const protocol_handler::RawMessagePtr message));};
 
-OnRegisterService::OnRegisterService(const vr_hmi_api::ServiceMessage& message,
-                                     ServiceModule* module)
-    : module_(module),
-      message_(message) {
-  message_.set_rpc_type(vr_hmi_api::NOTIFICATION);
-  message_.set_correlation_id(module_->GetNextCorrelationID());
 }
+// namespace vr_module
 
-bool OnRegisterService::Execute() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  vr_hmi_api::OnRegisterServiceNotification notification;
-  if (notification.ParseFromString(message_.params())) {
-    notification.set_default_(module_->IsDefaultService(notification.appid()));
-    std::string params;
-    if (notification.SerializeToString(&params)) {
-      message_.set_params(params);
-      return module_->SendToHmi(message_);
-    } else {
-      LOG4CXX_ERROR(logger_, "Could not serialize message");
-    }
-  } else {
-    LOG4CXX_ERROR(logger_, "Could not get application id from message");
-  }
-  return false;
-}
-
-}  // namespace commands
-}  // namespace vr_module
+#endif  // SRC_COMPONENTS_VR_MODULE_TEST_INCLUDE_MOCK_PLUGIN_SENDER_H_

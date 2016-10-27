@@ -30,7 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_module/commands/on_register_service.h"
+#include "vr_module/commands/on_unregister_service.h"
 
 #include "utils/logger.h"
 #include "vr_module/service_module.h"
@@ -40,30 +40,17 @@ namespace commands {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "VRModule")
 
-OnRegisterService::OnRegisterService(const vr_hmi_api::ServiceMessage& message,
-                                     ServiceModule* module)
+OnUnregisterService::OnUnregisterService(const vr_hmi_api::ServiceMessage& message,
+                                         ServiceModule* module)
     : module_(module),
       message_(message) {
   message_.set_rpc_type(vr_hmi_api::NOTIFICATION);
   message_.set_correlation_id(module_->GetNextCorrelationID());
 }
 
-bool OnRegisterService::Execute() {
+bool OnUnregisterService::Execute() {
   LOG4CXX_AUTO_TRACE(logger_);
-  vr_hmi_api::OnRegisterServiceNotification notification;
-  if (notification.ParseFromString(message_.params())) {
-    notification.set_default_(module_->IsDefaultService(notification.appid()));
-    std::string params;
-    if (notification.SerializeToString(&params)) {
-      message_.set_params(params);
-      return module_->SendToHmi(message_);
-    } else {
-      LOG4CXX_ERROR(logger_, "Could not serialize message");
-    }
-  } else {
-    LOG4CXX_ERROR(logger_, "Could not get application id from message");
-  }
-  return false;
+  return module_->SendToHmi(message_);
 }
 
 }  // namespace commands

@@ -30,41 +30,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "vr_module/commands/on_register_service.h"
+#ifndef SRC_COMPONENTS_VR_MODULE_INCLUDE_LAYER_H_
+#define SRC_COMPONENTS_VR_MODULE_INCLUDE_LAYER_H_
 
-#include "utils/logger.h"
-#include "vr_module/service_module.h"
+#include "protocol/raw_message.h"
+
+namespace vr_mobile_api {
+class ServiceMessage;
+}  // namespace vr_mobile_api
 
 namespace vr_module {
-namespace commands {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "VRModule")
-
-OnRegisterService::OnRegisterService(const vr_hmi_api::ServiceMessage& message,
-                                     ServiceModule* module)
-    : module_(module),
-      message_(message) {
-  message_.set_rpc_type(vr_hmi_api::NOTIFICATION);
-  message_.set_correlation_id(module_->GetNextCorrelationID());
-}
-
-bool OnRegisterService::Execute() {
-  LOG4CXX_AUTO_TRACE(logger_);
-  vr_hmi_api::OnRegisterServiceNotification notification;
-  if (notification.ParseFromString(message_.params())) {
-    notification.set_default_(module_->IsDefaultService(notification.appid()));
-    std::string params;
-    if (notification.SerializeToString(&params)) {
-      message_.set_params(params);
-      return module_->SendToHmi(message_);
-    } else {
-      LOG4CXX_ERROR(logger_, "Could not serialize message");
-    }
-  } else {
-    LOG4CXX_ERROR(logger_, "Could not get application id from message");
+class PluginSender {
+ public:
+  virtual ~PluginSender() {
   }
-  return false;
-}
 
-}  // namespace commands
+  /**
+   * @brief Sends message to app remote service
+   * @param message that will be sent through ProtcolHandler
+   */
+  virtual void SendMessageToRemoteMobileService(
+      const protocol_handler::RawMessagePtr message) const = 0;
+};
+
 }  // namespace vr_module
+
+#endif  // SRC_COMPONENTS_VR_MODULE_INCLUDE_LAYER_H_
