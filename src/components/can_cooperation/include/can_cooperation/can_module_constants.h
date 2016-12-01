@@ -248,6 +248,37 @@ const char kDualModeEnable[]     = "dualModeEnable";
 const char kVentilationMode[] = "ventilationMode";
 // ClimateControlData struct
 
+// HMIControlData struct
+const char kDisplayMode[] = "displayMode";
+const char kTemperatureUnit[] = "temperatureUnit";
+const char kDistanceUnit[] = "distanceUnit";
+// HMIControlData struct
+
+// SeatsControlData struct
+const char kCooledSeats[] = "cooledSeats";
+const char kCooledSeatLevel[] = "cooledSeatLevel";
+const char kHeatedSeat[] = "heatedSeat";
+const char kSeatHorizontalPosition[] = "seatHorizontalPosition";
+const char kSeatVerticalPosition[] = "seatVerticalPosition";
+const char kSeatAnglePosition[] = "seatAnglePosition";
+const char kBackTiltPosition[] = "backTiltPosition";
+const char kMassageSeat[] = "massageSeat";
+const char kMassageSeatZone[] = "massageSeatZone";
+const char kMassageSeatLevel[] = "massageSeatLevel";
+const char kMassageEnabled[] = "massageEnabled";
+// SeatsControlData struct
+
+// AudioControlData struct
+const char kSource[] = "source";
+const char kAudioVolume[] = "audioVolume";
+const char kEqualizerSettings[] = "equalizerSettings";
+// AudioControlData struct
+
+// EqualizerSettings struct
+const char kChannel[] = "channel";
+const char kChannelSettings[] = "channelSettings";
+// EqualizerSettings struct
+
 // Temperature struct
 const char kUnit[] = "unit";
 const char kValueC[] = "valueC";
@@ -259,6 +290,9 @@ const char kValueF[] = "valueF";
 // const char kModuleZone[] = "moduleZone";
 const char kRadioControlData[]     = "radioControlData";
 const char kClimateControlData[]   = "climateControlData";
+const char kSeatsControlData[]     = "seatsControlData";
+const char kHmiControlData[]       = "hmiControlData";
+const char kAudioControlData[]     = "audioControlData";
 // ModuleData struct
 
 const char kHMIAppID[]   = "appID";
@@ -275,7 +309,10 @@ namespace enums_value {
 
 // ModuleType enum
 const char kClimate[] = "CLIMATE";
-const char kRadio[]   = "RADIO";
+const char kRadio[] = "RADIO";
+const char kAuido[] = "AUDIO";
+const char kSeats[] = "SEATS";
+const char kHmiSettings[] = "HMI_SETTINGS";
 // ModuleType enum
 
 // RadioBand enum
@@ -333,6 +370,45 @@ const char kRepeat[]      = "REPEAT";
 const char kLong[]  = "LONG";
 const char kShort[] = "SHORT";
 // ButtonPressMode enum
+
+// DisplayMode enum
+const char kDay[] = "DAY";
+const char kNight[] = "NIGHT";
+const char kAuto[] = "AUTO";
+// DisplayMode enum
+
+// DistanceUnit enum
+const char kMiles[] = "MILES";
+const char kKilometers[] = "KILOMETERS";
+// DistanceUnit enum
+
+// LumbarPosition enum
+const char kTop[] = "TOP";
+const char kMiddle[] = "MIDDLE";
+const char kBottom[] = "BOTTOM"; // Also this is used for MassageSeatZone enum
+// LumbarPosition enum
+
+// MassageSeatAction enum
+const char kStart[] = "START";
+const char kStop[] = "STOP";
+// MassageSeatAction enum
+
+// MassageSeatZone enum
+const char kLumbar[] = "LUMBAR";
+// const char kBottom[] = "BOTTOM"; Already defined in LumbarPosition enum
+// MassageSeatZone enum
+
+// MassageSeatLevel enum
+const char kHigh[] = "HIGH";
+const char kLow[] = "LOW";
+// MassageSeatLevel enum
+
+// AudioSource enum
+const char kCD[] = "CD";
+const char kBluetooth[] = "BLUETOOTH";
+const char kTuner[] = "TUNER";
+// AudioSource enum
+
 }  // namespace enums_value
 
 }  // namespace can_cooperation

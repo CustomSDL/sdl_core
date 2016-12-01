@@ -72,14 +72,21 @@ enum ValueType {
 };
 
 enum EnumType {
-  // TRIGGER_SOURCE,
   BUTTON_NAME,
   MODULE_TYPE,
   RADIO_BAND,
   RADIO_STATE,
   DEFROST_ZONE,
   BUTTON_PRESS_MODE,
-  VENTILATION_MODE
+  VENTILATION_MODE,
+  DISPLAY_MODE,
+  DISTANCE_UNIT,
+  TEMPERATURE_UNIT,
+  LUMBAR_POSITION,
+  MASSAGE_SEAT_ACTION,
+  MASSAGE_SEAT_ZONE,
+  MASSAGE_SEAT_LEVEL,
+  AUDIO_SOURCE
 };
 
 // validation_scope map with data that will be used for validation(minlength. maxlength, etc.)
