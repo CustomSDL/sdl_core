@@ -161,6 +161,8 @@ struct InteriorZone: CompositeType {
                                    const RemoteRpcs& rpcs) const;
     inline bool ValidateParameters(ModuleType module,
                                    const Strings& rpcs) const;
+    inline void GetModuleParameters(ModuleType module, const std::string *begin,
+                                    const std::string *end) const;
 };
 
 struct Equipment : CompositeType {

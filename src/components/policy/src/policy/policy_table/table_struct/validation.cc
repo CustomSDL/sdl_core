@@ -127,10 +127,9 @@ bool Table::Validate() const {
   return true;
 }
 
-bool InteriorZone::ValidateParameters(ModuleType module,
-                                      const Strings& parameters) const {
-  const std::string *begin = 0;
-  const std::string *end = 0;
+void InteriorZone::GetModuleParameters(ModuleType module,
+                                       const std::string* begin,
+                                       const std::string* end) const {
   switch (module) {
     case MT_RADIO:
       begin = kRadioParameters;
@@ -140,7 +139,26 @@ bool InteriorZone::ValidateParameters(ModuleType module,
       begin = kClimateParameters;
       end = kClimateParameters + length_climate;
       break;
+    case MT_AUDIO:
+      begin = kAudioParameters;
+      end = kAudioParameters + length_audio;
+      break;
+    case MT_SEATS:
+      begin = kSeatsParameters;
+      end = kSeatsParameters + length_seats;
+      break;
+    case MT_HMI_SETTINGS:
+      begin = kHmiSettingsParameters;
+      end = kHmiSettingsParameters + length_hmi_settings;
+      break;
   }
+}
+
+bool InteriorZone::ValidateParameters(ModuleType module,
+                                      const Strings& parameters) const {
+  const std::string *begin = 0;
+  const std::string *end = 0;
+  GetModuleParameters(module, begin, end);
   DCHECK(begin);
   DCHECK(end);
   for (Strings::const_iterator i = parameters.begin();
