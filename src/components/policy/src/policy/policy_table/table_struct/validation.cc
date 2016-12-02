@@ -1,3 +1,5 @@
+#include "validation.h"
+
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>
@@ -127,9 +129,76 @@ bool Table::Validate() const {
   return true;
 }
 
-void InteriorZone::GetModuleParameters(ModuleType module,
-                                       const std::string* begin,
-                                       const std::string* end) const {
+namespace {
+static const int kLength = 4;
+static const std::string kRemoteRpcs[] = {
+    "ButtonPress",
+    "GetInteriorVehicleDataCapabilities",
+    "GetInteriorVehicleData",
+    "SetInteriorVehicleData"
+};
+
+static const int kLengthRadio = 10;
+static const std::string kRadioParameters[] = {
+    "frequencyInteger",
+    "frequencyFraction",
+    "band",
+    "rdsData",
+    "availableHDs",
+    "hdChannel",
+    "signalStrength",
+    "signalChangeThreshold",
+    "radioEnable",
+    "state"
+};
+
+static const int kLengthClimate = 10;
+static const std::string kClimateParameters[] = {
+    "fanSpeed",
+    "currentTemp",
+    "desiredTemp",
+    "acEnable",
+    "acMaxEnable",
+    "circulateAirEnable",
+    "autoModeEnable",
+    "defrostZone",
+    "dualModeEnable",
+    "ventilationMode"
+};
+
+static const int kLengthAudio = 3;
+static const std::string kAudioParameters[] = {
+    "source",
+    "audioVolume",
+    "equalizerSettings"
+};
+
+static const int kLengthSeats = 11;
+static const std::string kHmiParameters[] = {
+    "displayMode",
+    "temperatureUnit",
+    "distanceUnit"
+};
+
+static const int kLengthHmi = 3;
+static const std::string kSeatsParameters[] = {
+    "cooledSeats",
+    "cooledSeatLevel",
+    "heatedSeat",
+    "seatHorizontalPosition",
+    "seatVerticalPosition",
+    "seatAnglePosition",
+    "backTiltPosition",
+    "massageSeat",
+    "massageSeatZone",
+    "massageSeatLevel",
+    "massageEnabled"
+};
+}  // namespace
+
+AccessModulesValidator::Iterators AccessModulesValidator::GetModuleParameters(ModuleType module) const {
+  const std::string *begin = 0;
+  const std::string *end = 0;
   switch (module) {
     case MT_RADIO:
       begin = kRadioParameters;
@@ -152,13 +221,14 @@ void InteriorZone::GetModuleParameters(ModuleType module,
       end = kHmiParameters + kLengthHmi;
       break;
   }
+  return std::make_pair(begin, end);
 }
 
-bool InteriorZone::ValidateParameters(ModuleType module,
+bool AccessModulesValidator::ValidateParameters(ModuleType module,
                                       const Strings& parameters) const {
-  const std::string *begin = 0;
-  const std::string *end = 0;
-  GetModuleParameters(module, begin, end);
+  Iterators its = GetModuleParameters(module);
+  const std::string *begin = its.first;
+  const std::string *end = its.second;
   DCHECK(begin);
   DCHECK(end);
   for (Strings::const_iterator i = parameters.begin();
@@ -172,7 +242,7 @@ bool InteriorZone::ValidateParameters(ModuleType module,
   return true;
 }
 
-bool InteriorZone::ValidateRemoteRpcs(ModuleType module,
+bool AccessModulesValidator::ValidateRemoteRpcs(ModuleType module,
                                       const RemoteRpcs& rpcs) const {
   for (RemoteRpcs::const_iterator i = rpcs.begin();
       i != rpcs.end(); ++i) {
@@ -188,7 +258,7 @@ bool InteriorZone::ValidateRemoteRpcs(ModuleType module,
   return true;
 }
 
-bool InteriorZone::ValidateAllow(const AccessModules& modules) const {
+bool AccessModulesValidator::Validate(const AccessModules& modules) const {
   for (AccessModules::const_iterator i = modules.begin();
       i != modules.end(); ++i) {
     const std::string& name = i->first;
@@ -203,7 +273,8 @@ bool InteriorZone::ValidateAllow(const AccessModules& modules) const {
 }
 
 bool InteriorZone::Validate() const {
-  return ValidateAllow(auto_allow) && ValidateAllow(driver_allow);
+  return AccessModulesValidator().Validate(auto_allow)
+      && AccessModulesValidator().Validate(driver_allow);
 }
 
 namespace {

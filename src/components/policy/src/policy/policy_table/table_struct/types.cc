@@ -1156,60 +1156,6 @@ void Equipment::SetPolicyTableType(PolicyTableType pt_type) {
   zones.SetPolicyTableType(pt_type);
 }
 
-// InteriorZone methods
-const std::string InteriorZone::kRemoteRpcs[] = {
-    "ButtonPress",
-    "GetInteriorVehicleDataCapabilities",
-    "GetInteriorVehicleData",
-    "SetInteriorVehicleData"
-};
-const std::string InteriorZone::kRadioParameters[] = {
-    "frequencyInteger",
-    "frequencyFraction",
-    "band",
-    "rdsData",
-    "availableHDs",
-    "hdChannel",
-    "signalStrength",
-    "signalChangeThreshold",
-    "radioEnable",
-    "state"
-};
-const std::string InteriorZone::kClimateParameters[] = {
-    "fanSpeed",
-    "currentTemp",
-    "desiredTemp",
-    "acEnable",
-    "acMaxEnable",
-    "circulateAirEnable",
-    "autoModeEnable",
-    "defrostZone",
-    "dualModeEnable",
-    "ventilationMode"
-};
-const std::string InteriorZone::kAudioParameters[] = {
-    "source",
-    "audioVolume",
-    "equalizerSettings"
-};
-const std::string InteriorZone::kHmiParameters[] = {
-    "displayMode",
-    "temperatureUnit",
-    "distanceUnit"
-};
-const std::string InteriorZone::kSeatsParameters[] = {
-    "cooledSeats",
-    "cooledSeatLevel",
-    "heatedSeat",
-    "seatHorizontalPosition",
-    "seatVerticalPosition",
-    "seatAnglePosition",
-    "backTiltPosition",
-    "massageSeat",
-    "massageSeatZone",
-    "massageSeatLevel",
-    "massageEnabled"
-};
 InteriorZone::InteriorZone()
   : CompositeType(kUninitialized) {
 }

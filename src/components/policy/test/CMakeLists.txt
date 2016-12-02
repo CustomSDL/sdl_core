@@ -56,6 +56,8 @@ set(testSources
   shared_library_test.cc    
   generated_code_test.cc #APPLINK-10657
   policy_manager_impl_test.cc
+  policy_table/application_params_validation_test.cc
+  policy_table/interior_zone_validation_test.cc
 )
 
   include_directories(${COMPONENTS_DIR}/policy/src/policy/policy_table/table_struct)

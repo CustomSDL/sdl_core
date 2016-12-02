@@ -1,6 +1,7 @@
 // This file is generated, do not edit
 #ifndef POLICY_TABLE_INTERFACE_BASE_POLICY_TABLE_INTERFACE_BASE_TYPES_H_
 #define POLICY_TABLE_INTERFACE_BASE_POLICY_TABLE_INTERFACE_BASE_TYPES_H_
+#include "utils/macro.h"
 #include "./enums.h"
 #include "rpc_base/rpc_message.h"
 namespace Json {
@@ -89,6 +90,7 @@ struct ApplicationParams : CompositeType {
   private:
     bool Validate() const;
     bool ValidateModuleTypes() const;
+    FRIEND_TEST(ApplicationParamsValidationTest, ValidateModuleTypes);
 };
 
 struct RpcParameters : CompositeType {
@@ -148,27 +150,7 @@ struct InteriorZone: CompositeType {
     void ReportErrors(rpc::ValidationReport* report__) const;
     virtual void SetPolicyTableType(PolicyTableType pt_type);
   private:
-    static const int kLength = 4;
-    static const std::string kRemoteRpcs[kLength];
-    static const int kLengthRadio = 10;
-    static const std::string kRadioParameters[kLengthRadio];
-    static const int kLengthClimate = 10;
-    static const std::string kClimateParameters[kLengthClimate];
-    static const int kLengthAudio = 3;
-    static const std::string kAudioParameters[kLengthAudio];
-    static const int kLengthSeats = 11;
-    static const std::string kSeatsParameters[kLengthSeats];
-    static const int kLengthHmi = 3;
-    static const std::string kHmiParameters[kLengthHmi];
-    void FillRemoteRpcs();
     bool Validate() const;
-    inline bool ValidateAllow(const AccessModules& modules) const;
-    inline bool ValidateRemoteRpcs(ModuleType module,
-                                   const RemoteRpcs& rpcs) const;
-    inline bool ValidateParameters(ModuleType module,
-                                   const Strings& rpcs) const;
-    inline void GetModuleParameters(ModuleType module, const std::string *begin,
-                                    const std::string *end) const;
 };
 
 struct Equipment : CompositeType {
