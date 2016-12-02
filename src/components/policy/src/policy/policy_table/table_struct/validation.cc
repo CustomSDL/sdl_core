@@ -133,23 +133,23 @@ void InteriorZone::GetModuleParameters(ModuleType module,
   switch (module) {
     case MT_RADIO:
       begin = kRadioParameters;
-      end = kRadioParameters + length_radio;
+      end = kRadioParameters + kLengthRadio;
       break;
     case MT_CLIMATE:
       begin = kClimateParameters;
-      end = kClimateParameters + length_climate;
+      end = kClimateParameters + kLengthClimate;
       break;
     case MT_AUDIO:
       begin = kAudioParameters;
-      end = kAudioParameters + length_audio;
+      end = kAudioParameters + kLengthAudio;
       break;
     case MT_SEATS:
       begin = kSeatsParameters;
-      end = kSeatsParameters + length_seats;
+      end = kSeatsParameters + kLengthSeats;
       break;
     case MT_HMI_SETTINGS:
-      begin = kHmiSettingsParameters;
-      end = kHmiSettingsParameters + length_hmi_settings;
+      begin = kHmiParameters;
+      end = kHmiParameters + kLengthHmi;
       break;
   }
 }
@@ -179,7 +179,7 @@ bool InteriorZone::ValidateRemoteRpcs(ModuleType module,
     const std::string& name = i->first;
     const Strings& parameters = i->second;
     const std::string *begin = kRemoteRpcs;
-    const std::string *end = kRemoteRpcs + length;
+    const std::string *end = kRemoteRpcs + kLength;
     bool found = std::find(begin, end, name) != end;
     if (!found || !ValidateParameters(module, parameters)) {
       return false;

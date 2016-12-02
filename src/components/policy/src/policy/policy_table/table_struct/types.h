@@ -148,12 +148,18 @@ struct InteriorZone: CompositeType {
     void ReportErrors(rpc::ValidationReport* report__) const;
     virtual void SetPolicyTableType(PolicyTableType pt_type);
   private:
-    static const int length = 4;
-    static const std::string kRemoteRpcs[length];
-    static const int length_radio = 10;
-    static const std::string kRadioParameters[length_radio];
-    static const int length_climate = 9;
-    static const std::string kClimateParameters[length_climate];
+    static const int kLength = 4;
+    static const std::string kRemoteRpcs[kLength];
+    static const int kLengthRadio = 10;
+    static const std::string kRadioParameters[kLengthRadio];
+    static const int kLengthClimate = 10;
+    static const std::string kClimateParameters[kLengthClimate];
+    static const int kLengthAudio = 3;
+    static const std::string kAudioParameters[kLengthAudio];
+    static const int kLengthSeats = 11;
+    static const std::string kSeatsParameters[kLengthSeats];
+    static const int kLengthHmi = 3;
+    static const std::string kHmiParameters[kLengthHmi];
     void FillRemoteRpcs();
     bool Validate() const;
     inline bool ValidateAllow(const AccessModules& modules) const;

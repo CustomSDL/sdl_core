@@ -1179,12 +1179,36 @@ const std::string InteriorZone::kClimateParameters[] = {
     "fanSpeed",
     "currentTemp",
     "desiredTemp",
-    "temperatureUnit",
     "acEnable",
+    "acMaxEnable",
     "circulateAirEnable",
     "autoModeEnable",
     "defrostZone",
-    "dualModeEnable"
+    "dualModeEnable",
+    "ventilationMode"
+};
+const std::string InteriorZone::kAudioParameters[] = {
+    "source",
+    "audioVolume",
+    "equalizerSettings"
+};
+const std::string InteriorZone::kHmiParameters[] = {
+    "displayMode",
+    "temperatureUnit",
+    "distanceUnit"
+};
+const std::string InteriorZone::kSeatsParameters[] = {
+    "cooledSeats",
+    "cooledSeatLevel",
+    "heatedSeat",
+    "seatHorizontalPosition",
+    "seatVerticalPosition",
+    "seatAnglePosition",
+    "backTiltPosition",
+    "massageSeat",
+    "massageSeatZone",
+    "massageSeatLevel",
+    "massageEnabled"
 };
 InteriorZone::InteriorZone()
   : CompositeType(kUninitialized) {
