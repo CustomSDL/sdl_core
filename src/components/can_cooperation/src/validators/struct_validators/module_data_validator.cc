@@ -109,10 +109,18 @@ ValidationResult ModuleDataValidator::Validate(const Json::Value& json,
     if (IsMember(json, kHmiControlData)) {
       return HMIControlDataValidator::instance()->Validate(
           json[kHmiControlData], outgoing_json[kHmiControlData]);
-      } else {
-        LOG4CXX_ERROR(logger_, "HMI control data missed!");
-        return ValidationResult::INVALID_DATA;
-      }
+    } else {
+      LOG4CXX_ERROR(logger_, "HMI control data missed!");
+      return ValidationResult::INVALID_DATA;
+    }
+  } else if (enums_value::kAuido == outgoing_json[kModuleType].asString()) {
+    if (IsMember(json, kAudioControlData)) {
+      return HMIControlDataValidator::instance()->Validate(
+          json[kAudioControlData], outgoing_json[kAudioControlData]);
+    } else {
+      LOG4CXX_ERROR(logger_, "Audio control data missed!");
+      return ValidationResult::INVALID_DATA;
+    }
   } else {
     LOG4CXX_ERROR(logger_, "Wrong module type!");
     return ValidationResult::INVALID_DATA;
