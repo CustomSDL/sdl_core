@@ -1156,36 +1156,6 @@ void Equipment::SetPolicyTableType(PolicyTableType pt_type) {
   zones.SetPolicyTableType(pt_type);
 }
 
-// InteriorZone methods
-const std::string InteriorZone::kRemoteRpcs[] = {
-    "ButtonPress",
-    "GetInteriorVehicleDataCapabilities",
-    "GetInteriorVehicleData",
-    "SetInteriorVehicleData"
-};
-const std::string InteriorZone::kRadioParameters[] = {
-    "frequencyInteger",
-    "frequencyFraction",
-    "band",
-    "rdsData",
-    "availableHDs",
-    "hdChannel",
-    "signalStrength",
-    "signalChangeThreshold",
-    "radioEnable",
-    "state"
-};
-const std::string InteriorZone::kClimateParameters[] = {
-    "fanSpeed",
-    "currentTemp",
-    "desiredTemp",
-    "temperatureUnit",
-    "acEnable",
-    "circulateAirEnable",
-    "autoModeEnable",
-    "defrostZone",
-    "dualModeEnable"
-};
 InteriorZone::InteriorZone()
   : CompositeType(kUninitialized) {
 }

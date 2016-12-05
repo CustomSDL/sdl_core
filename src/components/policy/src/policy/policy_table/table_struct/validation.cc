@@ -1,3 +1,5 @@
+#include "validation.h"
+
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>
@@ -7,16 +9,17 @@
 namespace rpc {
 namespace policy_table_interface_base {
 bool ApplicationParams::Validate() const {
-  return ValidateModuleTypes();
+  return ModuleTypesValidator().Validate(moduleType);
 }
-bool ApplicationParams::ValidateModuleTypes() const {
+
+bool ModuleTypesValidator::Validate(Optional<ModuleTypes>& module_types) const {
   // moduleType is optional so see Optional<T>::is_valid()
-  bool is_initialized = moduleType->is_initialized();
+  bool is_initialized = module_types->is_initialized();
   if (!is_initialized) {
     // valid if not initialized
     return true;
   }
-  bool is_valid = moduleType->is_valid();
+  bool is_valid = module_types->is_valid();
   if (is_valid) {
     return true;
   }
@@ -27,14 +30,14 @@ bool ApplicationParams::ValidateModuleTypes() const {
     }
   };
   // cut invalid items
-  moduleType->erase(std::remove_if(moduleType->begin(), moduleType->end(),
+  module_types->erase(std::remove_if(module_types->begin(), module_types->end(),
                                    IsInvalid()),
-              moduleType->end());
-  bool empty = moduleType->empty();
+                      module_types->end());
+  bool empty = module_types->empty();
   if (empty) {
     // set non initialized value
     ModuleTypes non_initialized;
-    moduleType = Optional<ModuleTypes>(non_initialized);
+    module_types = Optional<ModuleTypes>(non_initialized);
   }
   return true;
 }
@@ -127,20 +130,106 @@ bool Table::Validate() const {
   return true;
 }
 
-bool InteriorZone::ValidateParameters(ModuleType module,
-                                      const Strings& parameters) const {
+namespace {
+static const int kLength = 4;
+static const std::string kRemoteRpcs[] = {
+    "ButtonPress",
+    "GetInteriorVehicleDataCapabilities",
+    "GetInteriorVehicleData",
+    "SetInteriorVehicleData"
+};
+
+static const int kLengthRadio = 10;
+static const std::string kRadioParameters[] = {
+    "frequencyInteger",
+    "frequencyFraction",
+    "band",
+    "rdsData",
+    "availableHDs",
+    "hdChannel",
+    "signalStrength",
+    "signalChangeThreshold",
+    "radioEnable",
+    "state"
+};
+
+static const int kLengthClimate = 10;
+static const std::string kClimateParameters[] = {
+    "fanSpeed",
+    "currentTemp",
+    "desiredTemp",
+    "acEnable",
+    "acMaxEnable",
+    "circulateAirEnable",
+    "autoModeEnable",
+    "defrostZone",
+    "dualModeEnable",
+    "ventilationMode"
+};
+
+static const int kLengthAudio = 3;
+static const std::string kAudioParameters[] = {
+    "source",
+    "audioVolume",
+    "equalizerSettings"
+};
+
+static const int kLengthSeats = 11;
+static const std::string kHmiParameters[] = {
+    "displayMode",
+    "temperatureUnit",
+    "distanceUnit"
+};
+
+static const int kLengthHmi = 3;
+static const std::string kSeatsParameters[] = {
+    "cooledSeats",
+    "cooledSeatLevel",
+    "heatedSeat",
+    "seatHorizontalPosition",
+    "seatVerticalPosition",
+    "seatAnglePosition",
+    "backTiltPosition",
+    "massageSeat",
+    "massageSeatZone",
+    "massageSeatLevel",
+    "massageEnabled"
+};
+}  // namespace
+
+AccessModulesValidator::Iterators AccessModulesValidator::GetModuleParameters(ModuleType module) const {
   const std::string *begin = 0;
   const std::string *end = 0;
   switch (module) {
     case MT_RADIO:
       begin = kRadioParameters;
-      end = kRadioParameters + length_radio;
+      end = kRadioParameters + kLengthRadio;
       break;
     case MT_CLIMATE:
       begin = kClimateParameters;
-      end = kClimateParameters + length_climate;
+      end = kClimateParameters + kLengthClimate;
+      break;
+    case MT_AUDIO:
+      begin = kAudioParameters;
+      end = kAudioParameters + kLengthAudio;
+      break;
+    case MT_SEATS:
+      begin = kSeatsParameters;
+      end = kSeatsParameters + kLengthSeats;
+      break;
+    case MT_HMI_SETTINGS:
+      begin = kHmiParameters;
+      end = kHmiParameters + kLengthHmi;
       break;
   }
+  return std::make_pair(begin, end);
+}
+
+bool AccessModulesValidator::ValidateParameters(ModuleType module,
+                                      const Strings& parameters) const {
+  Iterators its = GetModuleParameters(module);
+  const std::string *begin = its.first;
+  const std::string *end = its.second;
   DCHECK(begin);
   DCHECK(end);
   for (Strings::const_iterator i = parameters.begin();
@@ -154,14 +243,14 @@ bool InteriorZone::ValidateParameters(ModuleType module,
   return true;
 }
 
-bool InteriorZone::ValidateRemoteRpcs(ModuleType module,
+bool AccessModulesValidator::ValidateRemoteRpcs(ModuleType module,
                                       const RemoteRpcs& rpcs) const {
   for (RemoteRpcs::const_iterator i = rpcs.begin();
       i != rpcs.end(); ++i) {
     const std::string& name = i->first;
     const Strings& parameters = i->second;
     const std::string *begin = kRemoteRpcs;
-    const std::string *end = kRemoteRpcs + length;
+    const std::string *end = kRemoteRpcs + kLength;
     bool found = std::find(begin, end, name) != end;
     if (!found || !ValidateParameters(module, parameters)) {
       return false;
@@ -170,7 +259,7 @@ bool InteriorZone::ValidateRemoteRpcs(ModuleType module,
   return true;
 }
 
-bool InteriorZone::ValidateAllow(const AccessModules& modules) const {
+bool AccessModulesValidator::Validate(const AccessModules& modules) const {
   for (AccessModules::const_iterator i = modules.begin();
       i != modules.end(); ++i) {
     const std::string& name = i->first;
@@ -185,7 +274,8 @@ bool InteriorZone::ValidateAllow(const AccessModules& modules) const {
 }
 
 bool InteriorZone::Validate() const {
-  return ValidateAllow(auto_allow) && ValidateAllow(driver_allow);
+  return AccessModulesValidator().Validate(auto_allow)
+      && AccessModulesValidator().Validate(driver_allow);
 }
 
 namespace {
@@ -196,7 +286,7 @@ struct IsDeniedChar {
 };
 }  // namespace
 
-bool Equipment::ValidateNameZone(const std::string& name) const {
+bool ZonesValidator::ValidateNameZone(const std::string& name) const {
   if (name.empty()) {
     return false;
   }
@@ -212,7 +302,7 @@ bool Equipment::ValidateNameZone(const std::string& name) const {
   return false;
 }
 
-bool Equipment::Validate() const {
+bool ZonesValidator::Validate(const Zones& zones) const {
   for (Zones::const_iterator i = zones.begin(); i != zones.end(); ++i) {
     if (!ValidateNameZone(i->first)) {
       return false;
@@ -220,6 +310,10 @@ bool Equipment::Validate() const {
   }
   return true;
 }
+
+bool Equipment::Validate() const {
+  return ZonesValidator().Validate(zones);
+}
+
 }  // namespace policy_table_interface_base
 }  // namespace rpc
-
