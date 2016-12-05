@@ -34,6 +34,7 @@
 #include "can_cooperation/validators/struct_validators/interior_zone_validator.h"
 #include "can_cooperation/validators/struct_validators/radio_control_data_validator.h"
 #include "can_cooperation/validators/struct_validators/climate_control_data_validator.h"
+#include "can_cooperation/validators/struct_validators/hmi_control_data_validator.h"
 #include "can_cooperation/can_module_constants.h"
 #include "can_cooperation/message_helper.h"
 
@@ -47,6 +48,9 @@ using message_params::kModuleType;
 using message_params::kModuleZone;
 using message_params::kRadioControlData;
 using message_params::kClimateControlData;
+using message_params::kHmiControlData;
+using message_params::kSeatsControlData;
+using message_params::kAudioControlData;
 
 ModuleDataValidator::ModuleDataValidator() {
   // name="moduleType"
@@ -81,6 +85,7 @@ ValidationResult ModuleDataValidator::Validate(const Json::Value& json,
     return result;
   }
 
+
   if (enums_value::kRadio == outgoing_json[kModuleType].asString()) {
     if (IsMember(json, kRadioControlData)) {
       return RadioControlDataValidator::instance()->Validate(
@@ -99,6 +104,15 @@ ValidationResult ModuleDataValidator::Validate(const Json::Value& json,
       LOG4CXX_ERROR(logger_, "Climate control data missed!");
       return ValidationResult::INVALID_DATA;
     }
+  } else if (enums_value::kHmiSettings
+      == outgoing_json[kModuleType].asString()) {
+    if (IsMember(json, kHmiControlData)) {
+      return HMIControlDataValidator::instance()->Validate(
+          json[kHmiControlData], outgoing_json[kHmiControlData]);
+      } else {
+        LOG4CXX_ERROR(logger_, "HMI control data missed!");
+        return ValidationResult::INVALID_DATA;
+      }
   } else {
     LOG4CXX_ERROR(logger_, "Wrong module type!");
     return ValidationResult::INVALID_DATA;

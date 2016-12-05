@@ -75,6 +75,7 @@ set (SOURCES
     ./src/validators/struct_validators/climate_control_data_validator.cc
     ./src/validators/struct_validators/radio_control_data_validator.cc
     ./src/validators/struct_validators/temperature_validator.cc
+    ./src/validators/struct_validators/hmi_control_data_validator.cc
     ./src/validators/button_press_request_validator.cc
     ./src/validators/get_interior_vehicle_data_capabilities_request_validator.cc
     ./src/validators/get_interior_vehicle_data_request_validator.cc
