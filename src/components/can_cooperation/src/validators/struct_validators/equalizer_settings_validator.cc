@@ -30,64 +30,47 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "can_cooperation/validators/struct_validators/hmi_control_data_validator.h"
+#include "can_cooperation/validators/struct_validators/equalizer_settings_validator.h"
 #include "can_cooperation/can_module_constants.h"
 
 namespace can_cooperation {
 
 namespace validators {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "HMIControlDataValidator")
+CREATE_LOGGERPTR_GLOBAL(logger_, "EqualizerSettingsValidator")
 
-using message_params::kDisplayMode;
-using message_params::kTemperatureUnit;
-using message_params::kDistanceUnit;
+using message_params::kChannel;
+using message_params::kChannelSettings;
 
-HMIControlDataValidator::HMIControlDataValidator() {
+EqualizerSettingsValidator::EqualizerSettingsValidator() {
+  // name="channel"
+  channel_[ValidationParams::TYPE] = ValueType::STRING;
+  channel_[ValidationParams::MIN_LENGTH] = 0;
+  channel_[ValidationParams::MAX_LENGTH] = 500;
+  channel_[ValidationParams::ARRAY] = 0;
+  channel_[ValidationParams::MANDATORY] = 1;
 
-  // name="displayMode"
-  display_mode_[ValidationParams::TYPE] = ValueType::ENUM;
-  display_mode_[ValidationParams::ENUM_TYPE] = EnumType::DISPLAY_MODE;
-  display_mode_[ValidationParams::ARRAY] = 0;
-  display_mode_[ValidationParams::MANDATORY] = 0;
+  // name="channelSettings"
+  channelSettings_[ValidationParams::TYPE] = ValueType::INT;
+  channelSettings_[ValidationParams::MIN_VALUE] = 0;
+  channelSettings_[ValidationParams::MAX_VALUE] = 100;
+  channelSettings_[ValidationParams::ARRAY] = 0;
+  channelSettings_[ValidationParams::MANDATORY] = 1;
 
-  // name="temperatureUnit"
-  temperature_unit_[ValidationParams::TYPE] = ValueType::ENUM;
-  temperature_unit_[ValidationParams::ENUM_TYPE] = EnumType::TEMPERATURE_UNIT;
-  temperature_unit_[ValidationParams::ARRAY] = 0;
-  temperature_unit_[ValidationParams::MANDATORY] = 0;
-
-  // name="distanceUnit"
-  distance_unit_[ValidationParams::TYPE] = ValueType::ENUM;
-  distance_unit_[ValidationParams::ENUM_TYPE] = EnumType::DISTANCE_UNIT;
-  distance_unit_[ValidationParams::ARRAY] = 0;
-  distance_unit_[ValidationParams::MANDATORY] = 0;
-
-  validation_scope_map_[kDisplayMode] = &display_mode_;
-  validation_scope_map_[kTemperatureUnit] = &temperature_unit_;
-  validation_scope_map_[kDistanceUnit] = &distance_unit_;
+  validation_scope_map_[kChannel] = &channel_;
+  validation_scope_map_[kChannelSettings] = &channelSettings_;
 }
 
-ValidationResult HMIControlDataValidator::Validate(const Json::Value& json,
+ValidationResult EqualizerSettingsValidator::Validate(const Json::Value& json,
                                                  Json::Value& outgoing_json) {
   LOG4CXX_AUTO_TRACE(logger_);
 
   if (!json.isObject()) {
-    LOG4CXX_ERROR(logger_, "HMIControlData must be struct");
+    LOG4CXX_ERROR(logger_, "EqualizerSettings must be struct");
     return INVALID_DATA;
   }
 
-  ValidationResult result = ValidateSimpleValues(json, outgoing_json);
-
-  if (result != ValidationResult::SUCCESS) {
-    return result;
-  }
-
-  if (!outgoing_json.size()) {
-    result = INVALID_DATA;
-  }
-
-  return result;
+  return ValidateSimpleValues(json, outgoing_json);
 }
 
 }  // namespace validators

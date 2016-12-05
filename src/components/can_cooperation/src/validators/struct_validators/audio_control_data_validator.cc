@@ -30,50 +30,46 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "can_cooperation/validators/struct_validators/hmi_control_data_validator.h"
+#include "can_cooperation/validators/struct_validators/audio_control_data_validator.h"
+#include "can_cooperation/validators/struct_validators/equalizer_settings_validator.h"
+#include "can_cooperation/message_helper.h"
 #include "can_cooperation/can_module_constants.h"
 
 namespace can_cooperation {
 
 namespace validators {
 
-CREATE_LOGGERPTR_GLOBAL(logger_, "HMIControlDataValidator")
+CREATE_LOGGERPTR_GLOBAL(logger_, "AudioControlDataValidator")
 
-using message_params::kDisplayMode;
-using message_params::kTemperatureUnit;
-using message_params::kDistanceUnit;
+using message_params::kSource;
+using message_params::kAudioVolume;
+using message_params::kEqualizerSettings;
 
-HMIControlDataValidator::HMIControlDataValidator() {
+AudioControlDataValidator::AudioControlDataValidator() {
 
-  // name="displayMode"
-  display_mode_[ValidationParams::TYPE] = ValueType::ENUM;
-  display_mode_[ValidationParams::ENUM_TYPE] = EnumType::DISPLAY_MODE;
-  display_mode_[ValidationParams::ARRAY] = 0;
-  display_mode_[ValidationParams::MANDATORY] = 0;
+  // name="source"
+  source_[ValidationParams::TYPE] = ValueType::ENUM;
+  source_[ValidationParams::ENUM_TYPE] = EnumType::AUDIO_SOURCE;
+  source_[ValidationParams::ARRAY] = 0;
+  source_[ValidationParams::MANDATORY] = 0;
 
-  // name="temperatureUnit"
-  temperature_unit_[ValidationParams::TYPE] = ValueType::ENUM;
-  temperature_unit_[ValidationParams::ENUM_TYPE] = EnumType::TEMPERATURE_UNIT;
-  temperature_unit_[ValidationParams::ARRAY] = 0;
-  temperature_unit_[ValidationParams::MANDATORY] = 0;
+  // name="audioVolume"
+  audio_volume_[ValidationParams::TYPE] = ValueType::INT;
+  audio_volume_[ValidationParams::MIN_VALUE] = 0;
+  audio_volume_[ValidationParams::MAX_VALUE] = 100;
+  audio_volume_[ValidationParams::ARRAY] = 0;
+  audio_volume_[ValidationParams::MANDATORY] = 0;
 
-  // name="distanceUnit"
-  distance_unit_[ValidationParams::TYPE] = ValueType::ENUM;
-  distance_unit_[ValidationParams::ENUM_TYPE] = EnumType::DISTANCE_UNIT;
-  distance_unit_[ValidationParams::ARRAY] = 0;
-  distance_unit_[ValidationParams::MANDATORY] = 0;
-
-  validation_scope_map_[kDisplayMode] = &display_mode_;
-  validation_scope_map_[kTemperatureUnit] = &temperature_unit_;
-  validation_scope_map_[kDistanceUnit] = &distance_unit_;
+  validation_scope_map_[kSource] = &source_;
+  validation_scope_map_[kAudioVolume] = &audio_volume_;
 }
 
-ValidationResult HMIControlDataValidator::Validate(const Json::Value& json,
+ValidationResult AudioControlDataValidator::Validate(const Json::Value& json,
                                                  Json::Value& outgoing_json) {
   LOG4CXX_AUTO_TRACE(logger_);
 
   if (!json.isObject()) {
-    LOG4CXX_ERROR(logger_, "HMIControlData must be struct");
+    LOG4CXX_ERROR(logger_, "AudioControlData must be struct");
     return INVALID_DATA;
   }
 
@@ -81,6 +77,28 @@ ValidationResult HMIControlDataValidator::Validate(const Json::Value& json,
 
   if (result != ValidationResult::SUCCESS) {
     return result;
+  }
+
+  const int array_min_size = 1;
+  const int array_max_size = 10;
+
+  // TODO(VS): create main function for array with struct validation
+  if (IsMember(json, kEqualizerSettings)) {
+    int array_size = json[kEqualizerSettings].size();
+    if (json[kEqualizerSettings].isArray() && (array_size >= array_min_size)
+        && (array_size <= array_max_size)) {
+      for (int i = 0; i < array_size; ++i) {
+        result = validators::EqualizerSettingsValidator::instance()->Validate(
+            json[kEqualizerSettings][i], outgoing_json[kEqualizerSettings][i]);
+
+        if (result != ValidationResult::SUCCESS) {
+          return result;
+        }
+      }
+    } else {
+      LOG4CXX_ERROR(logger_, "EqualizerSettings wrong data!");
+      return INVALID_DATA;
+    }
   }
 
   if (!outgoing_json.size()) {
