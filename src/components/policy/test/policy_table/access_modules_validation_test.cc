@@ -39,7 +39,7 @@
 namespace rpc {
 namespace policy_table_interface_base {
 
-TEST(InteriorZoneValidationTest, ValidateAllow) {
+TEST(AccessModulesValidationTest, Validate) {
   AccessModulesValidator validator;
 
   AccessModules empty_modules;

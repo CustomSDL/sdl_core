@@ -17,7 +17,18 @@ class AccessModulesValidator {
   inline bool ValidateParameters(ModuleType module,
                                  const Strings& rpcs) const;
   inline Iterators GetModuleParameters(ModuleType module) const;
-  FRIEND_TEST(InteriorZoneValidationTest, ValidateAllow);
+};
+
+class ModuleTypesValidator {
+ public:
+  bool Validate(Optional<ModuleTypes>& module_types) const;
+};
+
+class ZonesValidator {
+ public:
+  bool Validate(const Zones& zones) const;
+ private:
+  inline bool ValidateNameZone(const std::string& name) const;
 };
 
 }  // namespace policy_table_interface_base

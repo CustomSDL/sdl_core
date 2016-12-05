@@ -39,34 +39,39 @@
 namespace rpc {
 namespace policy_table_interface_base {
 
-TEST(ApplicationParamsValidationTest, ValidateModuleTypes) {
-  ApplicationParams empty;
-  EXPECT_TRUE(empty.ValidateModuleTypes());
-  EXPECT_FALSE(empty.moduleType.is_initialized());
+TEST(ModuleTypesValidationTest, Validate) {
+  ModuleTypesValidator validator;
+  Optional<ModuleTypes> empty;
+  EXPECT_TRUE(validator.Validate(empty));
+  EXPECT_FALSE(empty.is_initialized());
 
-  ApplicationParams valid;
-  ModuleTypes modules;
-  modules.push_back(ModuleType::MT_AUDIO);
-  modules.push_back(ModuleType::MT_SEATS);
-  *valid.moduleType = modules;
-  EXPECT_TRUE(valid.ValidateModuleTypes());
-  EXPECT_TRUE(valid.moduleType.is_initialized());
-  EXPECT_EQ(ModuleType::MT_AUDIO, valid.moduleType->at(0));
-  EXPECT_EQ(ModuleType::MT_SEATS, valid.moduleType->at(1));
+  Optional<ModuleTypes> valid;
+  valid->push_back(ModuleType::MT_AUDIO);
+  valid->push_back(ModuleType::MT_SEATS);
+  EXPECT_TRUE(validator.Validate(valid));
+  EXPECT_TRUE(valid.is_initialized());
+  EXPECT_EQ(ModuleType::MT_AUDIO, valid->at(0));
+  EXPECT_EQ(ModuleType::MT_SEATS, valid->at(1));
 
-  ApplicationParams wrong_at_all;
-  Json::Value value(Json::arrayValue);
-  value.append(Json::Value("SEATS"));
-  value.append(Json::Value("SA-21"));
-  value.append(Json::Value("RADIO"));
-  value.append(Json::Value("Improved Kilo"));
-  ModuleTypes wrong_modules(&value);
-  *wrong_at_all.moduleType = wrong_modules;
-  EXPECT_TRUE(wrong_at_all.ValidateModuleTypes());
-  EXPECT_TRUE(wrong_at_all.moduleType.is_initialized());
-  EXPECT_EQ(2u, wrong_at_all.moduleType->size());
-  EXPECT_EQ(ModuleType::MT_SEATS, wrong_at_all.moduleType->at(0));
-  EXPECT_EQ(ModuleType::MT_RADIO, wrong_at_all.moduleType->at(1));
+  Json::Value value1(Json::arrayValue);
+  value1.append(Json::Value("SEATS"));
+  value1.append(Json::Value("SA-21"));
+  value1.append(Json::Value("RADIO"));
+  value1.append(Json::Value("Improved Kilo"));
+  Optional<ModuleTypes> few_wrong_modules(&value1);
+  EXPECT_TRUE(validator.Validate(few_wrong_modules));
+  EXPECT_TRUE(few_wrong_modules->is_initialized());
+  EXPECT_EQ(2u, few_wrong_modules->size());
+  EXPECT_EQ(ModuleType::MT_SEATS, few_wrong_modules->at(0));
+  EXPECT_EQ(ModuleType::MT_RADIO, few_wrong_modules->at(1));
+
+  Json::Value value2(Json::arrayValue);
+  value2.append(Json::Value("SS-N-27"));
+  value2.append(Json::Value("Satan-2"));
+  Optional<ModuleTypes> wrong_modules_at_all(&value2);
+  EXPECT_TRUE(validator.Validate(wrong_modules_at_all));
+  EXPECT_FALSE(wrong_modules_at_all->is_initialized());
+  EXPECT_TRUE(wrong_modules_at_all->empty());
 }
 
 }  // namespace policy_table_interface_base

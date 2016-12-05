@@ -1,7 +1,6 @@
 // This file is generated, do not edit
 #ifndef POLICY_TABLE_INTERFACE_BASE_POLICY_TABLE_INTERFACE_BASE_TYPES_H_
 #define POLICY_TABLE_INTERFACE_BASE_POLICY_TABLE_INTERFACE_BASE_TYPES_H_
-#include "utils/macro.h"
 #include "./enums.h"
 #include "rpc_base/rpc_message.h"
 namespace Json {
@@ -89,8 +88,6 @@ struct ApplicationParams : CompositeType {
     virtual void SetPolicyTableType(PolicyTableType pt_type);
   private:
     bool Validate() const;
-    bool ValidateModuleTypes() const;
-    FRIEND_TEST(ApplicationParamsValidationTest, ValidateModuleTypes);
 };
 
 struct RpcParameters : CompositeType {
@@ -168,7 +165,6 @@ struct Equipment : CompositeType {
     virtual void SetPolicyTableType(PolicyTableType pt_type);
   private:
     bool Validate() const;
-    inline bool ValidateNameZone(const std::string& name) const;
 };
 
 struct ModuleConfig : CompositeType {

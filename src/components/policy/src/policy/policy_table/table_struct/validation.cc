@@ -9,16 +9,17 @@
 namespace rpc {
 namespace policy_table_interface_base {
 bool ApplicationParams::Validate() const {
-  return ValidateModuleTypes();
+  return ModuleTypesValidator().Validate(moduleType);
 }
-bool ApplicationParams::ValidateModuleTypes() const {
+
+bool ModuleTypesValidator::Validate(Optional<ModuleTypes>& module_types) const {
   // moduleType is optional so see Optional<T>::is_valid()
-  bool is_initialized = moduleType->is_initialized();
+  bool is_initialized = module_types->is_initialized();
   if (!is_initialized) {
     // valid if not initialized
     return true;
   }
-  bool is_valid = moduleType->is_valid();
+  bool is_valid = module_types->is_valid();
   if (is_valid) {
     return true;
   }
@@ -29,14 +30,14 @@ bool ApplicationParams::ValidateModuleTypes() const {
     }
   };
   // cut invalid items
-  moduleType->erase(std::remove_if(moduleType->begin(), moduleType->end(),
+  module_types->erase(std::remove_if(module_types->begin(), module_types->end(),
                                    IsInvalid()),
-              moduleType->end());
-  bool empty = moduleType->empty();
+                      module_types->end());
+  bool empty = module_types->empty();
   if (empty) {
     // set non initialized value
     ModuleTypes non_initialized;
-    moduleType = Optional<ModuleTypes>(non_initialized);
+    module_types = Optional<ModuleTypes>(non_initialized);
   }
   return true;
 }
@@ -285,7 +286,7 @@ struct IsDeniedChar {
 };
 }  // namespace
 
-bool Equipment::ValidateNameZone(const std::string& name) const {
+bool ZonesValidator::ValidateNameZone(const std::string& name) const {
   if (name.empty()) {
     return false;
   }
@@ -301,7 +302,7 @@ bool Equipment::ValidateNameZone(const std::string& name) const {
   return false;
 }
 
-bool Equipment::Validate() const {
+bool ZonesValidator::Validate(const Zones& zones) const {
   for (Zones::const_iterator i = zones.begin(); i != zones.end(); ++i) {
     if (!ValidateNameZone(i->first)) {
       return false;
@@ -309,6 +310,10 @@ bool Equipment::Validate() const {
   }
   return true;
 }
+
+bool Equipment::Validate() const {
+  return ZonesValidator().Validate(zones);
+}
+
 }  // namespace policy_table_interface_base
 }  // namespace rpc
-
