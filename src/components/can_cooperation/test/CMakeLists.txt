@@ -20,6 +20,7 @@ set (SOURCES
   src/can_library_test.cc
   src/vehicle_capabilities_test.cc
   src/vehicle_data_subscription_test.cc
+  src/validators/validator.cc
 )
 
 set (LIBRARIES

@@ -30,6 +30,8 @@
  POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <algorithm>
+
 #include "can_cooperation/validators/validator.h"
 #include "can_cooperation/can_module_constants.h"
 #include "can_cooperation/message_helper.h"
@@ -40,8 +42,6 @@ namespace can_cooperation {
 namespace validators {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "Validator")
-
-Validator::~Validator() {}
 
 ValidationResult Validator::ValidateSimpleValues(const Json::Value& json,
                                        Json::Value& outgoing_json) {
@@ -196,88 +196,174 @@ ValidationResult Validator::ValidateStringValue(const std::string& value,
   return ValidationResult::SUCCESS;
 }
 
-// TODO(VS): this function needs refactoring(maybe better use vectors with enum values and find())
+const Validator::ValuesEnumMap Validator::values_ = Validator::PrepareEnumValidator();
+
+Validator::ValuesEnumMap Validator::PrepareEnumValidator() {
+  ValuesEnumMap values;
+  values[EnumType::BUTTON_NAME] = PrepareButtonName();
+  values[EnumType::MODULE_TYPE] = PrepareModuleType();
+  values[EnumType::RADIO_BAND] = PrepareRadioBand();
+  values[EnumType::RADIO_STATE] = PrepareRadioState();
+  values[EnumType::DEFROST_ZONE] = PrepareDefrostZone();
+  values[EnumType::BUTTON_PRESS_MODE] = PrepareButtonPressMode();
+  values[EnumType::VENTILATION_MODE] = PrepareVentilationMode();
+  values[EnumType::DISPLAY_MODE]= PrepareDisplayMode();
+  values[EnumType::DISTANCE_UNIT] = PrepareDistanceUnit();
+  values[EnumType::TEMPERATURE_UNIT] = PrepareTemperatureUnit();
+  values[EnumType::LUMBAR_POSITION] = PrepareLumbarPosition();
+  values[EnumType::MASSAGE_SEAT_ACTION] = PrepareMassageSeatAction();
+  values[EnumType::MASSAGE_SEAT_ZONE] = PrepareMassageSeatZone();
+  values[EnumType::MASSAGE_SEAT_LEVEL] = PrepareMassageSeatLevel();
+  values[EnumType::AUDIO_SOURCE] = PrepareAudioSource();
+  return values;
+}
+
+Validator::ValuesEnum Validator::PrepareButtonName() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kACMax);
+  enums.push_back(enums_value::kAC);
+  enums.push_back(enums_value::kRecirculate);
+  enums.push_back(enums_value::kFanUp);
+  enums.push_back(enums_value::kFanDown);
+  enums.push_back(enums_value::kTempUp);
+  enums.push_back(enums_value::kTempDown);
+  enums.push_back(enums_value::kDefrostMax);
+  enums.push_back(enums_value::kDefrost);
+  enums.push_back(enums_value::kDefrostRear);
+  enums.push_back(enums_value::kUpperVent);
+  enums.push_back(enums_value::kLowerVent);
+  enums.push_back(enums_value::kVolumeUp);
+  enums.push_back(enums_value::kVolumeDown);
+  enums.push_back(enums_value::kEject);
+  enums.push_back(enums_value::kSource);
+  enums.push_back(enums_value::kShuffle);
+  enums.push_back(enums_value::kRepeat);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareModuleType() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kRadio);
+  enums.push_back(enums_value::kAuido);
+  enums.push_back(enums_value::kClimate);
+  enums.push_back(enums_value::kSeats);
+  enums.push_back(enums_value::kHmiSettings);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareRadioBand() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kAM);
+  enums.push_back(enums_value::kFM);
+  enums.push_back(enums_value::kXM);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareRadioState() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kAcquiring);
+  enums.push_back(enums_value::kAcquired);
+  enums.push_back(enums_value::kNotFound);
+  enums.push_back(enums_value::kMulticast);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareDefrostZone() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kFront);
+  enums.push_back(enums_value::kRear);
+  enums.push_back(enums_value::kAll);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareButtonPressMode() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kLong);
+  enums.push_back(enums_value::kShort);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareVentilationMode() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kUpper);
+  enums.push_back(enums_value::kLower);
+  enums.push_back(enums_value::kBoth);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareDisplayMode() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kDay);
+  enums.push_back(enums_value::kNight);
+  enums.push_back(enums_value::kAuto);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareDistanceUnit() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kMiles);
+  enums.push_back(enums_value::kKilometers);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareTemperatureUnit() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kFahrenheit);
+  enums.push_back(enums_value::kCelsius);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareLumbarPosition() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kTop);
+  enums.push_back(enums_value::kMiddle);
+  enums.push_back(enums_value::kBottom);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareMassageSeatAction() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kStart);
+  enums.push_back(enums_value::kStop);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareMassageSeatZone() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kLumbar);
+  enums.push_back(enums_value::kBottom);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareMassageSeatLevel() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kHigh);
+  enums.push_back(enums_value::kLow);
+  return enums;
+}
+
+Validator::ValuesEnum Validator::PrepareAudioSource() {
+  ValuesEnum enums;
+  enums.push_back(enums_value::kCD);
+  enums.push_back(enums_value::kBluetooth);
+  enums.push_back(enums_value::kTuner);
+  return enums;
+}
+
+
 ValidationResult Validator::ValidateEnumValue(const std::string& value,
                                             ValidationScope& validation_scope) {
-  if (validation_scope[ValidationParams::ENUM_TYPE] ==
-      EnumType::MODULE_TYPE) {
-    if (value != enums_value::kClimate &&
-        value != enums_value::kRadio) {
-      LOG4CXX_ERROR(logger_, "Wrong ModuleType enum value!");
-      return ValidationResult::INVALID_DATA;
-    }
-/*  } else if (validation_scope[ValidationParams::ENUM_TYPE] ==
-    EnumType::TRIGGER_SOURCE) {
-    if (value != enums_value::kMenu &&
-        value != enums_value::kVR) {
-      LOG4CXX_ERROR(logger_, "Wrong triggerSource enum value!");
-      return ValidationResult::INVALID_DATA;
-    }*/
-  } else if (validation_scope[ValidationParams::ENUM_TYPE] ==
-      EnumType::RADIO_BAND) {
-    if (value != enums_value::kFM &&
-        value != enums_value::kAM &&
-        value != enums_value::kXM) {
-      LOG4CXX_ERROR(logger_, "Wrong RadioBand enum value!");
-      return ValidationResult::INVALID_DATA;
-    }
-  }  else if (validation_scope[ValidationParams::ENUM_TYPE] ==
-      EnumType::RADIO_STATE) {
-    if (value != enums_value::kAcquiring &&
-        value != enums_value::kAcquired  &&
-        value != enums_value::kMulticast &&
-        value != enums_value::kNotFound) {
-      LOG4CXX_ERROR(logger_, "Wrong RadioState enum value!");
-      return ValidationResult::INVALID_DATA;
-    }
-  } else if (validation_scope[ValidationParams::ENUM_TYPE] ==
-      EnumType::DEFROST_ZONE) {
-    if (value != enums_value::kFront &&
-        value != enums_value::kRear  &&
-        value != enums_value::kAll) {
-      LOG4CXX_ERROR(logger_, "Wrong DefrostZone enum value!");
-      return ValidationResult::INVALID_DATA;
-    }
-  } else if (validation_scope[ValidationParams::ENUM_TYPE] ==
-        EnumType::VENTILATION_MODE) {
-      if (value != enums_value::kUpper &&
-          value != enums_value::kLower &&
-          value != enums_value::kBoth) {
-        LOG4CXX_ERROR(logger_, "Wrong VentilationMode enum value!");
-        return ValidationResult::INVALID_DATA;
-      }
-  } else if (validation_scope[ValidationParams::ENUM_TYPE] ==
-      EnumType::BUTTON_NAME) {
-    if (value != enums_value::kACMax       &&
-        value != enums_value::kAC          &&
-        value != enums_value::kRecirculate &&
-        value != enums_value::kFanUp       &&
-        value != enums_value::kFanDown     &&
-        value != enums_value::kTempUp      &&
-        value != enums_value::kTempDown    &&
-        value != enums_value::kDefrostMax  &&
-        value != enums_value::kDefrost     &&
-        value != enums_value::kDefrostRear &&
-        value != enums_value::kUpperVent   &&
-        value != enums_value::kLowerVent   &&
-        value != enums_value::kVolumeUp    &&
-        value != enums_value::kVolumeDown  &&
-        value != enums_value::kEject       &&
-        value != enums_value::kSource      &&
-        value != enums_value::kShuffle     &&
-        value != enums_value::kRepeat) {
-      LOG4CXX_ERROR(logger_, "Wrong ButtonName enum value!");
-      return ValidationResult::INVALID_DATA;
-    }
-  } else if (validation_scope[ValidationParams::ENUM_TYPE] ==
-      EnumType::BUTTON_PRESS_MODE) {
-    if (value != enums_value::kLong &&
-        value != enums_value::kShort) {
-      LOG4CXX_ERROR(logger_, "Wrong ButtonPressMode enum value!");
-      return ValidationResult::INVALID_DATA;
-    }
-  } else {
-    LOG4CXX_ERROR(logger_, "Unknow enum!");
+  int type = validation_scope[ValidationParams::ENUM_TYPE];
+  ValuesEnumMap::const_iterator i = values_.find(type);
+  if (i == values_.end()) {
+    LOG4CXX_ERROR(logger_, "Unknow enum: " << type);
+    return ValidationResult::INVALID_DATA;
+  }
+
+  const ValuesEnum& enums = i->second;
+  bool found = std::find(enums.begin(), enums.end(), value) != enums.end();
+  if (!found) {
+    LOG4CXX_ERROR(logger_, "Wrong value for enum: " << type);
     return ValidationResult::INVALID_DATA;
   }
 

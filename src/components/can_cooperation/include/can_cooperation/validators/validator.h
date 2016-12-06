@@ -37,6 +37,7 @@
 #include <string>
 
 #include "json/json.h"
+#include "utils/macro.h"
 
 namespace can_cooperation {
 
@@ -98,9 +99,6 @@ typedef std::map<std::string, ValidationScope*> ValidationScopeMap;
  * @brief Class for simple data types validation
  */
 class Validator {
- public:
-  virtual ~Validator() = 0;
-
  protected:
   /**
    * @brief Validate simple values(integers, strings, boolean), cut fake params,
@@ -119,6 +117,27 @@ class Validator {
   ValidationScopeMap validation_scope_map_;
 
  private:
+  typedef std::vector<std::string> ValuesEnum;
+  typedef std::map<int, ValuesEnum> ValuesEnumMap;
+  static const ValuesEnumMap values_;
+
+  static ValuesEnumMap PrepareEnumValidator();
+  static ValuesEnum PrepareButtonName();
+  static ValuesEnum PrepareModuleType();
+  static ValuesEnum PrepareRadioBand();
+  static ValuesEnum PrepareRadioState();
+  static ValuesEnum PrepareDefrostZone();
+  static ValuesEnum PrepareButtonPressMode();
+  static ValuesEnum PrepareVentilationMode();
+  static ValuesEnum PrepareDisplayMode();
+  static ValuesEnum PrepareDistanceUnit();
+  static ValuesEnum PrepareTemperatureUnit();
+  static ValuesEnum PrepareLumbarPosition();
+  static ValuesEnum PrepareMassageSeatAction();
+  static ValuesEnum PrepareMassageSeatZone();
+  static ValuesEnum PrepareMassageSeatLevel();
+  static ValuesEnum PrepareAudioSource();
+
   /**
    * @brief Validate value
    *
@@ -187,6 +206,9 @@ class Validator {
    */
   ValidationResult ValidateDoubleValue(double value,
                                        ValidationScope& validation_scope);
+
+  FRIEND_TEST(EnumValidatorTest, ValidateEnumValueSuccess);
+  FRIEND_TEST(EnumValidatorTest, ValidateEnumValueInvalidData);
 };
 
 }  // namespace validators
