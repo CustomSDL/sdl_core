@@ -35,6 +35,8 @@
 #include "can_cooperation/validators/struct_validators/radio_control_data_validator.h"
 #include "can_cooperation/validators/struct_validators/climate_control_data_validator.h"
 #include "can_cooperation/validators/struct_validators/hmi_control_data_validator.h"
+#include "can_cooperation/validators/struct_validators/audio_control_data_validator.h"
+#include "can_cooperation/validators/struct_validators/seats_control_data_validator.h"
 #include "can_cooperation/can_module_constants.h"
 #include "can_cooperation/message_helper.h"
 
@@ -115,10 +117,18 @@ ValidationResult ModuleDataValidator::Validate(const Json::Value& json,
     }
   } else if (enums_value::kAuido == outgoing_json[kModuleType].asString()) {
     if (IsMember(json, kAudioControlData)) {
-      return HMIControlDataValidator::instance()->Validate(
+      return AudioControlDataValidator::instance()->Validate(
           json[kAudioControlData], outgoing_json[kAudioControlData]);
     } else {
       LOG4CXX_ERROR(logger_, "Audio control data missed!");
+      return ValidationResult::INVALID_DATA;
+    }
+  } else if (enums_value::kSeats == outgoing_json[kModuleType].asString()) {
+    if (IsMember(json, kSeatsControlData)) {
+      return SeatsControlDataValidator::instance()->Validate(
+          json[kSeatsControlData], outgoing_json[kSeatsControlData]);
+    } else {
+      LOG4CXX_ERROR(logger_, "Seats control data missed!");
       return ValidationResult::INVALID_DATA;
     }
   } else {

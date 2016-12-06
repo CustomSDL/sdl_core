@@ -77,7 +77,8 @@ set (SOURCES
     ./src/validators/struct_validators/temperature_validator.cc
     ./src/validators/struct_validators/hmi_control_data_validator.cc
     ./src/validators/struct_validators/equalizer_settings_validator.cc
-	./src/validators/struct_validators/audio_control_data_validator.cc    
+    ./src/validators/struct_validators/audio_control_data_validator.cc   
+    ./src/validators/struct_validators/seats_control_data_validator.cc   	 
     ./src/validators/button_press_request_validator.cc
     ./src/validators/get_interior_vehicle_data_capabilities_request_validator.cc
     ./src/validators/get_interior_vehicle_data_request_validator.cc
