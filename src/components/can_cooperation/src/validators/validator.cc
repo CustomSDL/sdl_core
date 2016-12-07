@@ -284,6 +284,25 @@ ValidationResult Validator::ValidateEnumValue(const std::string& value,
   return ValidationResult::SUCCESS;
 }
 
+ValidationResult Validator::ValidateArrray(const Json::Value& json,
+                                           const std::string& array_name,
+                                           int min_size,
+                                           int max_size) {
+  if (!json.isArray()) {
+    LOG4CXX_INFO(logger_, array_name <<" " <<" must be array!.");
+    return ValidationResult::INVALID_DATA;
+  }
+
+  int size = json.size();
+
+  if ((size < min_size) || (size > max_size)) {
+    LOG4CXX_INFO(logger_, array_name <<" " <<" out of scope!.");
+    return ValidationResult::INVALID_DATA;
+  }
+
+  return ValidationResult::SUCCESS;
+}
+
 }  // namespace validators
 
 }  // namespace can_cooperation

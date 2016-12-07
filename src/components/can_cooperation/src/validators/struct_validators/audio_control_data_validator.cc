@@ -79,25 +79,26 @@ ValidationResult AudioControlDataValidator::Validate(const Json::Value& json,
     return result;
   }
 
-  const int array_min_size = 1;
-  const int array_max_size = 10;
-
-  // TODO(VS): create main function for array with struct validation
   if (IsMember(json, kEqualizerSettings)) {
-    int array_size = json[kEqualizerSettings].size();
-    if (json[kEqualizerSettings].isArray() && (array_size >= array_min_size)
-        && (array_size <= array_max_size)) {
-      for (int i = 0; i < array_size; ++i) {
-        result = validators::EqualizerSettingsValidator::instance()->Validate(
-            json[kEqualizerSettings][i], outgoing_json[kEqualizerSettings][i]);
 
-        if (result != ValidationResult::SUCCESS) {
-          return result;
-        }
+    result = Validator::ValidateArrray(json[kEqualizerSettings],
+                                       kEqualizerSettings,
+                                       equalizer_settings_array_min_size,
+                                       equalizer_settings_array_max_size);
+
+    if (result != ValidationResult::SUCCESS) {
+      return result;
+    }
+
+    int array_size = json[kEqualizerSettings].size();
+
+    for (int i = 0; i < array_size; ++i) {
+      result = validators::EqualizerSettingsValidator::instance()->Validate(
+          json[kEqualizerSettings][i], outgoing_json[kEqualizerSettings][i]);
+
+      if (result != ValidationResult::SUCCESS) {
+        return result;
       }
-    } else {
-      LOG4CXX_ERROR(logger_, "EqualizerSettings wrong data!");
-      return INVALID_DATA;
     }
   }
 
