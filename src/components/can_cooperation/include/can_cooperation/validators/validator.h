@@ -114,6 +114,22 @@ class Validator {
   ValidationResult ValidateSimpleValues(const Json::Value& json,
                                         Json::Value& outgoing_json);
 
+  /**
+   * @brief Validate array with structures
+   *
+   * @param json incoming json with array
+   * @param array_name used for logging
+   * @param min_size min size of array
+   * @param max size max size of array
+   *
+   * @return validation result(SUCCESS if value is array,
+   *                           and its size is in a scope )
+   */
+  static ValidationResult ValidateArrray(const Json::Value& json,
+                                         const std::string& array_name,
+                                         int min_size,
+                                         int max_size);
+
   ValidationScopeMap validation_scope_map_;
 
  private:
