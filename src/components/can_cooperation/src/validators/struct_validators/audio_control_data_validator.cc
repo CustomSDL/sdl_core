@@ -45,7 +45,10 @@ using message_params::kSource;
 using message_params::kAudioVolume;
 using message_params::kEqualizerSettings;
 
-AudioControlDataValidator::AudioControlDataValidator() {
+
+AudioControlDataValidator::AudioControlDataValidator()
+    : equalizer_settings_array_scope_
+      ({ EqualizerSettingsValidator::instance(), kEqualizerSettings, 1, 10 }) {
 
   // name="source"
   source_[ValidationParams::TYPE] = ValueType::ENUM;
@@ -62,6 +65,9 @@ AudioControlDataValidator::AudioControlDataValidator() {
 
   validation_scope_map_[kSource] = &source_;
   validation_scope_map_[kAudioVolume] = &audio_volume_;
+
+  /*  const ArrayWithStructureScope equalizer_settings_array_scope(
+      EqualizerSettingsValidator::instance(), kEqualizerSettings, 1, 10);*/
 }
 
 ValidationResult AudioControlDataValidator::Validate(const Json::Value& json,
@@ -80,25 +86,12 @@ ValidationResult AudioControlDataValidator::Validate(const Json::Value& json,
   }
 
   if (IsMember(json, kEqualizerSettings)) {
-
     result = Validator::ValidateArrray(json[kEqualizerSettings],
-                                       kEqualizerSettings,
-                                       equalizer_settings_array_min_size,
-                                       equalizer_settings_array_max_size);
+                                       outgoing_json[kEqualizerSettings],
+                                       equalizer_settings_array_scope_);
 
     if (result != ValidationResult::SUCCESS) {
       return result;
-    }
-
-    int array_size = json[kEqualizerSettings].size();
-
-    for (int i = 0; i < array_size; ++i) {
-      result = validators::EqualizerSettingsValidator::instance()->Validate(
-          json[kEqualizerSettings][i], outgoing_json[kEqualizerSettings][i]);
-
-      if (result != ValidationResult::SUCCESS) {
-        return result;
-      }
     }
   }
 

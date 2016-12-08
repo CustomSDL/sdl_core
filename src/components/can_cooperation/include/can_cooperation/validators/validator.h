@@ -101,6 +101,17 @@ class Validator {
  public:
   virtual ~Validator() = 0;
 
+  /**
+   * @brief Validate json with message params
+   *
+   * @param json incoming json
+   * @param outgoing_json outgoing json where is param will be copied after verification
+   *
+   * @return validation result
+   */
+  virtual ValidationResult Validate(const Json::Value& json,
+                            Json::Value& outgoing_json);
+
  protected:
   /**
    * @brief Validate simple values(integers, strings, boolean), cut fake params,
@@ -116,21 +127,27 @@ class Validator {
   ValidationResult ValidateSimpleValues(const Json::Value& json,
                                         Json::Value& outgoing_json);
 
+  struct ArrayWithStructureScope;
+
   /**
    * @brief Validate array with structures
    *
    * @param json incoming json with array
-   * @param array_name used for logging
-   * @param min_size min size of array
-   * @param max size max size of array
+    * @param outgoing_json outgoing json where is param will be copied
+   * @param scope validation params
    *
-   * @return validation result(SUCCESS if value is array,
-   *                           and its size is in a scope )
+   * @return validation result
    */
   static ValidationResult ValidateArrray(const Json::Value& json,
-                                         const std::string& array_name,
-                                         int min_size,
-                                         int max_size);
+                                         Json::Value& outgoing_json,
+                                         const ArrayWithStructureScope& scope) ;
+
+  struct ArrayWithStructureScope {
+    Validator* validator;
+    const char* array_name;
+    int min_size;
+    int max_size;
+  };
 
   ValidationScopeMap validation_scope_map_;
 
