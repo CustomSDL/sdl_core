@@ -65,9 +65,6 @@ AudioControlDataValidator::AudioControlDataValidator()
 
   validation_scope_map_[kSource] = &source_;
   validation_scope_map_[kAudioVolume] = &audio_volume_;
-
-  /*  const ArrayWithStructureScope equalizer_settings_array_scope(
-      EqualizerSettingsValidator::instance(), kEqualizerSettings, 1, 10);*/
 }
 
 ValidationResult AudioControlDataValidator::Validate(const Json::Value& json,
@@ -87,8 +84,8 @@ ValidationResult AudioControlDataValidator::Validate(const Json::Value& json,
 
   if (IsMember(json, kEqualizerSettings)) {
     result = Validator::ValidateArrray(json[kEqualizerSettings],
-                                       outgoing_json[kEqualizerSettings],
-                                       equalizer_settings_array_scope_);
+                                       equalizer_settings_array_scope_,
+                                       outgoing_json[kEqualizerSettings]);
 
     if (result != ValidationResult::SUCCESS) {
       return result;

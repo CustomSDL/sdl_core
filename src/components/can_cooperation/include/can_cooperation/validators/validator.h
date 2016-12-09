@@ -110,7 +110,7 @@ class Validator {
    * @return validation result
    */
   virtual ValidationResult Validate(const Json::Value& json,
-                            Json::Value& outgoing_json);
+                                    Json::Value& outgoing_json);
 
  protected:
   /**
@@ -139,8 +139,8 @@ class Validator {
    * @return validation result
    */
   static ValidationResult ValidateArrray(const Json::Value& json,
-                                         Json::Value& outgoing_json,
-                                         const ArrayWithStructureScope& scope) ;
+                                         const ArrayWithStructureScope& scope,
+                                         Json::Value& outgoing_json);
 
   struct ArrayWithStructureScope {
     Validator* validator;

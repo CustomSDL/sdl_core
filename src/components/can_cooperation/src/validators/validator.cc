@@ -44,7 +44,7 @@ CREATE_LOGGERPTR_GLOBAL(logger_, "Validator")
 Validator::~Validator() {}
 
 ValidationResult Validator::Validate(const Json::Value& json,
-                            Json::Value& outgoing_json) {
+                                     Json::Value& outgoing_json) {
   LOG4CXX_AUTO_TRACE(logger_);
   // VS: created non-pure virtual for unit tests
   return ValidationResult::SUCCESS;
@@ -292,8 +292,8 @@ ValidationResult Validator::ValidateEnumValue(const std::string& value,
 }
 
 ValidationResult Validator::ValidateArrray(const Json::Value& json,
-                                         Json::Value& outgoing_json,
-                                         const ArrayWithStructureScope& scope) {
+                                           const ArrayWithStructureScope& scope,
+                                           Json::Value& outgoing_json) {
   if (!json.isArray()) {
     LOG4CXX_INFO(logger_, scope.array_name <<" " <<" must be array!.");
     return ValidationResult::INVALID_DATA;
