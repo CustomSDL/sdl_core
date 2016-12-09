@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Ford Motor Company
+ * Copyright (c) 2016, Ford Motor Company
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,37 +30,37 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <vector>
+
 #include "gtest/gtest.h"
-#include "can_cooperation/vehicle_capabilities.h"
+#include "types.h"
+#include "validation.h"
 
-namespace can_cooperation {
+namespace rpc {
+namespace policy_table_interface_base {
 
-TEST(VehicleCapabilities, Load) {
-  VehicleCapabilities caps;
-  ASSERT_EQ(Json::ValueType::arrayValue, caps.capabilities().type());
+TEST(ZonesValidationTest, Validate) {
+  ZonesValidator validator;
+
+  Zones empty;
+  EXPECT_TRUE(validator.Validate(empty));
+
+  Zones good_name;
+  good_name["Driver"];
+  EXPECT_TRUE(validator.Validate(good_name));
+
+  Zones empty_name;
+  empty_name[""];
+  EXPECT_FALSE(validator.Validate(empty_name));
+
+  Zones wrong_name;
+  wrong_name["Driver 1"] = InteriorZone();
+  EXPECT_FALSE(validator.Validate(wrong_name));
+
+  Zones wrong_name_2;
+  wrong_name_2["Driver#1"] = InteriorZone();
+  EXPECT_FALSE(validator.Validate(wrong_name_2));
 }
 
-TEST(VehicleCapabilities, GetCapabilities) {
-  VehicleCapabilities caps;
-  ASSERT_EQ(Json::ValueType::arrayValue, caps.capabilities().type());
-  ASSERT_EQ(6u, caps.capabilities().size());
-}
-
-TEST(VehicleCapabilities, GetSpecificCapabilities) {
-  VehicleCapabilities caps;
-  Json::Value value;
-  value["col"] = 0;
-  value["row"] = 0;
-  value["level"] = 0;
-  value["colspan"] = 2;
-  value["rowspan"] = 2;
-  value["levelspan"] = 1;
-  ASSERT_EQ(Json::ValueType::arrayValue, caps.capabilities(value).type());
-  ASSERT_EQ(2u, caps.capabilities(value).size());
-
-  value["row"] = 1;
-  ASSERT_EQ(Json::ValueType::arrayValue, caps.capabilities(value).type());
-  ASSERT_EQ(1u, caps.capabilities(value).size());
-}
-
-}  // namespace can_cooperation
+}  // namespace policy_table_interface_base
+}  // namespace rpc

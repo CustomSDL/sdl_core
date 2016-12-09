@@ -40,6 +40,8 @@ set (SOURCES
 
 add_library("FunctionalModule" ${SOURCES})
 
+add_dependencies(FunctionalModule MOBILE_API)
+
 if(ENABLE_LOG)
   target_link_libraries("FunctionalModule" log4cxx -L${LOG4CXX_LIBS_DIRECTORY} ${GCOV})
 endif()

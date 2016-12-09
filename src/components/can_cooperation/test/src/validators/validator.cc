@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Ford Motor Company
+ * Copyright (c) 2016, Ford Motor Company
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,37 +30,50 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "gtest/gtest.h"
-#include "can_cooperation/vehicle_capabilities.h"
+#include "can_cooperation/validators/validator.h"
 
 namespace can_cooperation {
+namespace validators {
 
-TEST(VehicleCapabilities, Load) {
-  VehicleCapabilities caps;
-  ASSERT_EQ(Json::ValueType::arrayValue, caps.capabilities().type());
+class EnumValidatorTest : public ::testing::TestWithParam<EnumType> {
+};
+
+TEST_P(EnumValidatorTest, ValidateEnumValueSuccess) {
+  Validator validator;
+
+  EnumType type = GetParam();
+  ValidationScope scope;
+  scope[ValidationParams::ENUM_TYPE] = type;
+  const Validator::ValuesEnum& values = Validator::values_.at(type);
+  for (Validator::ValuesEnum::const_iterator i = values.begin();
+      i != values.end(); ++i) {
+    EXPECT_EQ(ValidationResult::SUCCESS,
+        validator.ValidateEnumValue(*i, scope)) << ::testing::PrintToString(*i);
+  }
 }
 
-TEST(VehicleCapabilities, GetCapabilities) {
-  VehicleCapabilities caps;
-  ASSERT_EQ(Json::ValueType::arrayValue, caps.capabilities().type());
-  ASSERT_EQ(6u, caps.capabilities().size());
+TEST_P(EnumValidatorTest, ValidateEnumValueInvalidData) {
+  Validator validator;
+
+  ValidationScope scope;
+  scope[ValidationParams::ENUM_TYPE] = GetParam();
+  EXPECT_EQ(ValidationResult::INVALID_DATA,
+            validator.ValidateEnumValue("TrueInvalidDataEnumError", scope));
 }
 
-TEST(VehicleCapabilities, GetSpecificCapabilities) {
-  VehicleCapabilities caps;
-  Json::Value value;
-  value["col"] = 0;
-  value["row"] = 0;
-  value["level"] = 0;
-  value["colspan"] = 2;
-  value["rowspan"] = 2;
-  value["levelspan"] = 1;
-  ASSERT_EQ(Json::ValueType::arrayValue, caps.capabilities(value).type());
-  ASSERT_EQ(2u, caps.capabilities(value).size());
+INSTANTIATE_TEST_CASE_P(
+    ValidatorsTest,
+    EnumValidatorTest,
+    ::testing::Values(BUTTON_NAME, MODULE_TYPE, RADIO_BAND, RADIO_STATE,
+                      DEFROST_ZONE, BUTTON_PRESS_MODE, VENTILATION_MODE,
+                      DISPLAY_MODE, DISTANCE_UNIT, TEMPERATURE_UNIT,
+                      LUMBAR_POSITION, MASSAGE_SEAT_ACTION, MASSAGE_SEAT_ZONE,
+                      MASSAGE_SEAT_LEVEL, AUDIO_SOURCE));
 
-  value["row"] = 1;
-  ASSERT_EQ(Json::ValueType::arrayValue, caps.capabilities(value).type());
-  ASSERT_EQ(1u, caps.capabilities(value).size());
-}
-
+}  // namespace validators
 }  // namespace can_cooperation
