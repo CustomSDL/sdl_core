@@ -43,7 +43,8 @@ namespace validators {
 /**
  * @brief EqualizerSettingsValidator class
  */
-class EqualizerSettingsValidator : public Validator, public utils::Singleton<EqualizerSettingsValidator> {
+class EqualizerSettingsValidator : public Validator,
+    public utils::Singleton<EqualizerSettingsValidator> {
  public:
 
   /**

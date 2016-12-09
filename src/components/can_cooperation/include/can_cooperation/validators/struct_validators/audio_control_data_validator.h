@@ -62,8 +62,7 @@ class AudioControlDataValidator : public Validator, public utils::Singleton<Audi
   FRIEND_BASE_SINGLETON_CLASS(AudioControlDataValidator);
   AudioControlDataValidator();
 
-  static const int equalizer_settings_array_min_size = 1;
-  static const int equalizer_settings_array_max_size = 10;
+  const ArrayWithStructureScope equalizer_settings_array_scope_;
 
   ValidationScope source_;
   ValidationScope audio_volume_;

@@ -43,6 +43,13 @@ namespace validators {
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "Validator")
 
+ValidationResult Validator::Validate(const Json::Value& json,
+                                     Json::Value& outgoing_json) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  // VS: created non-pure virtual for unit tests
+  return ValidationResult::SUCCESS;
+}
+
 ValidationResult Validator::ValidateSimpleValues(const Json::Value& json,
                                        Json::Value& outgoing_json) {
   ValidationScopeMap::iterator it = validation_scope_map_.begin();
@@ -371,19 +378,29 @@ ValidationResult Validator::ValidateEnumValue(const std::string& value,
 }
 
 ValidationResult Validator::ValidateArrray(const Json::Value& json,
-                                           const std::string& array_name,
-                                           int min_size,
-                                           int max_size) {
+                                           const ArrayWithStructureScope& scope,
+                                           Json::Value& outgoing_json) {
   if (!json.isArray()) {
-    LOG4CXX_INFO(logger_, array_name <<" " <<" must be array!.");
+    LOG4CXX_INFO(logger_, scope.array_name <<" " <<" must be array!.");
     return ValidationResult::INVALID_DATA;
   }
 
-  int size = json.size();
+  int array_size = json.size();
 
-  if ((size < min_size) || (size > max_size)) {
-    LOG4CXX_INFO(logger_, array_name <<" " <<" out of scope!.");
+  if ((array_size < scope.min_size) || (array_size > scope.max_size)) {
+    LOG4CXX_INFO(logger_, scope.array_name <<" " <<" out of scope!.");
     return ValidationResult::INVALID_DATA;
+  }
+
+  ValidationResult result = ValidationResult::SUCCESS;
+
+  for (int i = 0; i < array_size; ++i) {
+    result = scope.validator->Validate(
+        json[i], outgoing_json[i]);
+
+    if (result != ValidationResult::SUCCESS) {
+      return result;
+    }
   }
 
   return ValidationResult::SUCCESS;
