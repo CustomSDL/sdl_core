@@ -9,7 +9,10 @@
                   "level": 0,
                   "auto_allow": {
                     "RADIO": {},
-                    "CLIMATE": {}
+                    "CLIMATE": {},
+                    "AUDIO": {},
+                    "SEATS": {},
+                    "HMI_SETTINGS": {}
                   },
                   "driver_allow": {}
                 },
@@ -21,7 +24,10 @@
                     "CLIMATE": {}
                   },
                   "driver_allow": {
-                    "RADIO": {}
+                    "RADIO": {},
+                    "AUDIO": {},
+                    "SEATS": {},
+                    "HMI_SETTINGS": {}
                   }
                 },
                 "Left_Rear_Passenger": {
@@ -31,6 +37,10 @@
                   "auto_allow": {
                     "RADIO": {
                       "ButtonPress": []
+                    },
+                    "AUDIO": {
+                      "GetInteriorVehicleData": [],
+                      "SetInteriorVehicleData": ["source", "audioVolume"]
                     }
                   },
                   "driver_allow": {
@@ -41,7 +51,15 @@
                     "CLIMATE": {
                       "ButtonPress": [],
                       "GetInteriorVehicleData": [],
-                      "SetInteriorVehicleData": ["fanSpeed", "desiredTemp", "temperatureUnit"]
+                      "SetInteriorVehicleData": ["fanSpeed", "desiredTemp"]
+                    },
+                    "SEATS": {
+                      "GetInteriorVehicleData": [],
+                      "SetInteriorVehicleData": []
+                    },
+                    "HMI_SETTINGS": {
+                      "GetInteriorVehicleData": [],
+                      "SetInteriorVehicleData": ["temperatureUnit"]
                     }
                   }
                 },
@@ -50,11 +68,16 @@
                   "row": 1,
                   "level": 0,
                   "auto_allow": {
-                      "RADIO": {
-                        "SetInteriorVehicleData": ["frequencyInteger"]
+                    "RADIO": {
+                      "SetInteriorVehicleData": ["frequencyInteger"]
                     }
                   },
-                  "driver_allow": {}
+                  "driver_allow": {
+                    "SEATS": {
+                      "GetInteriorVehicleData": [],
+                      "SetInteriorVehicleData": ["cooledSeats", "cooledSeatLevel", "massageSeat"]
+                    }
+                  }
                 }
               }
             },
