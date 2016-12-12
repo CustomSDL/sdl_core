@@ -49,6 +49,7 @@ using message_params::kBackTiltPosition;
 using message_params::kMassageSeat;
 using message_params::kMassageSeatZone;
 using message_params::kMassageSeatLevel;
+using message_params::kBackLumbarPosition;
 using message_params::kMassageEnabled;
 
 SeatsControlDataValidator::SeatsControlDataValidator() {
@@ -115,6 +116,12 @@ SeatsControlDataValidator::SeatsControlDataValidator() {
   massage_seat_level_[ValidationParams::ARRAY] = 0;
   massage_seat_level_[ValidationParams::MANDATORY] = 0;
 
+  // name="backLumbarPosition"
+  back_lumbar_position_[ValidationParams::TYPE] = ValueType::ENUM;
+  back_lumbar_position_[ValidationParams::ENUM_TYPE] = EnumType::LUMBAR_POSITION;
+  back_lumbar_position_[ValidationParams::ARRAY] = 0;
+  back_lumbar_position_[ValidationParams::MANDATORY] = 0;
+
   // name="massageEnabled"
   massage_enabled_[ValidationParams::TYPE] = ValueType::BOOL;
   massage_enabled_[ValidationParams::ARRAY] = 0;
@@ -130,6 +137,7 @@ SeatsControlDataValidator::SeatsControlDataValidator() {
   validation_scope_map_[kMassageSeat] = &massage_seat_;
   validation_scope_map_[kMassageSeatZone] = &massage_seat_zone_;
   validation_scope_map_[kMassageSeatLevel] = &massage_seat_level_;
+  validation_scope_map_[kBackLumbarPosition] = &back_lumbar_position_;
   validation_scope_map_[kMassageEnabled] = &massage_enabled_;
 }
 
@@ -153,6 +161,20 @@ ValidationResult SeatsControlDataValidator::Validate(const Json::Value& json,
   }
 
   return result;
+}
+
+void SeatsControlDataValidator::RemoveReadOnlyParams(Json::Value& json) {
+  if (json.isMember(kHeatedSeat)) {
+    json.removeMember(kHeatedSeat);
+  }
+
+  if (json.isMember(kCooledSeats)) {
+    json.removeMember(kCooledSeats);
+  }
+
+  if (json.isMember(kMassageEnabled)) {
+    json.removeMember(kMassageEnabled);
+  }
 }
 
 }  // namespace validators

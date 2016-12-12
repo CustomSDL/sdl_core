@@ -157,6 +157,14 @@ bool SetInteriorVehicleDataRequest::Validate() {
                   "Request contains just read only params!");
       return false;
     }
+  } else if (outgoing_json[kModuleData].isMember(kSeatsControlData)) {
+    validators::ClimateControlDataValidator::instance()->RemoveReadOnlyParams(
+        outgoing_json[kModuleData][kSeatsControlData]);
+    if (0 == outgoing_json[kModuleData][kSeatsControlData].size()) {
+      SendResponse(false, result_codes::kReadOnly,
+                  "Request contains just read only params!");
+      return false;
+    }
   }
 
   message_->set_json_message(MessageHelper::ValueToString(outgoing_json));

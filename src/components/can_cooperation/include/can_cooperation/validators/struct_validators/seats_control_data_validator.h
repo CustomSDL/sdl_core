@@ -57,6 +57,13 @@ class SeatsControlDataValidator : public Validator, public utils::Singleton<Seat
   ValidationResult Validate(const Json::Value& json,
                             Json::Value& outgoing_json);
 
+  /**
+   * @brief Remove read only params from json
+   *
+   * @param json incoming json. Read only params will be cut off.
+   */
+  void RemoveReadOnlyParams(Json::Value& json);
+
  private:
   DISALLOW_COPY_AND_ASSIGN(SeatsControlDataValidator);
   FRIEND_BASE_SINGLETON_CLASS(SeatsControlDataValidator);
@@ -73,6 +80,7 @@ class SeatsControlDataValidator : public Validator, public utils::Singleton<Seat
   ValidationScope massage_seat_zone_;
   ValidationScope massage_seat_level_;
   ValidationScope massage_enabled_;
+  ValidationScope back_lumbar_position_;
 };
 
 }  // namespace valdiators
