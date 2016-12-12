@@ -2406,7 +2406,7 @@
                 "steal_focus": false,
                 "priority": "NONE",
                 "default_hmi": "NONE",
-                "moduleType": ["RADIO", "CLIMATE"],
+                "moduleType": ["RADIO", "CLIMATE", "AUDIO", "SEATS", "HMI_SETTINGS"],
                 "groups": ["Base-4"],
                 "groups_primaryRC": ["Base-4", "RemoteControl"],
                 "groups_nonPrimaryRC": ["Notifications-RC", "RemoteControl"]

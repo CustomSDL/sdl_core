@@ -157,8 +157,6 @@ bool SetInteriorVehicleDataRequest::Validate() {
                   "Request contains just read only params!");
       return false;
     }
-  } else {
-    DCHECK(false);
   }
 
   message_->set_json_message(MessageHelper::ValueToString(outgoing_json));
