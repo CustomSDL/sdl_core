@@ -265,6 +265,7 @@ const char kBackTiltPosition[] = "backTiltPosition";
 const char kMassageSeat[] = "massageSeat";
 const char kMassageSeatZone[] = "massageSeatZone";
 const char kMassageSeatLevel[] = "massageSeatLevel";
+const char kBackLumbarPosition[] = "backLumbarPosition";
 const char kMassageEnabled[] = "massageEnabled";
 // SeatsControlData struct
 
