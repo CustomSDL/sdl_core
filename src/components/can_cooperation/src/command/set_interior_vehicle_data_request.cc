@@ -36,6 +36,7 @@
 #include "can_cooperation/validators/struct_validators/module_data_validator.h"
 #include "can_cooperation/validators/struct_validators/radio_control_data_validator.h"
 #include "can_cooperation/validators/struct_validators/climate_control_data_validator.h"
+#include "can_cooperation/validators/struct_validators/seats_control_data_validator.h"
 #include "can_cooperation/can_module_constants.h"
 #include "can_cooperation/message_helper.h"
 #include "functional_module/function_ids.h"
@@ -158,7 +159,7 @@ bool SetInteriorVehicleDataRequest::Validate() {
       return false;
     }
   } else if (outgoing_json[kModuleData].isMember(kSeatsControlData)) {
-    validators::ClimateControlDataValidator::instance()->RemoveReadOnlyParams(
+    validators::SeatsControlDataValidator::instance()->RemoveReadOnlyParams(
         outgoing_json[kModuleData][kSeatsControlData]);
     if (0 == outgoing_json[kModuleData][kSeatsControlData].size()) {
       SendResponse(false, result_codes::kReadOnly,
