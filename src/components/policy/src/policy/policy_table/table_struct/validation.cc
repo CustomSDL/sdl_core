@@ -193,7 +193,8 @@ static const std::string kSeatsParameters[] = {
     "massageSeat",
     "massageSeatZone",
     "massageSeatLevel",
-    "massageEnabled"
+    "massageEnabled",
+    "backLumbarPosition"
 };
 }  // namespace
 
