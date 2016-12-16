@@ -57,24 +57,27 @@ RequestController::~RequestController() {
   timer_.RemoveObserver(this);
 }
 
-void RequestController::AddRequest(const uint32_t& mobile_correlation_id,
+bool RequestController::AddRequest(const RequestId& uid,
                                    MobileRequestPtr request) {
-  // TODO(VS) Research and fix be problem with overlap correlation ids from two
-  // different apllications(on two different mobile devices)
-  mobile_request_list_[mobile_correlation_id] = request;
-  // TODO(VS): add app id
-  timer_.AddTrackable(TrackableMessage(0, mobile_correlation_id));
+  bool is_exist = mobile_request_list_.find(uid) != mobile_request_list_.end();
+  if (is_exist) {
+    LOG4CXX_ERROR(logger_,
+                  "Could not register request: duplicate of request id");
+    return false;
+  }
+  mobile_request_list_[uid] = request;
+  timer_.AddTrackable(TrackableMessage(uid.first, uid.second));
+  return true;
 }
 
-void RequestController::DeleteRequest(const uint32_t& mobile_correlation_id) {
-  mobile_request_list_.erase(mobile_correlation_id);
-  // TODO(VS): add app id
-  timer_.RemoveTrackable(TrackableMessage(0, mobile_correlation_id));
+void RequestController::DeleteRequest(const RequestId& uid) {
+  mobile_request_list_.erase(uid);
+  timer_.RemoveTrackable(TrackableMessage(uid.first, uid.second));
 }
 
 void RequestController::OnTimeoutTriggered(const TrackableMessage& expired) {
-  std::map<correlation_id, MobileRequestPtr>::iterator it =
-    mobile_request_list_.find(expired.correlation_id());
+  MobileRequestsList::iterator it = mobile_request_list_.find(
+      std::make_pair(expired.app_id(), expired.correlation_id()));
   if (mobile_request_list_.end() == it) {
     // no corresponding request found, error.
     return;

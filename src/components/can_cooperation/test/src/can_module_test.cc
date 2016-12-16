@@ -135,6 +135,8 @@ TEST_F(CanModuleTest, ProcessMessagePass) {
   application_manager::MessagePtr message = new application_manager::Message(
     protocol_handler::MessagePriority::FromServiceType(
       protocol_handler::ServiceType::kRpc));
+  message->set_connection_key(1);
+  message->set_correlation_id(1);
   message->set_function_id(MobileFunctionID::ON_INTERIOR_VEHICLE_DATA);
 
   std::string json = "{\"jsonrpc\": \"2.0\", \"method\": \"RC.OnInteriorVehicleData\",\

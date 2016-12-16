@@ -137,8 +137,14 @@ ProcessResult CANModule::ProcessMessage(application_manager::MessagePtr msg) {
   LOG4CXX_DEBUG(logger_, "Mobile message: " << msg->json_message());
 
   commands::Command* command = MobileCommandFactory::CreateCommand(msg);
-  if (command) {
-    request_controller_.AddRequest(msg->correlation_id(), command);
+  if (!command) {
+    return ProcessResult::CANNOT_PROCESS;
+  }
+
+  request_controller::RequestId uid = std::make_pair(msg->connection_key(),
+                                                     msg->correlation_id());
+  bool registered = request_controller_.AddRequest(uid, command);
+  if (registered) {
     command->Run();
   } else {
     return ProcessResult::CANNOT_PROCESS;
@@ -412,7 +418,9 @@ void CANModule::NotifyMobiles(application_manager::MessagePtr message) {
 void CANModule::SendResponseToMobile(application_manager::MessagePtr msg) {
   LOG4CXX_DEBUG(logger_, "Response to mobile: " << msg->json_message());
   service()->SendMessageToMobile(msg);
-  request_controller_.DeleteRequest(msg->correlation_id());
+  request_controller::RequestId uid = std::make_pair(msg->connection_key(),
+                                                     msg->correlation_id());
+  request_controller_.DeleteRequest(uid);
 }
 
 void CANModule::SendTimeoutResponseToMobile(
