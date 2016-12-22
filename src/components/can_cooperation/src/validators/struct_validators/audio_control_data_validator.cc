@@ -49,7 +49,6 @@ using message_params::kEqualizerSettings;
 AudioControlDataValidator::AudioControlDataValidator()
     : equalizer_settings_array_scope_
       ({ EqualizerSettingsValidator::instance(), kEqualizerSettings, 1, 10 }) {
-
   // name="source"
   source_[ValidationParams::TYPE] = ValueType::ENUM;
   source_[ValidationParams::ENUM_TYPE] = EnumType::AUDIO_SOURCE;

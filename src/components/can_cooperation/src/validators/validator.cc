@@ -143,9 +143,9 @@ ValidationResult Validator::Validate(const Json::Value& json,
 
     return ValidateIntValue(json.asInt(), validation_scope);
   } else if (ValueType::DOUBLE == validation_scope[ValidationParams::TYPE]) {
-    if ((!json.isDouble()) && (!json.isInt())) {     // Mobile SDK may to cut the floating point in some cases
-      LOG4CXX_ERROR(logger_, "Must be fractional!"); // for exmple: "35.0", "1.0". So it would be parsed like Integer
-      return ValidationResult::INVALID_DATA;         // by json reader.
+    if ((!json.isDouble()) && (!json.isInt())) {      // Mobile SDK may to cut the floating point in some cases
+      LOG4CXX_ERROR(logger_, "Must be fractional!");  // for exmple: "35.0", "1.0". So it would be parsed like Integer
+      return ValidationResult::INVALID_DATA;          // by json reader.
     }
 
     return ValidateDoubleValue(json.asDouble(), validation_scope);

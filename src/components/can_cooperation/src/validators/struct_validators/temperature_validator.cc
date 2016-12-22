@@ -45,7 +45,6 @@ using message_params::kValueF;
 using message_params::kUnit;
 
 TemperatureValidator::TemperatureValidator() {
-
   // name="ValueC"
   value_c_[ValidationParams::TYPE] = ValueType::DOUBLE;
   value_c_[ValidationParams::MIN_VALUE] = 14;

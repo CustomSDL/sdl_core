@@ -68,7 +68,7 @@ void ClimateControlOnRequest::OnEvent(
     Json::Reader reader;
     reader.parse(event.event_message()->json_message(), value);
 
-    bool success = ParseResultCode(value, result_code, info);
+    bool success = ParseResultCode(value, &result_code, &info);
 
     if (value.isMember("result") && value["result"].isMember("capabilities")) {
       response_params_["capabilities"] = value["result"]["capabilities"];

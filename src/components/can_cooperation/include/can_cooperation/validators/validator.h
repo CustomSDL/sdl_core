@@ -35,6 +35,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "json/json.h"
 #include "utils/macro.h"
@@ -100,6 +101,7 @@ typedef std::map<std::string, ValidationScope*> ValidationScopeMap;
  */
 class Validator {
  public:
+  virtual ~Validator() {}
 
   /**
    * @brief Validate json with message params

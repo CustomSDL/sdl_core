@@ -294,31 +294,28 @@ CANAppExtensionPtr BaseCommandRequest::GetAppExtension(
 }
 
 bool BaseCommandRequest::ParseResultCode(const Json::Value& value,
-    std::string& result_code,
-    std::string& info) {
-  result_code = result_codes::kInvalidData;
-  info = "";
+    std::string* result_code,
+    std::string* info) {
+  DCHECK_OR_RETURN(result_code, false);
+  DCHECK_OR_RETURN(info, false);
+  std::string code = result_codes::kInvalidData;
+  std::string message = "";
 
   if (IsMember(value, kResult) && IsMember(value[kResult], kCode)) {
-    result_code = GetMobileResultCode(
-                    static_cast<hmi_apis::Common_Result::eType>(
-                      value[kResult][kCode].asInt()));
+    code = GetMobileResultCode(static_cast<hmi_apis::Common_Result::eType>(
+        value[kResult][kCode].asInt()));
   } else if (IsMember(value, kError) && IsMember(value[kError], kCode)) {
-    result_code = GetMobileResultCode(
-                    static_cast<hmi_apis::Common_Result::eType>(
-                      value[kError][kCode].asInt()));
+    code = GetMobileResultCode(static_cast<hmi_apis::Common_Result::eType>(
+        value[kError][kCode].asInt()));
 
     if (IsMember(value[kError], kMessage)) {
-      info = value[kError][kMessage].asCString();
+      message = value[kError][kMessage].asCString();
     }
   }
 
-  if ((result_codes::kSuccess == result_code) ||
-      (result_codes::kWarnings == result_code)) {
-    return true;
-  }
-
-  return false;
+  *result_code = code;
+  *info = message;
+  return (result_codes::kSuccess == code) || (result_codes::kWarnings == code);
 }
 
 void BaseCommandRequest::Run() {
@@ -497,7 +494,7 @@ void BaseCommandRequest::UpdateHMILevel(
         event.event_message()->json_message());
     std::string result_code;
     std::string info;
-    bool success = ParseResultCode(value, result_code, info);
+    bool success = ParseResultCode(value, &result_code, &info);
     CheckHMILevel(application_manager::kAllowed, success);
   }
 }
@@ -517,7 +514,7 @@ void BaseCommandRequest::ProcessAccessResponse(
 
   std::string result_code;
   std::string info;
-  bool allowed = ParseResultCode(value, result_code, info);
+  bool allowed = ParseResultCode(value, &result_code, &info);
   // Check if valid successfull message has arrived
   if (allowed) {
     if (IsMember(value[kResult], message_params::kAllowed)

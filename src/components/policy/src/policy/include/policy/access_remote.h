@@ -252,7 +252,7 @@ class AccessRemote {
    */
   virtual bool GetPermissionsForApp(const std::string &device_id,
                                     const std::string &app_id,
-                                    FunctionalIdType& group_types) = 0;
+                                    FunctionalIdType* group_types) = 0;
 
   /**
    * Checks if application has reverse functionality

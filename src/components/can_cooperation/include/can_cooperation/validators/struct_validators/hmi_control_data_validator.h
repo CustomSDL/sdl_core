@@ -45,7 +45,6 @@ namespace validators {
  */
 class HMIControlDataValidator : public Validator, public utils::Singleton<HMIControlDataValidator> {
  public:
-
   /**
    * @brief Validate json with message params
    *
@@ -58,16 +57,15 @@ class HMIControlDataValidator : public Validator, public utils::Singleton<HMICon
                             Json::Value& outgoing_json);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(HMIControlDataValidator);
   FRIEND_BASE_SINGLETON_CLASS(HMIControlDataValidator);
   HMIControlDataValidator();
-
   ValidationScope display_mode_;
   ValidationScope temperature_unit_;
   ValidationScope distance_unit_;
+  DISALLOW_COPY_AND_ASSIGN(HMIControlDataValidator);
 };
 
-}  // namespace valdiators
+}  // namespace validators
 
 }  // namespace can_cooperation
 

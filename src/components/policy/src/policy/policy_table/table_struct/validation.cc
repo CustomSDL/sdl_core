@@ -1,25 +1,29 @@
-#include "validation.h"
+#include "validation.h"  // NOLINT
 
 #include <algorithm>
+#include <locale>
 #include <cctype>
 #include <cstdlib>
-#include "./types.h"
+#include <string>
+#include <vector>
 #include "utils/macro.h"
 
 namespace rpc {
 namespace policy_table_interface_base {
 bool ApplicationParams::Validate() const {
-  return ModuleTypesValidator().Validate(moduleType);
+  return ModuleTypesValidator().Validate(&moduleType);
 }
 
-bool ModuleTypesValidator::Validate(Optional<ModuleTypes>& module_types) const {
+bool ModuleTypesValidator::Validate(Optional<ModuleTypes>* module_types) const {
+  DCHECK_OR_RETURN(module_types, false);
+  Optional<ModuleTypes>& modules = *module_types;
   // moduleType is optional so see Optional<T>::is_valid()
-  bool is_initialized = module_types->is_initialized();
+  bool is_initialized = modules->is_initialized();
   if (!is_initialized) {
     // valid if not initialized
     return true;
   }
-  bool is_valid = module_types->is_valid();
+  bool is_valid = modules->is_valid();
   if (is_valid) {
     return true;
   }
@@ -30,14 +34,13 @@ bool ModuleTypesValidator::Validate(Optional<ModuleTypes>& module_types) const {
     }
   };
   // cut invalid items
-  module_types->erase(std::remove_if(module_types->begin(), module_types->end(),
-                                   IsInvalid()),
-                      module_types->end());
-  bool empty = module_types->empty();
+  modules->erase(std::remove_if(modules->begin(), modules->end(), IsInvalid()),
+                 modules->end());
+  bool empty = modules->empty();
   if (empty) {
     // set non initialized value
     ModuleTypes non_initialized;
-    module_types = Optional<ModuleTypes>(non_initialized);
+    *module_types = Optional<ModuleTypes>(non_initialized);
   }
   return true;
 }

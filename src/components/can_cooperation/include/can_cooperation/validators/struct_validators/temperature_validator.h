@@ -46,7 +46,6 @@ namespace validators {
 class TemperatureValidator : public Validator, public utils::Singleton<
     TemperatureValidator> {
  public:
-
   /**
    * @brief Validate json with message params
    *
@@ -59,16 +58,14 @@ class TemperatureValidator : public Validator, public utils::Singleton<
                             Json::Value& outgoing_json);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(TemperatureValidator);
   FRIEND_BASE_SINGLETON_CLASS(TemperatureValidator);
   TemperatureValidator();
-
   ValidationScope value_c_;
   ValidationScope value_f_;
-
+  DISALLOW_COPY_AND_ASSIGN(TemperatureValidator);
 };
 
-}  // namespace valdiators
+}  // namespace validators
 
 }  // namespace can_cooperation
 

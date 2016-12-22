@@ -30,18 +30,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_FUNCTIONAL_MODULE_SRC_TIMER_DIRECTOR_IMPL_H_
-#define SRC_COMPONENTS_FUNCTIONAL_MODULE_SRC_TIMER_DIRECTOR_IMPL_H_
+#ifndef SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_TIMER_TIMER_DIRECTOR_IMPL_H_
+#define SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_TIMER_TIMER_DIRECTOR_IMPL_H_
 
 #include "functional_module/timer/timer_director.h"
 #include <typeinfo>
+#include <map>
+#include <string>
 #include "utils/logger.h"
 
 namespace functional_modules {
 
 template<class T>
-TimerThreadDelegate<T>::TimerThreadDelegate(ModuleTimer<T>& timer)
-  : timer_(timer), keep_running_(false) {
+TimerThreadDelegate<T>::TimerThreadDelegate(ModuleTimer<T>* timer)
+  : timer_(*timer), keep_running_(false) {
 }
 
 template<class T>
@@ -83,7 +85,8 @@ TimerDirector::~TimerDirector() {
 }
 
 template<class T>
-void TimerDirector::RegisterTimer(ModuleTimer<T>& timer) {
+void TimerDirector::RegisterTimer(ModuleTimer<T>* timer) {
+  DCHECK_OR_RETURN_VOID(timer);
   std::string type_name = typeid(timer).name();
   std::map<std::string, threads::Thread*>::iterator it =
     timer_threads_.find(type_name);
@@ -91,8 +94,7 @@ void TimerDirector::RegisterTimer(ModuleTimer<T>& timer) {
     //  Attempt to register timer of already existing type fail.
     return;
   }
-  TimerThreadDelegate<T>* delegate = new TimerThreadDelegate<T>(
-    timer);
+  TimerThreadDelegate<T>* delegate = new TimerThreadDelegate<T>(timer);
   threads::Thread* thread = threads::CreateThread(type_name.c_str(), delegate);
 
   const size_t kStackSize = 16384;
@@ -104,7 +106,7 @@ void TimerDirector::RegisterTimer(ModuleTimer<T>& timer) {
 }
 
 template<class T>
-void TimerDirector::UnregisterTimer(const ModuleTimer<T>& timer) {
+void TimerDirector::UnregisterTimer(const ModuleTimer<T>* timer) {
   std::string type_name = typeid(timer).name();
   std::map<std::string, threads::Thread*>::iterator it =
     timer_threads_.find(type_name);
@@ -128,6 +130,6 @@ void TimerDirector::UnregisterAllTimers() {
   timer_threads_.clear();
 }
 
-}  //  namespace functional_modules
+}  // namespace functional_modules
 
-#endif  //  SRC_COMPONENTS_FUNCTIONAL_MODULE_SRC_TIMER_DIRECTOR_IMPL_H_
+#endif  // SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_TIMER_TIMER_DIRECTOR_IMPL_H_

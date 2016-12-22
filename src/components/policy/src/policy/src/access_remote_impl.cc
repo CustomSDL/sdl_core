@@ -367,12 +367,15 @@ bool AccessRemoteImpl::IsAppReverse(const Subject& who) {
 
 bool AccessRemoteImpl::GetPermissionsForApp(const std::string &device_id,
                                             const std::string &app_id,
-                                            FunctionalIdType& group_types) {
+                                            FunctionalIdType* group_types) {
   LOG4CXX_AUTO_TRACE(logger_);
-  GetGroupsIds(device_id, app_id, group_types[kTypeGeneral]);
-  GetGroupsIds(device_id, kDefaultId, group_types[kTypeDefault]);
-  GetGroupsIds(device_id, kPreDataConsentId,
-               group_types[kTypePreDataConsented]);
+  DCHECK_OR_RETURN(group_types, false);
+  FunctionalGroupIDs& type_general = (*group_types)[kTypeGeneral];
+  GetGroupsIds(device_id, app_id, &type_general);
+  FunctionalGroupIDs& type_default = (*group_types)[kTypeDefault];
+  GetGroupsIds(device_id, kDefaultId, &type_default);
+  FunctionalGroupIDs& type_pre_data_consented = (*group_types)[kTypePreDataConsented];
+  GetGroupsIds(device_id, kPreDataConsentId, &type_pre_data_consented);
   return true;
 }
 
@@ -388,12 +391,13 @@ extern std::ostream& operator <<(std::ostream& output,
 
 void AccessRemoteImpl::GetGroupsIds(const std::string &device_id,
                                     const std::string &app_id,
-                                    FunctionalGroupIDs& groups_ids) {
+                                    FunctionalGroupIDs* groups_ids) {
+  DCHECK_OR_RETURN_VOID(groups_ids);
   Subject who = { device_id, app_id };
   const policy_table::Strings& groups = GetGroups(who);
   LOG4CXX_DEBUG(logger_, "Groups Names: " << groups);
-  groups_ids.resize(groups.size());
-  std::transform(groups.begin(), groups.end(), groups_ids.begin(),
+  groups_ids->resize(groups.size());
+  std::transform(groups.begin(), groups.end(), groups_ids->begin(),
                  &CacheManager::GenerateHash);
   LOG4CXX_DEBUG(logger_, "Groups Ids: " << groups_ids);
 }

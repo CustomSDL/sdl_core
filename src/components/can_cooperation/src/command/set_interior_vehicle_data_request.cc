@@ -46,8 +46,15 @@ namespace can_cooperation {
 
 namespace commands {
 
-using namespace json_keys;
-using namespace message_params;
+using json_keys::kCode;
+using json_keys::kError;
+using json_keys::kMessage;
+using json_keys::kResult;
+
+using message_params::kModuleData;
+using message_params::kRadioControlData;
+using message_params::kClimateControlData;
+using message_params::kSeatsControlData;
 
 CREATE_LOGGERPTR_GLOBAL(logger_, "SetInteriorVehicleDataRequest")
 
@@ -93,7 +100,7 @@ void SetInteriorVehicleDataRequest::OnEvent(
           info = value[kError][kMessage].asCString();
         }
     } else {
-      success = ParseResultCode(value, result_code, info);
+      success = ParseResultCode(value, &result_code, &info);
     }
 
     // TOD(VS): Create SetInteriorVehicleDataResponseValidator

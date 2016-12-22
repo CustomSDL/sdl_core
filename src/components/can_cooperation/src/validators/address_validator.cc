@@ -37,9 +37,6 @@ namespace can_cooperation {
 
 namespace validators {
 
-using namespace message_params;
-
-
 AddressValidator::AddressValidator() {
 /*  // name="state"
   state_[kType] = ValueType::STRING; // TODO(VS): Research Min-Max Length

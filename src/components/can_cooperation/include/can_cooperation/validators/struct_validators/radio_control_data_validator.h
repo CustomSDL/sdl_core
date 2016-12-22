@@ -64,7 +64,6 @@ class RadioControlDataValidator : public Validator, public utils::Singleton<Radi
   void RemoveReadOnlyParams(Json::Value& json);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(RadioControlDataValidator);
   FRIEND_BASE_SINGLETON_CLASS(RadioControlDataValidator);
   RadioControlDataValidator();
 
@@ -85,9 +84,10 @@ class RadioControlDataValidator : public Validator, public utils::Singleton<Radi
   ValidationScope signal_change_threshold_;
   ValidationScope radio_enable_;
   ValidationScope state_;
+  DISALLOW_COPY_AND_ASSIGN(RadioControlDataValidator);
 };
 
-}  // namespace valdiators
+}  // namespace validators
 
 }  // namespace can_cooperation
 

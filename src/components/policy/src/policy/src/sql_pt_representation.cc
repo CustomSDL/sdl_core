@@ -1447,7 +1447,7 @@ bool SQLPTRepresentation::GatherAppGroup(
 
 #ifdef SDL_REMOTE_CONTROL
 bool SQLPTRepresentation::GatherAppGroupPrimary(
-  const std::string& app_id, policy_table::Strings* app_groups) const {
+    const std::string& app_id, policy_table::Strings* app_groups) const {
   dbms::SQLQuery query(db());
   if (!query.Prepare(sql_pt::kSelectAppGroupsPrimary)) {
     LOG4CXX_WARN(logger_, "Incorrect select from app groups for primary RC");
@@ -1462,7 +1462,7 @@ bool SQLPTRepresentation::GatherAppGroupPrimary(
 }
 
 bool SQLPTRepresentation::GatherAppGroupNonPrimary(
-  const std::string& app_id, policy_table::Strings* app_groups) const {
+    const std::string& app_id, policy_table::Strings* app_groups) const {
   dbms::SQLQuery query(db());
   if (!query.Prepare(sql_pt::kSelectAppGroupsNonPrimary)) {
     LOG4CXX_WARN(logger_, "Incorrect select from app groups for non primary RC");
@@ -1494,7 +1494,7 @@ bool SQLPTRepresentation::GatherRemoteControlDenied(const std::string& app_id,
 }
 
 bool SQLPTRepresentation::GatherModuleType(
-  const std::string& app_id, policy_table::ModuleTypes* app_types) const {
+    const std::string& app_id, policy_table::ModuleTypes* app_types) const {
   dbms::SQLQuery query(db());
   if (!query.Prepare(sql_pt::kSelectModuleTypes)) {
     LOG4CXX_WARN(logger_, "Incorrect select from app types");
@@ -1513,7 +1513,7 @@ bool SQLPTRepresentation::GatherModuleType(
 }
 
 bool SQLPTRepresentation::SaveAppGroupPrimary(
-  const std::string& app_id, const policy_table::Strings& app_groups) {
+    const std::string& app_id, const policy_table::Strings& app_groups) {
   LOG4CXX_AUTO_TRACE(logger_);
   dbms::SQLQuery query(db());
   if (!query.Prepare(sql_pt::kInsertAppGroupPrimary)) {
@@ -1538,7 +1538,7 @@ bool SQLPTRepresentation::SaveAppGroupPrimary(
 }
 
 bool SQLPTRepresentation::SaveAppGroupNonPrimary(
-  const std::string& app_id, const policy_table::Strings& app_groups) {
+    const std::string& app_id, const policy_table::Strings& app_groups) {
   LOG4CXX_AUTO_TRACE(logger_);
   dbms::SQLQuery query(db());
   if (!query.Prepare(sql_pt::kInsertAppGroupNonPrimary)) {
@@ -1655,7 +1655,7 @@ bool SQLPTRepresentation::SaveEquipment(
     int id = query.LastInsertId();
     if (!query.Reset()) {
       LOG4CXX_WARN(logger_, "Couldn't reset query interior zone.");
-      return false;;
+      return false;
     }
     if (!SaveAccessModule(id, kAllowed, zone.auto_allow)) {
       return false;

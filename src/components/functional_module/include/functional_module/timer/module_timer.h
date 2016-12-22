@@ -30,8 +30,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_MODULE_TIMER_H_
-#define SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_MODULE_TIMER_H_
+#ifndef SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_TIMER_MODULE_TIMER_H_
+#define SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_TIMER_MODULE_TIMER_H_
 
 #include <list>
 #include <deque>
@@ -41,7 +41,7 @@
 
 namespace functional_modules {
 
-typedef int64_t TimeUnit;  //seconds
+typedef int64_t TimeUnit;  // seconds
 
 class Trackable {
  public:
@@ -96,6 +96,7 @@ template<class Trackable> class ModuleTimer {
   TimeUnit CurrentTime() const;
   typename std::list<Trackable> trackables_;
   volatile TimeUnit period_;
+
  private:
   std::deque<TimerObserver<Trackable>*> observers_;
   mutable sync_primitives::Lock trackables_lock_;
@@ -105,7 +106,6 @@ template<class Trackable> class ModuleTimer {
 template<class Trackable>
 ModuleTimer<Trackable>::ModuleTimer()
   : period_(10) {
-
 }
 
 template<class Trackable>
@@ -190,4 +190,4 @@ TimeUnit ModuleTimer<Trackable>::CurrentTime() const {
 
 }  //  namespace functional_modules
 
-#endif  //  SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_MODULE_TIMER_H_
+#endif  // SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_TIMER_MODULE_TIMER_H_

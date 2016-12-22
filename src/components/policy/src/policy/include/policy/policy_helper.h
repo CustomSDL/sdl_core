@@ -243,7 +243,7 @@ struct ProccessAppGroups {
       pm_(pm),
       default_(new_apps_.find(kDefaultId)) {
   }
-  void operator() (const policy_table::ApplicationPolicies::value_type & app);
+  void operator() (const policy_table::ApplicationPolicies::value_type& app);
  private:
   const policy_table::ApplicationPolicies& new_apps_;
   PolicyManagerImpl* pm_;
