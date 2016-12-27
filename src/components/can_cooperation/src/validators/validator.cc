@@ -50,6 +50,13 @@ ValidationResult Validator::Validate(const Json::Value& json,
   return ValidationResult::SUCCESS;
 }
 
+void Validator::RemoveReadOnlyParams(Json::Value& json) {
+  LOG4CXX_AUTO_TRACE(logger_);
+  LOG4CXX_INFO(logger_,
+               "Must be implemented in derrived classes if it's necessary.");
+  DCHECK(false);
+}
+
 ValidationResult Validator::ValidateSimpleValues(const Json::Value& json,
                                        Json::Value& outgoing_json) {
   ValidationScopeMap::iterator it = validation_scope_map_.begin();
@@ -404,6 +411,21 @@ ValidationResult Validator::ValidateArrray(const Json::Value& json,
   }
 
   return ValidationResult::SUCCESS;
+}
+
+ValidationResult Validator::CheckForReadOnlyParams(Validator* validator,
+                                                   Json::Value& json) {
+  if (!json.size()) {
+    return INVALID_DATA;
+  }
+
+  validator->RemoveReadOnlyParams(json);
+
+  if (!json.size()) {
+    return READ_ONLY;
+  } else {
+    return SUCCESS;
+  }
 }
 
 }  // namespace validators

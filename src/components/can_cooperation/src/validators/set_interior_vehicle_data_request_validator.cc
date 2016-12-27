@@ -32,6 +32,9 @@
 
 #include "can_cooperation/validators/set_interior_vehicle_data_request_validator.h"
 #include "can_cooperation/validators/struct_validators/module_data_validator.h"
+#include "can_cooperation/validators/struct_validators/radio_control_data_validator.h"
+#include "can_cooperation/validators/struct_validators/climate_control_data_validator.h"
+#include "can_cooperation/validators/struct_validators/seats_control_data_validator.h"
 #include "can_cooperation/can_module_constants.h"
 #include "can_cooperation/message_helper.h"
 
@@ -42,6 +45,9 @@ namespace validators {
 CREATE_LOGGERPTR_GLOBAL(logger_, "SetInteriorVehicleDataRequestValidator")
 
 using message_params::kModuleData;
+using message_params::kRadioControlData;
+using message_params::kClimateControlData;
+using message_params::kSeatsControlData;
 
 SetInteriorVehicleDataRequestValidator::
 SetInteriorVehicleDataRequestValidator() {
@@ -57,6 +63,22 @@ ValidationResult SetInteriorVehicleDataRequestValidator::Validate(
   if (IsMember(json, kModuleData)) {
     result = ModuleDataValidator::instance()->
         Validate(json[kModuleData], outgoing_json[kModuleData]);
+
+    if (SUCCESS == result) {
+      if (outgoing_json[kModuleData].isMember(kRadioControlData)) {
+        result = Validator::CheckForReadOnlyParams(
+            validators::RadioControlDataValidator::instance(),
+            outgoing_json[kModuleData][kRadioControlData]);
+      } else if (outgoing_json[kModuleData].isMember(kClimateControlData)) {
+        result = Validator::CheckForReadOnlyParams(
+            validators::ClimateControlDataValidator::instance(),
+            outgoing_json[kModuleData][kClimateControlData]);
+      } else if (outgoing_json[kModuleData].isMember(kSeatsControlData)) {
+        result = Validator::CheckForReadOnlyParams(
+            validators::SeatsControlDataValidator::instance(),
+            outgoing_json[kModuleData][kSeatsControlData]);
+      }
+    }
   } else {
     result = ValidationResult::INVALID_DATA;
     LOG4CXX_ERROR(logger_, "Mandatory param " <<kModuleData <<" missing!");
