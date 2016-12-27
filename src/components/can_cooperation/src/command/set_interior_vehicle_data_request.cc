@@ -31,15 +31,10 @@
  */
 
 #include "can_cooperation/commands/set_interior_vehicle_data_request.h"
-#include <algorithm>
 #include "can_cooperation/validators/set_interior_vehicle_data_request_validator.h"
 #include "can_cooperation/validators/struct_validators/module_data_validator.h"
-#include "can_cooperation/validators/struct_validators/radio_control_data_validator.h"
-#include "can_cooperation/validators/struct_validators/climate_control_data_validator.h"
-#include "can_cooperation/validators/struct_validators/seats_control_data_validator.h"
 #include "can_cooperation/can_module_constants.h"
 #include "can_cooperation/message_helper.h"
-#include "functional_module/function_ids.h"
 #include "json/json.h"
 
 namespace can_cooperation {
@@ -130,42 +125,22 @@ bool SetInteriorVehicleDataRequest::Validate() {
 
   Json::Value outgoing_json;
 
-  if (validators::ValidationResult::SUCCESS !=
+  validators::ValidationResult result =
     validators::SetInteriorVehicleDataRequestValidator::instance()->
-                                                Validate(json, outgoing_json)) {
+                                                Validate(json, outgoing_json);
     LOG4CXX_INFO(logger_,
                  "SetInteriorVehicleDataRequest validation failed!");
-    SendResponse(false, result_codes::kInvalidData,
-                 "Mobile request validation failed!");
+
+  if (validators::ValidationResult::SUCCESS != result) {
+    if (validators::ValidationResult::READ_ONLY == result) {
+      SendResponse(false, result_codes::kReadOnly,
+                  "Request contains just read only params!");
+    } else {
+      SendResponse(false, result_codes::kInvalidData,
+                   "Mobile request validation failed!");
+    }
+
     return false;
-  }
-
-  // TODO(VS): Create function for read only validation and move there similar code
-  if (outgoing_json[kModuleData].isMember(kRadioControlData)) {
-    validators::RadioControlDataValidator::instance()->RemoveReadOnlyParams(
-        outgoing_json[kModuleData][kRadioControlData]);
-
-    if (0 == outgoing_json[kModuleData][kRadioControlData].size()) {
-      SendResponse(false, result_codes::kReadOnly,
-                  "Request contains just read only params!");
-      return false;
-    }
-  } else if (outgoing_json[kModuleData].isMember(kClimateControlData)) {
-    validators::ClimateControlDataValidator::instance()->RemoveReadOnlyParams(
-        outgoing_json[kModuleData][kClimateControlData]);
-    if (0 == outgoing_json[kModuleData][kClimateControlData].size()) {
-      SendResponse(false, result_codes::kReadOnly,
-                  "Request contains just read only params!");
-      return false;
-    }
-  } else if (outgoing_json[kModuleData].isMember(kSeatsControlData)) {
-    validators::SeatsControlDataValidator::instance()->RemoveReadOnlyParams(
-        outgoing_json[kModuleData][kSeatsControlData]);
-    if (0 == outgoing_json[kModuleData][kSeatsControlData].size()) {
-      SendResponse(false, result_codes::kReadOnly,
-                  "Request contains just read only params!");
-      return false;
-    }
   }
 
   message_->set_json_message(MessageHelper::ValueToString(outgoing_json));

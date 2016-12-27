@@ -45,7 +45,8 @@ namespace validators {
 
 enum ValidationResult {
   SUCCESS,
-  INVALID_DATA
+  INVALID_DATA,
+  READ_ONLY
 };
 
 
@@ -112,6 +113,8 @@ class Validator {
   virtual ValidationResult Validate(const Json::Value& json,
                                     Json::Value& outgoing_json);
 
+  virtual void RemoveReadOnlyParams(Json::Value& json);
+
  protected:
   /**
    * @brief Validate simple values(integers, strings, boolean), cut fake params,
@@ -141,6 +144,19 @@ class Validator {
   static ValidationResult ValidateArrray(const Json::Value& json,
                                          const ArrayWithStructureScope& scope,
                                          Json::Value& outgoing_json);
+
+  /**
+   * @brief Finds read only params in  structure and delete them
+   *
+   * @param validator validator for structure
+   * @param json json with struct
+   *
+   * @return READ_ONLY if there are no params exept read only, INVALID_DATA if empty json value passed to function,
+   *         otherwise SUCCESS.
+   *
+   */
+  static ValidationResult CheckForReadOnlyParams(Validator* validator,
+                                                 Json::Value& json);
 
   struct ArrayWithStructureScope {
     Validator* validator;
