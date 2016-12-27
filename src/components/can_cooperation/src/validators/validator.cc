@@ -401,6 +401,8 @@ ValidationResult Validator::ValidateArrray(const Json::Value& json,
 
   ValidationResult result = ValidationResult::SUCCESS;
 
+  DCHECK_OR_RETURN(scope.validator, INVALID_DATA);
+
   for (int i = 0; i < array_size; ++i) {
     result = scope.validator->Validate(
         json[i], outgoing_json[i]);
@@ -419,15 +421,9 @@ ValidationResult Validator::CheckForReadOnlyParams(Validator* validator,
     return INVALID_DATA;
   }
 
-  if (validator) {
-    validator->RemoveReadOnlyParams(json);
-  } else {
-    LOG4CXX_ERROR(logger_, "Null pointer as validator passed.");
-    DCHECK(false);
+  DCHECK_OR_RETURN(validator, INVALID_DATA);
 
-    return INVALID_DATA;
-  }
-
+  validator->RemoveReadOnlyParams(json);
 
   if (!json.size()) {
     return READ_ONLY;
