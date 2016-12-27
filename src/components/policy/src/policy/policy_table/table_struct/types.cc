@@ -1159,7 +1159,9 @@ void Equipment::SetPolicyTableType(PolicyTableType pt_type) {
 InteriorZone::InteriorZone()
   : CompositeType(kUninitialized) {
 }
-InteriorZone::InteriorZone(uint8_t col, uint8_t row, uint8_t level, const AccessModules& auto_allow, const AccessModules& driver_allow)
+InteriorZone::InteriorZone(uint8_t col, uint8_t row, uint8_t level,
+                           const AccessModules& auto_allow,
+                           const AccessModules& driver_allow)
   : CompositeType(kUninitialized),
     col(col),
     row(row),

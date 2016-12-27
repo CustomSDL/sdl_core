@@ -75,7 +75,7 @@ void StopScanRequest::OnEvent(
     Json::Reader reader;
     reader.parse(event.event_message()->json_message(), value);
 
-    bool success = ParseResultCode(value, result_code, info);
+    bool success = ParseResultCode(value, &result_code, &info);
 
     if (success) {
       CANModule::instance()->SetScanStarted(false);

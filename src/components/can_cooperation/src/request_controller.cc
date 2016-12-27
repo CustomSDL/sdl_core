@@ -49,11 +49,11 @@ RequestController::RequestController() {
   timer_.set_period(timeout_seconds);
   LOG4CXX_DEBUG(logger_, "Timeout is set to " << timeout_seconds);
   timer_.AddObserver(this);
-  functional_modules::TimerDirector::instance()->RegisterTimer(timer_);
+  functional_modules::TimerDirector::instance()->RegisterTimer(&timer_);
 }
 
 RequestController::~RequestController() {
-  functional_modules::TimerDirector::instance()->UnregisterTimer(timer_);
+  functional_modules::TimerDirector::instance()->UnregisterTimer(&timer_);
   timer_.RemoveObserver(this);
 }
 

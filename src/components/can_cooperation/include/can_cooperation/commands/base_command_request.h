@@ -121,8 +121,8 @@ class BaseCommandRequest : public Command,
    * @return true if it is success response? otherwise false
    */
   bool ParseResultCode(const Json::Value& value,
-                       std::string&  result_code,
-                       std::string& info);
+                       std::string* result_code,
+                       std::string* info);
 
   /**
    * @brief Sends request to CAN or HMI

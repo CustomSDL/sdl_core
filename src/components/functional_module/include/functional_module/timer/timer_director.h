@@ -30,10 +30,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SRC_COMPONENTS_FUNCTIONAL_MODULE_SRC_TIMER_DIRECTOR_H_
-#define SRC_COMPONENTS_FUNCTIONAL_MODULE_SRC_TIMER_DIRECTOR_H_
+#ifndef SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_TIMER_TIMER_DIRECTOR_H_
+#define SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_TIMER_TIMER_DIRECTOR_H_
 
 #include <map>
+#include <string>
 #include "utils/threads/thread.h"
 #include "utils/conditional_variable.h"
 #include "utils/singleton.h"
@@ -43,7 +44,7 @@ namespace functional_modules {
 
 template<class T> class TimerThreadDelegate : public threads::ThreadDelegate {
  public:
-  explicit TimerThreadDelegate(ModuleTimer<T>& timer);
+  explicit TimerThreadDelegate(ModuleTimer<T>* timer);
   void threadMain();
   void exitThreadMain();
  private:
@@ -63,16 +64,16 @@ class TimerDirector : public utils::Singleton<TimerDirector> {
    Registers only one timer of a type. Attempt to register timer
    of already existing type will fail.
    */
-  template<class T> void RegisterTimer(ModuleTimer<T>& timer);
-  template<class T> void UnregisterTimer(const ModuleTimer<T>& timer);
+  template<class T> void RegisterTimer(ModuleTimer<T>* timer);
+  template<class T> void UnregisterTimer(const ModuleTimer<T>* timer);
   void UnregisterAllTimers();
  private:
   TimerDirector();
-  DISALLOW_COPY_AND_ASSIGN(TimerDirector);
   FRIEND_BASE_SINGLETON_CLASS(TimerDirector);
   std::map<std::string, threads::Thread*> timer_threads_;
+  DISALLOW_COPY_AND_ASSIGN(TimerDirector);
 };
 
-}  //  namespace functional_modules
+}  // namespace functional_modules
 
-#endif  //  SRC_COMPONENTS_FUNCTIONAL_MODULE_SRC_TIMER_DIRECTOR_H_
+#endif  // SRC_COMPONENTS_FUNCTIONAL_MODULE_INCLUDE_FUNCTIONAL_MODULE_TIMER_TIMER_DIRECTOR_H_

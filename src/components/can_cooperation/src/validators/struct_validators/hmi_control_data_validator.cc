@@ -44,7 +44,6 @@ using message_params::kTemperatureUnit;
 using message_params::kDistanceUnit;
 
 HMIControlDataValidator::HMIControlDataValidator() {
-
   // name="displayMode"
   display_mode_[ValidationParams::TYPE] = ValueType::ENUM;
   display_mode_[ValidationParams::ENUM_TYPE] = EnumType::DISPLAY_MODE;

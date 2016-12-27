@@ -602,7 +602,7 @@ void PolicyManagerImpl::GetPermissionsForApp(
 #ifdef SDL_REMOTE_CONTROL
   allowed_by_default = false;
   bool ret = access_remote_->GetPermissionsForApp(device_id, policy_app_id,
-                                                  group_types);
+                                                  &group_types);
 #else
   bool ret = cache_->GetPermissionsForApp(device_id, app_id_to_check,
                                           group_types);

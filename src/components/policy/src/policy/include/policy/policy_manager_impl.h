@@ -317,19 +317,19 @@ private:
                                   const std::string& rpc,
                                   const RemoteControlParams& params);
     void CheckPTUUpdatesChange(
-      const utils::SharedPtr<policy_table::Table> pt_update,
-      const utils::SharedPtr<policy_table::Table> snapshot);
+        const utils::SharedPtr<policy_table::Table> pt_update,
+        const utils::SharedPtr<policy_table::Table> snapshot);
     bool CheckPTURemoteCtrlChange(
-      const utils::SharedPtr<policy_table::Table> pt_update,
-      const utils::SharedPtr<policy_table::Table> snapshot);
+        const utils::SharedPtr<policy_table::Table> pt_update,
+        const utils::SharedPtr<policy_table::Table> snapshot);
 
     void CheckPTUZonesChange(
-      const utils::SharedPtr<policy_table::Table> pt_update,
-      const utils::SharedPtr<policy_table::Table> snapshot);
+        const utils::SharedPtr<policy_table::Table> pt_update,
+        const utils::SharedPtr<policy_table::Table> snapshot);
 
     void CheckRemoteGroupsChange(
-      const utils::SharedPtr<policy_table::Table> pt_update,
-      const utils::SharedPtr<policy_table::Table> snapshot);
+        const utils::SharedPtr<policy_table::Table> pt_update,
+        const utils::SharedPtr<policy_table::Table> snapshot);
     utils::SharedPtr<AccessRemote> access_remote_;
 
     void SendHMILevelChanged(const Subject& who);

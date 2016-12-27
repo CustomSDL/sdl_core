@@ -33,11 +33,14 @@
 #define SRC_COMPONENTS_POLICY_SRC_POLICY_INCLUDE_POLICY_ACCESS_REMOTE_IMPL_H_
 
 #include <map>
-#include "types.h"
+#include <string>
+#include <vector>
+
 #include "utils/macro.h"
 #include "utils/shared_ptr.h"
 #include "policy/access_remote.h"
 #include "policy/cache_manager.h"
+#include "policy_table/table_struct/types.h"
 
 using policy_table::FunctionalGroupings;
 
@@ -73,7 +76,7 @@ class AccessRemoteImpl : public AccessRemote {
   virtual const policy_table::Strings& GetGroups(const Subject& who);
   virtual bool GetPermissionsForApp(const std::string &device_id,
                                     const std::string &app_id,
-                                    FunctionalIdType& group_types);
+                                    FunctionalIdType* group_types);
   virtual bool IsAppReverse(const Subject& who);
   virtual const SeatLocation* GetDeviceZone(const std::string& device_id) const;
   virtual void SetDeviceZone(const std::string& device_id,
@@ -90,7 +93,7 @@ class AccessRemoteImpl : public AccessRemote {
   inline bool country_consent() const;
   const policy_table::AppHMITypes& HmiTypes(const Subject& who);
   void GetGroupsIds(const std::string &device_id, const std::string &app_id,
-                    FunctionalGroupIDs& grops_ids);
+                    FunctionalGroupIDs* grops_ids);
   bool IsAllowed(const policy_table::AccessModules& modules,
                  const std::string& module_name, const std::string& rpc_name,
                  RemoteControlParams* input) const;

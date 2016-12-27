@@ -61,7 +61,7 @@ include_directories (
   ./usage_statistics/include
   ${CMAKE_SOURCE_DIR}/src/components/rpc_base/include
   ${JSONCPP_INCLUDE_DIRECTORY}
-  #${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src/components/utils/include/
   ${CMAKE_SOURCE_DIR}/src/components
   ${CMAKE_SOURCE_DIR}/src/components/config_profile/include

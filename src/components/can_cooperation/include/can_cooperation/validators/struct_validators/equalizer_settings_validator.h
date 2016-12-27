@@ -46,7 +46,6 @@ namespace validators {
 class EqualizerSettingsValidator : public Validator,
     public utils::Singleton<EqualizerSettingsValidator> {
  public:
-
   /**
    * @brief Validate json with message params
    *
@@ -59,15 +58,14 @@ class EqualizerSettingsValidator : public Validator,
                             Json::Value& outgoing_json);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(EqualizerSettingsValidator);
   FRIEND_BASE_SINGLETON_CLASS(EqualizerSettingsValidator);
   EqualizerSettingsValidator();
-
   ValidationScope channel_;
   ValidationScope channelSettings_;
+  DISALLOW_COPY_AND_ASSIGN(EqualizerSettingsValidator);
 };
 
-}  // namespace valdiators
+}  // namespace validators
 
 }  // namespace can_cooperation
 

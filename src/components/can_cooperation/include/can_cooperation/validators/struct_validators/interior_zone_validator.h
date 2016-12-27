@@ -45,7 +45,6 @@ namespace validators {
  */
 class InteriorZoneValidator : public Validator, public utils::Singleton<InteriorZoneValidator> {
  public:
-
   /**
    * @brief Validate json with message params
    *
@@ -58,19 +57,18 @@ class InteriorZoneValidator : public Validator, public utils::Singleton<Interior
                             Json::Value& outgoing_json);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(InteriorZoneValidator);
   FRIEND_BASE_SINGLETON_CLASS(InteriorZoneValidator);
   InteriorZoneValidator();
-
   ValidationScope col_;
   ValidationScope row_;
   ValidationScope level_;
   ValidationScope rowspan_;
   ValidationScope colspan_;
   ValidationScope levelspan_;
+  DISALLOW_COPY_AND_ASSIGN(InteriorZoneValidator);
 };
 
-}  // namespace valdiators
+}  // namespace validators
 
 }  // namespace can_cooperation
 

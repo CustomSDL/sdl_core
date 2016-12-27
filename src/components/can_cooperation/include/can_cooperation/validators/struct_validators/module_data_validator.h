@@ -45,7 +45,6 @@ namespace validators {
  */
 class ModuleDataValidator : public Validator, public utils::Singleton<ModuleDataValidator> {
  public:
-
   /**
    * @brief Validate json with message params
    *
@@ -58,14 +57,13 @@ class ModuleDataValidator : public Validator, public utils::Singleton<ModuleData
                             Json::Value& outgoing_json);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(ModuleDataValidator);
   FRIEND_BASE_SINGLETON_CLASS(ModuleDataValidator);
   ModuleDataValidator();
-
   ValidationScope module_type_;
+  DISALLOW_COPY_AND_ASSIGN(ModuleDataValidator);
 };
 
-}  // namespace valdiators
+}  // namespace validators
 
 }  // namespace can_cooperation
 

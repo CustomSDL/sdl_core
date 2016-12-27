@@ -45,7 +45,6 @@ namespace validators {
  */
 class SeatsControlDataValidator : public Validator, public utils::Singleton<SeatsControlDataValidator> {
  public:
-
   /**
    * @brief Validate json with message params
    *
@@ -65,10 +64,8 @@ class SeatsControlDataValidator : public Validator, public utils::Singleton<Seat
   void RemoveReadOnlyParams(Json::Value& json);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(SeatsControlDataValidator);
   FRIEND_BASE_SINGLETON_CLASS(SeatsControlDataValidator);
   SeatsControlDataValidator();
-
   ValidationScope coooled_seats_;
   ValidationScope coooled_seat_level_;
   ValidationScope heated_seat_;
@@ -81,9 +78,10 @@ class SeatsControlDataValidator : public Validator, public utils::Singleton<Seat
   ValidationScope massage_seat_level_;
   ValidationScope massage_enabled_;
   ValidationScope back_lumbar_position_;
+  DISALLOW_COPY_AND_ASSIGN(SeatsControlDataValidator);
 };
 
-}  // namespace valdiators
+}  // namespace validators
 
 }  // namespace can_cooperation
 

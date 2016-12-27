@@ -74,7 +74,7 @@ void GetInteriorVehicleDataRequest::OnEvent(
 
     Json::Value value  = MessageHelper::StringToValue(event.event_message()->json_message());
 
-    bool success = ParseResultCode(value, result_code, info);
+    bool success = ParseResultCode(value, &result_code, &info);
 
     validators::ValidationResult validation_result = validators::SUCCESS;
 

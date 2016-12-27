@@ -742,7 +742,7 @@ bool UnwrapAppPolicies(policy_table::ApplicationPolicies& app_policies) {
 
 #ifdef SDL_REMOTE_CONTROL
 bool HaveGroupsChanged(const rpc::Optional<policy_table::Strings>& old_groups,
-                      const rpc::Optional<policy_table::Strings>& new_groups) {
+                       const rpc::Optional<policy_table::Strings>& new_groups) {
   if (!old_groups.is_initialized() && !new_groups.is_initialized()) {
     return false;
   }
@@ -767,18 +767,18 @@ void ProccessAppGroups::operator() (
   if (i == new_apps_.end() && default_ != new_apps_.end()) {
     i = default_;
   }
-  if (i != new_apps_.end() ) {
+  if (i != new_apps_.end()) {
     if (HaveGroupsChanged(i->second.groups_primaryRC,
                           app.second.groups_primaryRC)) {
-      LOG4CXX_DEBUG(logger_, "Primary groups for " << app.first
-          << " have changed");
+      LOG4CXX_DEBUG(logger_,
+                    "Primary groups for " << app.first << " have changed");
 
       pm_->OnPrimaryGroupsChanged(app.first);
     }
     if (HaveGroupsChanged(i->second.groups_nonPrimaryRC,
                           app.second.groups_nonPrimaryRC)) {
-      LOG4CXX_DEBUG(logger_, "Non-primary groups for " << app.first
-          << " have changed");
+      LOG4CXX_DEBUG(logger_,
+                    "Non-primary groups for " << app.first << " have changed");
       pm_->OnNonPrimaryGroupsChanged(app.first);
     }
   }

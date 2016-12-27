@@ -156,7 +156,7 @@ ValidationResult SeatsControlDataValidator::Validate(const Json::Value& json,
     return result;
   }
 
-   if (!outgoing_json.size()) {
+  if (!outgoing_json.size()) {
     result = INVALID_DATA;
   }
 

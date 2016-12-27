@@ -1,8 +1,10 @@
 #ifndef POLICY_TABLE_POLICY_TABLE_VALIDATION_H_
 #define POLICY_TABLE_POLICY_TABLE_VALIDATION_H_
 
-#include "types.h"
-#include "utils/macro.h"
+#include <utility>
+#include <string>
+
+#include "types.h"  // NOLINT
 
 namespace rpc {
 namespace policy_table_interface_base {
@@ -21,7 +23,7 @@ class AccessModulesValidator {
 
 class ModuleTypesValidator {
  public:
-  bool Validate(Optional<ModuleTypes>& module_types) const;
+  bool Validate(Optional<ModuleTypes>* module_types) const;
 };
 
 class ZonesValidator {

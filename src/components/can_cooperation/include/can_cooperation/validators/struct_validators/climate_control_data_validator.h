@@ -45,7 +45,6 @@ namespace validators {
  */
 class ClimateControlDataValidator : public Validator, public utils::Singleton<ClimateControlDataValidator> {
  public:
-
   /**
    * @brief Validate json with message params
    *
@@ -64,10 +63,8 @@ class ClimateControlDataValidator : public Validator, public utils::Singleton<Cl
   void RemoveReadOnlyParams(Json::Value& json);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(ClimateControlDataValidator);
   FRIEND_BASE_SINGLETON_CLASS(ClimateControlDataValidator);
   ClimateControlDataValidator();
-
   ValidationScope fan_speed_;
   ValidationScope ac_enable_;
   ValidationScope circulate_air_enable_;
@@ -76,9 +73,10 @@ class ClimateControlDataValidator : public Validator, public utils::Singleton<Cl
   ValidationScope dual_mode_enable_;
   ValidationScope ac_max_enable_;
   ValidationScope ventilation_mode_;
+  DISALLOW_COPY_AND_ASSIGN(ClimateControlDataValidator);
 };
 
-}  // namespace valdiators
+}  // namespace validators
 
 }  // namespace can_cooperation
 

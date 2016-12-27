@@ -45,7 +45,6 @@ namespace validators {
  */
 class AudioControlDataValidator : public Validator, public utils::Singleton<AudioControlDataValidator> {
  public:
-
   /**
    * @brief Validate json with message params
    *
@@ -58,17 +57,15 @@ class AudioControlDataValidator : public Validator, public utils::Singleton<Audi
                             Json::Value& outgoing_json);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(AudioControlDataValidator);
   FRIEND_BASE_SINGLETON_CLASS(AudioControlDataValidator);
   AudioControlDataValidator();
-
   const ArrayWithStructureScope equalizer_settings_array_scope_;
-
   ValidationScope source_;
   ValidationScope audio_volume_;
+  DISALLOW_COPY_AND_ASSIGN(AudioControlDataValidator);
 };
 
-}  // namespace valdiators
+}  // namespace validators
 
 }  // namespace can_cooperation
 

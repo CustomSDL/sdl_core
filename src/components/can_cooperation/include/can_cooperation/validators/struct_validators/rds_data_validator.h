@@ -45,7 +45,6 @@ namespace validators {
  */
 class RdsDataValidator : public Validator, public utils::Singleton<RdsDataValidator> {
  public:
-
   /**
    * @brief Validate json with message params
    *
@@ -58,10 +57,8 @@ class RdsDataValidator : public Validator, public utils::Singleton<RdsDataValida
                             Json::Value& outgoing_json);
 
  private:
-  DISALLOW_COPY_AND_ASSIGN(RdsDataValidator);
   FRIEND_BASE_SINGLETON_CLASS(RdsDataValidator);
   RdsDataValidator();
-
   ValidationScope ps_;
   ValidationScope rt_;
   ValidationScope ct_;
@@ -70,9 +67,10 @@ class RdsDataValidator : public Validator, public utils::Singleton<RdsDataValida
   ValidationScope ta_;
   ValidationScope tp_;
   ValidationScope reg_;
+  DISALLOW_COPY_AND_ASSIGN(RdsDataValidator);
 };
 
-}  // namespace valdiators
+}  // namespace validators
 
 }  // namespace can_cooperation
 

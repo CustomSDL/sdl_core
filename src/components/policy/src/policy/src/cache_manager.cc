@@ -230,7 +230,7 @@ bool CacheManager::ApplyUpdate(const policy_table::Table& update_pt) {
     pt_->policy_table.module_config.equipment =
       update_pt.policy_table.module_config.equipment;
   }
-  #endif  // SDL_REMOTE_CONTROLs
+#endif  // SDL_REMOTE_CONTROLs
 
   if (update_pt.policy_table.consumer_friendly_messages.is_initialized()) {
     pt_->policy_table.consumer_friendly_messages =

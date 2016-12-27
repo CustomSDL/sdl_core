@@ -94,6 +94,7 @@ void GetInteriorVehicleDataCapabiliesRequest::UpdateModules(
     // The permissions of passenger's device  were checked by GetPermission.
     // This request can contain only one module
     // so we don't have to exclude any module.
+    // NOLINTNEXTLINE
     DCHECK(params->get(message_params::kModuleTypes,
                        Json::Value(Json::arrayValue)).size() == 1);
   }
@@ -113,7 +114,7 @@ void GetInteriorVehicleDataCapabiliesRequest::OnEvent(
     Json::Reader reader;
     reader.parse(event.event_message()->json_message(), value);
 
-    bool success = ParseResultCode(value, result_code, info);
+    bool success = ParseResultCode(value, &result_code, &info);
 
 
     // TOD(VS): Create GetInteriorVehicleDataCapabiliesResponseValidator. Replace this code there and correct it

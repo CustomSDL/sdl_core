@@ -386,7 +386,7 @@ const char kKilometers[] = "KILOMETERS";
 // LumbarPosition enum
 const char kTop[] = "TOP";
 const char kMiddle[] = "MIDDLE";
-const char kBottom[] = "BOTTOM"; // Also this is used for MassageSeatZone enum
+const char kBottom[] = "BOTTOM";  // Also this is used for MassageSeatZone enum
 // LumbarPosition enum
 
 // MassageSeatAction enum
