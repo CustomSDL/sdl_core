@@ -419,7 +419,15 @@ ValidationResult Validator::CheckForReadOnlyParams(Validator* validator,
     return INVALID_DATA;
   }
 
-  validator->RemoveReadOnlyParams(json);
+  if (validator) {
+    validator->RemoveReadOnlyParams(json);
+  } else {
+    LOG4CXX_ERROR(logger_, "Null pointer as validator passed.");
+    DCHECK(false);
+
+    return INVALID_DATA;
+  }
+
 
   if (!json.size()) {
     return READ_ONLY;
