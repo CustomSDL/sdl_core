@@ -174,14 +174,14 @@ static const std::string kAudioParameters[] = {
     "equalizerSettings"
 };
 
-static const int kLengthSeats = 11;
+static const int kLengthHmi = 3;
 static const std::string kHmiParameters[] = {
     "displayMode",
     "temperatureUnit",
     "distanceUnit"
 };
 
-static const int kLengthHmi = 3;
+static const int kLengthSeats = 12;
 static const std::string kSeatsParameters[] = {
     "cooledSeats",
     "cooledSeatLevel",
