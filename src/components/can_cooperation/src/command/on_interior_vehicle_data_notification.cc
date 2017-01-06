@@ -120,19 +120,33 @@ SeatLocation OnInteriorVehicleDataNotification::InteriorZone(
   return CreateInteriorZone(zone);
 }
 
+namespace {
+const char* GetNameControlData(const std::string& module) {
+  if (module == enums_value::kRadio) {
+    return message_params::kRadioControlData;
+  }
+  if (module == enums_value::kClimate) {
+    return message_params::kClimateControlData;
+  }
+  if (module == enums_value::kAuido) {
+    return message_params::kAudioControlData;
+  }
+  if (module == enums_value::kSeats) {
+    return message_params::kSeatsControlData;
+  }
+  if (module == enums_value::kHmiSettings) {
+    return message_params::kHmiControlData;
+  }
+  return "";
+}
+}  // namespace
+
 std::vector<std::string> OnInteriorVehicleDataNotification::ControlData(
     const Json::Value& message) {
   Json::Value data = message.get(message_params::kModuleData,
                                  Json::Value(Json::objectValue));
-  const char* name_control_data;
   std::string module = ModuleType(message);
-  if (module == enums_value::kRadio) {
-    name_control_data = message_params::kRadioControlData;
-  }
-  if (module == enums_value::kClimate) {
-    name_control_data = message_params::kClimateControlData;
-  }
-  Json::Value params = data.get(name_control_data,
+  Json::Value params = data.get(GetNameControlData(module),
                                 Json::Value(Json::objectValue));
   return params.getMemberNames();
 }
