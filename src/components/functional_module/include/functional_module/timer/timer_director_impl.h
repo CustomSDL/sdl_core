@@ -114,7 +114,7 @@ void TimerDirector::UnregisterTimer(const ModuleTimer<T>* timer) {
     ///  Failed to unregister timer that was not registered
     return;
   }
-  it->second->stop();
+  it->second->join();
   delete it->second->delegate();
   DeleteThread(it->second);
   timer_threads_.erase(it);
