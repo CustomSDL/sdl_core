@@ -36,7 +36,7 @@
 #include <vector>
 
 #include "can_cooperation/validators/get_interior_vehicle_data_capabilities_request_validator.h"
-#include "can_cooperation/validators/struct_validators/module_description_validator.h"
+#include "can_cooperation/validators/get_interior_vehicle_data_capabilities_response_validator.h"
 #include "can_cooperation/can_module_constants.h"
 #include "can_cooperation/message_helper.h"
 #include "can_cooperation/vehicle_capabilities.h"
@@ -116,32 +116,11 @@ void GetInteriorVehicleDataCapabiliesRequest::OnEvent(
 
     bool success = ParseResultCode(value, &result_code, &info);
 
-
-    // TOD(VS): Create GetInteriorVehicleDataCapabiliesResponseValidator. Replace this code there and correct it
-    validators::ValidationResult validation_result = validators::SUCCESS;
-
-    const int capabilities_min_size = 1;
-    const int capabilities_max_size = 1000;
-
     if (success) {
-      if (IsMember(value[kResult], kInteriorVehicleDataCapabilities)) {
-        int capabilities_size =
-            value[kResult][kInteriorVehicleDataCapabilities].size();
-        if (value[kResult][kInteriorVehicleDataCapabilities].isArray() &&
-            (capabilities_size >= capabilities_min_size)               &&
-            (capabilities_size <= capabilities_max_size)) {
-          for (int i = 0; i < capabilities_size; ++i) {
-            validation_result =
-              validators::ModuleDescriptionValidator::instance()->Validate(
-                value[kResult][kInteriorVehicleDataCapabilities][i],
-                response_params_[kInteriorVehicleDataCapabilities][i]);
-          }
-        } else {
-          validation_result = validators::INVALID_DATA;
-        }
-      } else {
-        validation_result = validators::INVALID_DATA;
-      }
+      validators::ValidationResult validation_result = validators::SUCCESS;
+      validation_result =
+          validators::GetInteriorVehicleDataCapabilitiesResponseValidator::instance()
+              ->Validate(value[kResult], response_params_);
 
       if (validators::SUCCESS != validation_result) {
         success = false;
