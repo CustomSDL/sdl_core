@@ -483,9 +483,10 @@ bool CANModule::IsAppForPlugin(
 void CANModule::OnAppHMILevelChanged(
     application_manager::ApplicationSharedPtr app,
     mobile_apis::HMILevel::eType) {
+  const mobile_apis::HMILevel::eType& hmi_level = app->hmi_level();
   LOG4CXX_DEBUG(logger_, "RSDL application " << app->name()
-        << " has changed hmi level to " << app->hmi_level());
-  service()->NotifyHMIAboutHMILevel(app, app->hmi_level());
+        << " has changed hmi level to " << hmi_level);
+  service()->NotifyHMIAboutHMILevel(app, hmi_level);
 }
 
 bool CANModule::CanAppChangeHMILevel(

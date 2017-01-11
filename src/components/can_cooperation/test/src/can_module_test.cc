@@ -255,7 +255,7 @@ TEST_F(CanModuleTest, OnAppHMILevelChanged) {
   std::string name("name");
   ON_CALL(*app, name()).WillByDefault(ReturnRef(name));
   mobile_apis::HMILevel::eType hmi = mobile_apis::HMILevel::eType::HMI_NONE;
-  EXPECT_CALL(*app, hmi_level()).Times(2).WillRepeatedly(ReturnRef(hmi));
+  EXPECT_CALL(*app, hmi_level()).Times(1).WillRepeatedly(ReturnRef(hmi));
   EXPECT_CALL(*mock_service, NotifyHMIAboutHMILevel(
       app_ptr, mobile_apis::HMILevel::eType::HMI_NONE));
   module->OnAppHMILevelChanged(app_ptr, mobile_apis::HMILevel::eType::HMI_FULL);
