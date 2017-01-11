@@ -43,7 +43,8 @@ TEST(VehicleCapabilities, Load) {
 TEST(VehicleCapabilities, GetCapabilities) {
   VehicleCapabilities caps;
   ASSERT_EQ(Json::ValueType::arrayValue, caps.capabilities().type());
-  ASSERT_EQ(6u, caps.capabilities().size());
+  // see InteriorVehicleDataCapabilities.json
+  ASSERT_EQ(12u, caps.capabilities().size());
 }
 
 TEST(VehicleCapabilities, GetSpecificCapabilities) {
@@ -56,10 +57,12 @@ TEST(VehicleCapabilities, GetSpecificCapabilities) {
   value["rowspan"] = 2;
   value["levelspan"] = 1;
   ASSERT_EQ(Json::ValueType::arrayValue, caps.capabilities(value).type());
-  ASSERT_EQ(2u, caps.capabilities(value).size());
+  // see InteriorVehicleDataCapabilities.json
+  ASSERT_EQ(5u, caps.capabilities(value).size());
 
   value["row"] = 1;
   ASSERT_EQ(Json::ValueType::arrayValue, caps.capabilities(value).type());
+  // see InteriorVehicleDataCapabilities.json
   ASSERT_EQ(1u, caps.capabilities(value).size());
 }
 
