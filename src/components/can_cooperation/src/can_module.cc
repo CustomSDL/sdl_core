@@ -115,6 +115,7 @@ void CANModule::SubscribeOnFunctions() {
 }
 
 CANModule::~CANModule() {
+  LOG4CXX_AUTO_TRACE(logger_);
   RemoveAppExtensions();
 }
 

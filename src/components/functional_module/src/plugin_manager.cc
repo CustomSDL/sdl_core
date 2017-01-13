@@ -123,6 +123,7 @@ int PluginManager::LoadPlugins(const std::string& plugin_path) {
 }
 
 void PluginManager::UnloadPlugins() {
+  LOG4CXX_AUTO_TRACE(logger_);
   for (Modules::iterator it = plugins_.begin(); plugins_.end() != it; ++it) {
     it->second->RemoveObserver(this);
   }

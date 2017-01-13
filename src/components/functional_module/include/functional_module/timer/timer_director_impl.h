@@ -87,7 +87,7 @@ TimerDirector::~TimerDirector() {
 template<class T>
 void TimerDirector::RegisterTimer(ModuleTimer<T>* timer) {
   DCHECK_OR_RETURN_VOID(timer);
-  std::string type_name = typeid(timer).name();
+  std::string type_name = typeid(T).name();
   std::map<std::string, threads::Thread*>::iterator it =
     timer_threads_.find(type_name);
   if (timer_threads_.end() != it) {
@@ -107,7 +107,7 @@ void TimerDirector::RegisterTimer(ModuleTimer<T>* timer) {
 
 template<class T>
 void TimerDirector::UnregisterTimer(const ModuleTimer<T>* timer) {
-  std::string type_name = typeid(timer).name();
+  std::string type_name = typeid(T).name();
   std::map<std::string, threads::Thread*>::iterator it =
     timer_threads_.find(type_name);
   if (timer_threads_.end() == it) {
@@ -123,7 +123,7 @@ void TimerDirector::UnregisterTimer(const ModuleTimer<T>* timer) {
 void TimerDirector::UnregisterAllTimers() {
   for (std::map<std::string, threads::Thread*>::iterator it =
          timer_threads_.begin(); timer_threads_.end() != it; ++it) {
-    it->second->stop();
+    it->second->join();
     delete it->second->delegate();
     DeleteThread(it->second);
   }
