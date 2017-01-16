@@ -53,6 +53,7 @@ RequestController::RequestController() {
 }
 
 RequestController::~RequestController() {
+  LOG4CXX_AUTO_TRACE(logger_);
   functional_modules::TimerDirector::instance()->UnregisterTimer(&timer_);
   timer_.RemoveObserver(this);
 }
