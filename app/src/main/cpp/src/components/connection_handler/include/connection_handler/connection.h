@@ -1,0 +1,398 @@
+/*
+ * Copyright (c) 2014, Ford Motor Company
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following
+ * disclaimer in the documentation and/or other materials provided with the
+ * distribution.
+ *
+ * Neither the name of the Ford Motor Company nor the names of its contributors
+ * may be used to endorse or promote products derived from this software
+ * without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#ifndef SRC_COMPONENTS_CONNECTION_HANDLER_INCLUDE_CONNECTION_HANDLER_CONNECTION_H_
+#define SRC_COMPONENTS_CONNECTION_HANDLER_INCLUDE_CONNECTION_HANDLER_CONNECTION_H_
+
+#include <map>
+#include <vector>
+
+#include "connection_handler/device.h"
+#include "connection_handler/heartbeat_monitor.h"
+#include "protocol/service_type.h"
+#include "protocol_handler/protocol_packet.h"
+#include "utils/lock.h"
+#include "utils/semantic_version.h"
+#include "utils/threads/thread.h"
+
+#ifdef ENABLE_SECURITY
+namespace security_manager {
+class SSLContext;
+}  // namespace security_manager
+#endif  // ENABLE_SECURITY
+
+/**
+ *@brief SmartDeviceLink connection_handler namespace.
+ */
+namespace connection_handler {
+
+class ConnectionHandler;
+
+/**
+ * @brief Type for ConnectionHandle
+ */
+typedef int32_t ConnectionHandle;
+
+/**
+ * @brief Type for Connections map
+ * Key is ConnectionHandle which is unique
+ */
+typedef std::map<int32_t, Connection*> ConnectionList;
+
+/**
+ * @brief ServiceType
+ */
+struct Service {
+  protocol_handler::ServiceType service_type;
+  transport_manager::ConnectionUID connection_id;
+  bool is_protected_;
+  Service()
+      : service_type(protocol_handler::kInvalidServiceType)
+      , connection_id(0)
+      , is_protected_(false) {}
+
+  explicit Service(protocol_handler::ServiceType service_type,
+                   transport_manager::ConnectionUID connection_id)
+      : service_type(service_type)
+      , connection_id(connection_id)
+      , is_protected_(false) {}
+
+  bool operator==(const protocol_handler::ServiceType service_type) const {
+    return this->service_type == service_type;
+  }
+};
+
+/**
+ * @brief Type for Session Services
+ */
+typedef std::vector<Service> ServiceList;
+
+struct Session {
+  ServiceList service_list;
+  uint8_t protocol_version;
+  utils::SemanticVersion full_protocol_version;
+#ifdef ENABLE_SECURITY
+  security_manager::SSLContext* ssl_context;
+#endif  // ENABLE_SECURITY
+  Session()
+      : service_list()
+      , protocol_version(::protocol_handler::PROTOCOL_VERSION_2)
+      , full_protocol_version(utils::SemanticVersion(2, 0, 0))
+#ifdef ENABLE_SECURITY
+      , ssl_context(NULL)
+#endif  // ENABLE_SECURITY
+  {
+  }
+  explicit Session(const ServiceList& services, uint8_t protocol_version)
+      : service_list(services)
+      , protocol_version(protocol_version)
+      , full_protocol_version(utils::SemanticVersion(protocol_version, 0, 0))
+#ifdef ENABLE_SECURITY
+      , ssl_context(NULL)
+#endif  // ENABLE_SECURITY
+  {
+  }
+  Service* FindService(const protocol_handler::ServiceType& service_type);
+  const Service* FindService(
+      const protocol_handler::ServiceType& service_type) const;
+};
+
+/**
+ * @brief Type for Session map
+ */
+typedef std::map<uint8_t, Session> SessionMap;
+
+/**
+ * @brief Stores connection information
+ */
+class Connection {
+ public:
+  /**
+   * @brief Class constructor
+   */
+  Connection(ConnectionHandle connection_handle,
+             DeviceHandle connection_device_handle,
+             ConnectionHandler* connection_handler,
+             uint32_t heartbeat_timeout);
+
+  /**
+   * @brief Destructor
+   */
+  ~Connection();
+
+  /**
+   * @brief Returns device handle
+   * @return DeviceHandle
+   */
+  ConnectionHandle connection_handle() const;
+
+  /**
+   * @brief Returns connection device handle
+   * @return ConnectionDeviceHandle
+   */
+  DeviceHandle connection_device_handle() const;
+
+  /**
+   * @brief Adds session to connection
+   * @param connection_handle Connection Handle for the session
+   * @return new session id or 0 in case of issues
+   */
+  uint32_t AddNewSession(
+      const transport_manager::ConnectionUID connection_handle);
+
+  /**
+   * @brief Removes session from connection
+   * @param session session ID
+   * @return session_id or 0 in case of issues
+   */
+  uint32_t RemoveSession(uint8_t session_id);
+
+  /**
+   * @brief Called upon final message being sent for a session
+   */
+  void OnFinalMessageCallback();
+
+  /**
+   * @brief Check whether final message was sent from this connection
+   * @return true if final message was sent by any session of this connection
+   */
+  bool IsFinalMessageSent() const;
+
+  /**
+   * @brief Adds uprotected service to session or
+   * check protection to service has been started before
+   * @param session_id session ID
+   * @param service_type Type of service
+   * @param is_protected protection state
+   * @param connection_id Connection ID associated with the service
+   * @return TRUE on success, otherwise FALSE
+   */
+  bool AddNewService(uint8_t session_id,
+                     protocol_handler::ServiceType service_type,
+                     const bool is_protected,
+                     transport_manager::ConnectionUID connection_id,
+                     std::string* err_reason = nullptr);
+  /**
+   * @brief Removes service from session
+   * @param session_id session ID
+   * @param service_type Type of service
+   * @return TRUE on success, otherwise FALSE
+   */
+  bool RemoveService(uint8_t session_id,
+                     protocol_handler::ServiceType service_type);
+
+  /**
+   * @brief Removes secondary service from session
+   * @param secondary_connection_handle connection identifying services to be
+   * removed
+   * @param removed_services_list Returned: List of service types removed
+   * @return the session ID associated with the services removed
+   */
+  uint8_t RemoveSecondaryServices(
+      transport_manager::ConnectionUID secondary_connection_handle,
+      std::list<protocol_handler::ServiceType>& removed_services_list);
+
+#ifdef ENABLE_SECURITY
+  /**
+   * @brief Sets crypto context of service
+   * @param session_id Identifier of the session
+   * @param context SSL for connection
+   * @return \c true in case of service is protected or \c false otherwise
+   */
+  int SetSSLContext(uint8_t session_id, security_manager::SSLContext* context);
+  /**
+   * @brief Gets crypto context of session, use service_type to get NULL
+   * SSLContext for not protected services or ControlService (0x0)
+   * to get current SSLContext of connection
+   * @param session_id Identifier of the session
+   * @param service_type Type of service
+   * @return \ref SSLContext of connection
+   */
+  security_manager::SSLContext* GetSSLContext(
+      const uint8_t session_id,
+      const protocol_handler::ServiceType& service_type) const;
+  /**
+   * @brief Set protection flag to service in session by key
+   * to get current SSLContext of connection
+   * @param session_id Identifier of the session
+   * @param service_type Type of service
+   */
+  void SetProtectionFlag(const uint8_t session_id,
+                         const protocol_handler::ServiceType& service_type);
+
+#endif  // ENABLE_SECURITY
+
+  /**
+   * @brief Returns map of sessions which have been opened in
+   * current connection.
+   */
+  const SessionMap session_map() const;
+
+  /**
+   * @brief Check if session contains service with specified service type
+   * @param session_id id of session to check
+   * @param service_type type of service to check
+   * @return true if session contains service with specified service type
+   */
+  bool SessionServiceExists(
+      const uint8_t session_id,
+      const protocol_handler::ServiceType& service_type) const;
+
+  /**
+   * @brief Close session
+   * @param  session_id session id
+   */
+  void CloseSession(uint8_t session_id);
+
+  /**
+   * @brief Prevent session from being closed by heartbeat timeout
+   * @param  session_id session id
+   */
+  void KeepAlive(uint8_t session_id);
+
+  /**
+   * @brief Start heartbeat for specified session
+   * @param  session_id session id
+   */
+  void StartHeartBeat(uint8_t session_id);
+
+  /**
+   * @brief Send heartbeat to  mobile app
+   * @param  session_id session id
+   */
+  void SendHeartBeat(uint8_t session_id);
+
+  /**
+   * @brief Sets heart beat timeout
+   * @param timeout in milliseconds
+   */
+  void SetHeartBeatTimeout(uint32_t timeout, uint8_t session_id);
+
+  /**
+   * @brief changes protocol version in session
+   * @param  session_id session id
+   * @param  protocol_version protocol version registered application
+   */
+  void UpdateProtocolVersionSession(uint8_t session_id,
+                                    uint8_t protocol_version);
+
+  /**
+   * @brief changes protocol version in session
+   * @param  session_id session id
+   * @param  full_protocol_version full protocol version of the registered
+   * application
+   */
+  void UpdateProtocolVersionSession(
+      uint8_t session_id, const utils::SemanticVersion& full_protocol_version);
+
+  /**
+   * @brief checks if session supports heartbeat
+   * @param  session_id session id
+   * @return TRUE on success, otherwise FALSE
+   */
+  bool SupportHeartBeat(uint8_t session_id);
+
+  /**
+   * @brief find protocol version for session
+   * @param session_id id of session which is launched on mobile side
+   * @param protocol_version method writes value protocol version
+   * @return TRUE if session exists otherwise
+   *   return FALSE
+   */
+  bool ProtocolVersion(uint8_t session_id, uint8_t& protocol_version);
+
+  /**
+   * @brief find protocol version for session
+   * @param session_id id of session which is launched on mobile side
+   * @param full_protocol_version where to write the full protocol version
+   * output
+   * @return TRUE if session exists otherwise
+   *   return FALSE
+   */
+  bool ProtocolVersion(uint8_t session_id,
+                       utils::SemanticVersion& full_protocol_version);
+
+  /**
+   * @brief Returns the primary connection handle associated with this
+   * connection
+   * @return ConnectionHandle
+   */
+  ConnectionHandle primary_connection_handle() const;
+
+  /**
+   * @brief Sets the primary connection handle
+   * @param primary_connection_handle the primary connection handle to
+   * associate with this connection
+   */
+  void SetPrimaryConnectionHandle(ConnectionHandle primary_connection_handle);
+
+ private:
+  /**
+   * @brief Current connection handler.
+   */
+  ConnectionHandler* connection_handler_;
+
+  /**
+   * @brief Current connection handle.
+   */
+  ConnectionHandle connection_handle_;
+
+  /**
+   * @brief DeviceHandle of this connection.
+   */
+  DeviceHandle connection_device_handle_;
+
+  /**
+   * @brief session/services map
+   */
+  SessionMap session_map_;
+
+  mutable sync_primitives::RecursiveLock session_map_lock_;
+
+  /**
+   * @brief primary connection handle for secondary connections
+   */
+  ConnectionHandle primary_connection_handle_;
+
+  /**
+   * @brief monitor that closes connection if there is no traffic over it
+   */
+  HeartBeatMonitor* heartbeat_monitor_;
+  uint32_t heartbeat_timeout_;
+  threads::Thread* heart_beat_monitor_thread_;
+  bool final_message_sent_;
+
+  DISALLOW_COPY_AND_ASSIGN(Connection);
+};
+
+}  // namespace connection_handler
+#endif  // SRC_COMPONENTS_CONNECTION_HANDLER_INCLUDE_CONNECTION_HANDLER_CONNECTION_H_

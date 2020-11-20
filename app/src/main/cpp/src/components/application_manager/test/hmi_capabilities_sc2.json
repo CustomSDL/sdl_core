@@ -1,0 +1,20 @@
+{
+  "UI": {
+    "language": "EN_US",
+    "languages": [
+            "EN_US",
+            "ES_MX",
+            "FR_CA"
+              ],
+    "systemCapabilities": {
+      "navigationCapability": {
+        "sendLocationEnabled": true,
+        "getWayPointsEnabled": false
+      },
+      "phoneCapability": {
+      },
+      "videoStreamingCapability": {
+      }
+    }
+  }
+}
