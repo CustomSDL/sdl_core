@@ -14,9 +14,19 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                arguments "-DBUILD_USB_SUPPORT=OFF", "-DENABLE_SECURITY=OFF -DANDROID_ABI=x86_64 -Werror"
-                cppFlags ""
+                arguments "-DBUILD_USB_SUPPORT=OFF",
+                        "-DENABLE_SECURITY=OFF",
+                        "-DEXECUTABLE_OUTPUT_PATH=build/",
+                        "-DBUILDDIR=build/cmake"
+                cppFlags
+                targets "smartDeviceLinkCore"
             }
+        }
+
+        ndk {
+            // Specifies the ABI configurations of your native
+            // libraries Gradle should build and package with your APK.
+            abiFilters 'x86_64'
         }
     }
 

@@ -77,9 +77,13 @@ set(POLICY_OPTION 	"$ENV{POLICY_TYPE}")
 set(SECURITY_OPTION 	"$ENV{SECURITY_MODE}")
 set(COMPONENTS_DIR ${CMAKE_SOURCE_DIR}/src/components)
 set(SNAPSHOT_TAG 	"$ENV{SNAPSHOT_TAG}")
-set(CMAKE_CXX_COMPILER   $ENV{CMAKE_CXX_COMPILER})
-set(CMAKE_C_COMPILER     $ENV{CMAKE_C_COMPILER})
+#set(CMAKE_CXX_COMPILER   $ENV{CMAKE_CXX_COMPILER})
+#set(CMAKE_C_COMPILER     $ENV{CMAKE_C_COMPILER})
 set(BUILDDIR "$ENV{BUILDDIR}")
+
+set(ENV{THIRD_PARTY_INSTALL_PREFIX} "/home/anrew/git/lib/android")
+set(ENV{THIRD_PARTY_INSTALL_PREFIX_ARCH} "/home/anrew/git/lib/android")
+
 
 if (ARCH_TYPE_OPTION)
   if (NOT (${ARCH_TYPE_OPTION} STREQUAL "x86") AND NOT (${ARCH_TYPE_OPTION} STREQUAL "armv7"))
@@ -246,7 +250,7 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR})
 set(ARCHIVE_OUTPUT_DIRECTORY ./bin)
 
 set(EXCLUDE_ERROR_FLAGS "-Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=deprecated-declarations")
-set(CMAKE_CXX_FLAGS "-fPIC -std=gnu++0x -Wall -fvisibility=hidden -Werror ${EXCLUDE_ERROR_FLAGS} -Wuninitialized -Wvla")
+set(CMAKE_CXX_FLAGS "-fPIC -std=gnu++0x -Wall -fvisibility=hidden ${EXCLUDE_ERROR_FLAGS} -Wuninitialized -Wvla")
 
 if (USE_GOLD_LD)
   execute_process(COMMAND ld -v OUTPUT_VARIABLE result)
@@ -418,7 +422,7 @@ include_directories(
 # --- 3rd party libs
 add_subdirectory(./src/3rd_party EXCLUDE_FROM_ALL)
 
-find_package(OpenSSL REQUIRED)
+#find_package(OpenSSL REQUIRED)
 if(ENABLE_LOG)
   include_directories ( ${LOG4CXX_INCLUDE_DIRECTORY} )
 endif()

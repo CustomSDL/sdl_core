@@ -30,7 +30,7 @@
 
 include(${CMAKE_SOURCE_DIR}/tools/cmake/helpers/sources.cmake)
 
-find_package(SDLOpenSSL REQUIRED)
+#find_package(SDLOpenSSL REQUIRED)
 
 if (EXTENDED_MEDIA_MODE) 
   set(default_media_inc 

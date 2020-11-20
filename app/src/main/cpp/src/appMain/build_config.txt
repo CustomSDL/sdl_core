@@ -1,14 +1,14 @@
-//No help, variable specified on the command line.
-EXTENDED_POLICY:STRING=EXTERNAL_PROPRIETARY
+//Policy mode (PROPRIETARY, HTTP or EXTERNAL_PROPRIETARY)
+EXTENDED_POLICY:STRING=PROPRIETARY
 
 //Bluetooth support
 BUILD_BT_SUPPORT:BOOL=ON
 
 //libusb support
-BUILD_USB_SUPPORT:BOOL=ON
+BUILD_USB_SUPPORT:BOOL=OFF
 
 //Security Ford protocol protection
-ENABLE_SECURITY:BOOL=ON
+ENABLE_SECURITY:BOOL=OFF
 
 //Turn on and off extended Madia Manager features relates to PulseAudio A2DP and GStreamer
 EXTENDED_MEDIA_MODE:BOOL=OFF
