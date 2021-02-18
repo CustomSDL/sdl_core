@@ -115,10 +115,13 @@ set(LIBRARIES
 if (CMAKE_SYSTEM_NAME STREQUAL "QNX")
   # --- QDB Wrapper
   include_directories (${COMPONENTS_DIR}/utils/include/utils)
-else ()
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # --- SQLite Wrapper
   include_directories (${COMPONENTS_DIR}/utils/include/utils)
   list(APPEND LIBRARIES sqlite3)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
+  # --- Android specific Wrapper
+  include_directories (${COMPONENTS_DIR}/utils/include/utils)
 endif ()
 
 add_library(PolicyStatic ${SOURCES})

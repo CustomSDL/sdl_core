@@ -71,7 +71,7 @@ void* Thread::threadFunc(void* arg) {
   auto thread_procedure_execution = [](Thread* thread) {
     thread->thread_state_ = kThreadStateRunning;
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-    pthread_testcancel();
+//    pthread_testcancel();
     thread->state_lock_.Release();
     thread->delegate_->threadMain();
     thread->state_lock_.Acquire();

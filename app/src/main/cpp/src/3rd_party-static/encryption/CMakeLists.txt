@@ -39,7 +39,7 @@ include_directories (
 
 collect_sources(SOURCES "${CMAKE_CURRENT_SOURCE_DIR}")
 
-set (LIBRARIES crypto)
+# set (LIBRARIES crypto)
 
 add_library("encryption" ${SOURCES})
 target_link_libraries("encryption" "${LIBRARIES}")

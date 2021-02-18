@@ -106,9 +106,12 @@ collect_sources(SOURCES "${PATHS}" "${EXCLUDE_PATHS}")
 if (CMAKE_SYSTEM_NAME STREQUAL "QNX")
     # --- QDB Wrapper
     add_subdirectory(./src/qdb_wrapper)
-else ()
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # --- SQLite Wrapper
     add_subdirectory(./src/sqlite_wrapper)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    # --- Android specific Wrapper
+    add_subdirectory(./src/android_wrapper)
 endif ()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

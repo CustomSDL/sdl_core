@@ -83,7 +83,7 @@ set(BUILDDIR "$ENV{BUILDDIR}")
 
 set(ENV{THIRD_PARTY_INSTALL_PREFIX} "/home/anrew/git/lib/android")
 set(ENV{THIRD_PARTY_INSTALL_PREFIX_ARCH} "/home/anrew/git/lib/android")
-
+set(ENV{LD_LIBRARY_PATH} "/home/anrew/git/lib/genivi/lib:$ENV{LD_LIBRARY_PATH}")
 
 if (ARCH_TYPE_OPTION)
   if (NOT (${ARCH_TYPE_OPTION} STREQUAL "x86") AND NOT (${ARCH_TYPE_OPTION} STREQUAL "armv7"))
@@ -445,8 +445,9 @@ if(ENABLE_IAP2EMULATION)
   message(STATUS "IAP2 emulation enabled")
 endif()
 
-set(RTLIB rt)
-if(CMAKE_SYSTEM_NAME STREQUAL "QNX")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(RTLIB rt)
+else()
   set(RTLIB )
 endif()
 

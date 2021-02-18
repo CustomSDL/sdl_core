@@ -15,9 +15,9 @@ android {
         externalNativeBuild {
             cmake {
                 arguments "-DBUILD_USB_SUPPORT=OFF",
+                        "-DBUILD_BT_SUPPORT=OFF",
                         "-DENABLE_SECURITY=OFF",
-                        "-DEXECUTABLE_OUTPUT_PATH=build/",
-                        "-DBUILDDIR=build/cmake"
+                        "-DENABLE_LOG=OFF"
                 cppFlags
                 targets "smartDeviceLinkCore"
             }

@@ -41,7 +41,8 @@
 #include <signal.h>
 #include <sys/select.h>
 #include <sys/socket.h>
-#include <sys/sysctl.h>
+//#include <sys/sysctl.h>
+#include "ifaddrs.h"
 #include <sys/types.h>
 #include <unistd.h>
 #ifdef __linux__
@@ -656,10 +657,10 @@ bool TcpClientListener::GetIPv4Address(const std::string interface_name,
 #endif  // BUILD_TESTS
 
   struct ifaddrs* if_list;
-  if (getifaddrs(&if_list) != 0) {
+//  if (getifaddrs(&if_list) != 0) {
     SDL_LOG_WARN("getifaddrs failed");
     return false;
-  }
+//  }
 
   struct ifaddrs* interface;
   bool found = false;
@@ -689,7 +690,7 @@ bool TcpClientListener::GetIPv4Address(const std::string interface_name,
     }
   }
 
-  freeifaddrs(if_list);
+//  freeifaddrs(if_list);
 
   return found;
 }
