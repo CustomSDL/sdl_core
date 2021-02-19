@@ -179,6 +179,9 @@ if(ENABLE_LOG)
   add_subdirectory(apache-log4cxx-cmake)
 endif()
 
+
+if (NOT ANDROID) #--- bson
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}")
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${3RD_PARTY_INSTALL_PREFIX}/etc")
 set(ENV{PKG_CONFIG_PATH} $ENV{CMAKE_PREFIX_PATH} "${3RD_PARTY_INSTALL_PREFIX}/etc")
@@ -220,6 +223,8 @@ else()
       )
 endif()
 
+endif() #--- bson
+
 set(BOOST_ROOT ${3RD_PARTY_INSTALL_PREFIX})
 find_package(Boost 1.66.0 COMPONENTS system thread date_time filesystem regex) 
 set(BOOST_LIB_SOURCE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/boost_src)
@@ -249,9 +254,17 @@ else()
 add_custom_target(Boost) # empty target, Boost is already installed
 endif()
 
+if (ANDROID) 
+add_custom_target(install-3rd_party
+  DEPENDS Boost
+  DEPENDS ${install-3rd_party_logger_var}
+  WORKING_DIRECTORY ${3RD_PARTY_BINARY_DIRECTORY}
+)
+else()
 add_custom_target(install-3rd_party
   DEPENDS libbson
   DEPENDS Boost
   DEPENDS ${install-3rd_party_logger_var}
   WORKING_DIRECTORY ${3RD_PARTY_BINARY_DIRECTORY}
 )
+endif()

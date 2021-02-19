@@ -42,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean startSDL() {
         try {
-            System.loadLibrary("emhashmap");
-            System.loadLibrary("bson");
+            //System.loadLibrary("emhashmap");
+            //System.loadLibrary("bson");
             System.loadLibrary("smartDeviceLinkCore");
         } catch (UnsatisfiedLinkError e) {
             showToastMessage("Failed to load the library: " + e.getMessage());

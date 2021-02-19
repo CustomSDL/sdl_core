@@ -111,9 +111,13 @@ set(LIBRARIES
   MediaManager
   Resumption
   ProtocolHandler
-  bson -L${BSON_LIBS_DIRECTORY}
-  emhashmap -L${EMHASHMAP_LIBS_DIRECTORY}
 )
+
+if(NOT ANDROID)
+  list(APPEND LIBRARIES   
+   -L${BSON_LIBS_DIRECTORY}
+    emhashmap -L${EMHASHMAP_LIBS_DIRECTORY})
+endif()
 
 if (ENABLE_SECURITY)
   list(APPEND LIBRARIES SecurityManager)
