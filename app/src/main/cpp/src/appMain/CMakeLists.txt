@@ -148,7 +148,11 @@ endif()
 list(APPEND LIBRARIES bson -L${BSON_LIBS_DIRECTORY})
 list(APPEND LIBRARIES emhashmap -L${EMHASHMAP_LIBS_DIRECTORY})
 
-add_executable(${PROJECT} ${SOURCES})
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+  add_library(${PROJECT} SHARED ${SOURCES})
+else()
+  add_executable(${PROJECT} ${SOURCES})
+endif()
 
 if (HMIADAPTER STREQUAL "messagebroker")
   add_dependencies(${PROJECT} Boost)
