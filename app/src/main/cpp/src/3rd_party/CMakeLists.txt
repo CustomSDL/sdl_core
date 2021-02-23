@@ -226,30 +226,63 @@ endif()
 endif() #--- bson
 
 set(BOOST_ROOT ${3RD_PARTY_INSTALL_PREFIX})
-find_package(Boost 1.66.0 COMPONENTS system thread date_time filesystem regex) 
+find_package(Boost 1.69.0 COMPONENTS system thread date_time filesystem regex)
 set(BOOST_LIB_SOURCE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/boost_src)
 set(BOOST_LIBS_DIRECTORY ${3RD_PARTY_INSTALL_PREFIX}/lib)
 set(BOOST_INCLUDE_DIR ${3RD_PARTY_INSTALL_PREFIX}/include PARENT_SCOPE)
 SET_PROPERTY(GLOBAL PROPERTY GLOBAL_BOOST_LIBS ${BOOST_LIBS_DIRECTORY})
 if (NOT ${Boost_FOUND})
-  message(STATUS "Did not find boost. Downloading and installing boost 1.66")
-  set(BOOST_INSTALL_COMMAND ./b2 install)
-  if (${3RD_PARTY_INSTALL_PREFIX} MATCHES "/usr/local")
-    set(BOOST_INSTALL_COMMAND sudo ./b2 install)
+  message(STATUS "Did not find boost. Downloading and installing boost 1.69")
+  if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    set(BOOST_FOR_ANDROID_DIR ${3RD_PARTY_SOURCE_DIRECTORY}/boost-for-android)
+    set(BOOST_FOR_ANDROID_TARGET_VER 21)
+    include(ExternalProject)
+    ExternalProject_Add(
+      Boost
+      URL http://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.tar.bz2
+      URL_HASH SHA256=8f32d4617390d1c2d16f26a27ab60d97807b35440d45891fa340fc2648b04406
+      DOWNLOAD_DIR ${BOOST_LIB_SOURCE_DIRECTORY}
+      SOURCE_DIR ${BOOST_LIB_SOURCE_DIRECTORY}
+      CONFIGURE_COMMAND ./bootstrap.sh
+      BUILD_COMMAND cp ${BOOST_FOR_ANDROID_DIR}/user-config.jam ${BOOST_LIB_SOURCE_DIRECTORY}/tools/build/src/user-config.jam &&
+                    cd ${BOOST_LIB_SOURCE_DIRECTORY}/tools/build/src &&
+                    sed -i "s@%NDK_ROOT%@${CMAKE_ANDROID_NDK}@" user-config.jam &&
+                    sed -i "s@%BINARIES_PATH%@${CMAKE_ANDROID_NDK}/toolchains/llvm/prebuilt/linux-x86_64/bin@" user-config.jam &&
+                    sed -i "s@%TARGET_VERSION_32%@${BOOST_FOR_ANDROID_TARGET_VER}@" user-config.jam &&
+                    sed -i "s@%TARGET_VERSION_64%@${BOOST_FOR_ANDROID_TARGET_VER}@" user-config.jam &&
+                    cd ${BOOST_LIB_SOURCE_DIRECTORY} && patch -p1 < ${BOOST_FOR_ANDROID_DIR}/boost-1_69_0.patch
+      INSTALL_COMMAND ./b2 -q -d+2
+                      --ignore-site-config -j4
+                      target-os=android
+                      toolset=clang-x8664
+                      link=shared threading=multi
+                      --layout=system
+                      --build-dir=${BOOST_LIB_SOURCE_DIRECTORY}
+                      --prefix=${3RD_PARTY_INSTALL_PREFIX}
+                      --with-system --with-thread --with-date_time --with-filesystem --with-regex
+                      install > boost_install.log
+      INSTALL_DIR ${3RD_PARTY_INSTALL_PREFIX}
+      BUILD_IN_SOURCE true
+    )
+  else()
+    set(BOOST_INSTALL_COMMAND ./b2 install)
+    if (${3RD_PARTY_INSTALL_PREFIX} MATCHES "/usr/local")
+      set(BOOST_INSTALL_COMMAND sudo ./b2 install)
+    endif()
+    include(ExternalProject)
+    ExternalProject_Add(
+      Boost
+      URL https://mirror.bazel.build/dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
+      URL_HASH SHA256=da3411ea45622579d419bfda66f45cd0f8c32a181d84adfa936f5688388995cf
+      DOWNLOAD_DIR ${BOOST_LIB_SOURCE_DIRECTORY}
+      SOURCE_DIR ${BOOST_LIB_SOURCE_DIRECTORY}
+      CONFIGURE_COMMAND ./bootstrap.sh --with-libraries=system,thread,date_time,filesystem,regex --prefix=${3RD_PARTY_INSTALL_PREFIX}
+      BUILD_COMMAND ./b2
+      INSTALL_COMMAND ${BOOST_INSTALL_COMMAND} --with-system --with-thread --with-date_time --with-filesystem --with-regex --prefix=${3RD_PARTY_INSTALL_PREFIX} > boost_install.log
+      INSTALL_DIR ${3RD_PARTY_INSTALL_PREFIX}
+      BUILD_IN_SOURCE true
+    )
   endif()
-  include(ExternalProject)
-  ExternalProject_Add(
-    Boost
-    URL https://mirror.bazel.build/dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.gz
-    URL_HASH SHA256=da3411ea45622579d419bfda66f45cd0f8c32a181d84adfa936f5688388995cf
-    DOWNLOAD_DIR ${BOOST_LIB_SOURCE_DIRECTORY}
-    SOURCE_DIR ${BOOST_LIB_SOURCE_DIRECTORY}
-    CONFIGURE_COMMAND ./bootstrap.sh --with-libraries=system,thread,date_time,filesystem,regex --prefix=${3RD_PARTY_INSTALL_PREFIX}
-    BUILD_COMMAND ./b2
-    INSTALL_COMMAND ${BOOST_INSTALL_COMMAND} --with-system --with-thread --with-date_time --with-filesystem --with-regex --prefix=${3RD_PARTY_INSTALL_PREFIX} > boost_install.log
-    INSTALL_DIR ${3RD_PARTY_INSTALL_PREFIX}
-    BUILD_IN_SOURCE true
-  )
 else()
 add_custom_target(Boost) # empty target, Boost is already installed
 endif()
