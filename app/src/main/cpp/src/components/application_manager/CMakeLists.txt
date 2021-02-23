@@ -62,18 +62,8 @@ include_directories (
   ${MESSAGE_BROKER_INCLUDE_DIRECTORY}
   ${LOG4CXX_INCLUDE_DIRECTORY}
   ${BOOST_INCLUDE_DIR}
-)
-
-if(ANDROID)
-include_directories (
-  ${CMAKE_CURRENT_LIST_DIR}/../../libbson/
-  ${CMAKE_CURRENT_LIST_DIR}/../../libbson/emhashmap/
-)
-else()
-include_directories (
   ${BSON_INCLUDE_DIRECTORY}
 )
-endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   include_directories(
@@ -153,13 +143,9 @@ set(LIBRARIES
   dbms
   Utils
   policy_struct
-)
-
-if(NOT ANDROID)
-  list(APPEND LIBRARIES   
   bson -L${BSON_LIBS_DIRECTORY}
-  emhashmap -L${EMHASHMAP_LIBS_DIRECTORY})
-endif()
+  emhashmap -L${EMHASHMAP_LIBS_DIRECTORY}
+)
 
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")

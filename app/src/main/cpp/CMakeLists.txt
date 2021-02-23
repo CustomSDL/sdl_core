@@ -351,9 +351,7 @@ if(ENABLE_LOG)
   message(STATUS "Logger enabled")
 endif()
 
-if( NOT ANDROID )
-  set(install-bson_c_lib "install-bson_c_lib")
-endif()
+set(install-bson_c_lib "install-bson_c_lib")
 
 if (TELEMETRY_MONITOR)
   add_definitions(-DTELEMETRY_MONITOR)

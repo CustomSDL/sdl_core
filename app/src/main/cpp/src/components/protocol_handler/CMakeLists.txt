@@ -38,25 +38,13 @@ include_directories(
   ${CMAKE_BINARY_DIR}/src/components/
   ${JSONCPP_INCLUDE_DIRECTORY}
   ${LOG4CXX_INCLUDE_DIRECTORY}
+  ${BSON_INCLUDE_DIRECTORY}
   ${BOOST_INCLUDE_DIR}
 )
-
-if(ANDROID)
-include_directories (
-  ${CMAKE_CURRENT_LIST_DIR}/../../libbson/
-  ${CMAKE_CURRENT_LIST_DIR}/../../libbson/emhashmap/
-)
-else()
-include_directories (
-  ${BSON_INCLUDE_DIRECTORY}
-)
-endif()
 
 set(PATHS
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/src
-  ${CMAKE_CURRENT_LIST_DIR}/../../libbson
-  ${CMAKE_CURRENT_LIST_DIR}/../../libbson/emhashmap
 )
 
 if (ENABLE_SECURITY)
@@ -71,25 +59,18 @@ set(LIBRARIES
   ProtocolLibrary
   HMI_API
   Utils
-)
-
-if(NOT ANDROID)
-  list(APPEND LIBRARIES   
   bson -L${BSON_LIBS_DIRECTORY}
-  emhashmap -L${EMHASHMAP_LIBS_DIRECTORY})
-endif()
+  emhashmap -L${EMHASHMAP_LIBS_DIRECTORY}
+)
 
 get_property(dirs DIRECTORY "" PROPERTY LIBRARIES)
 foreach(dir ${dirs})
   message(STATUS "libraries='${dir}'")
 endforeach()
 
+
 add_library(ProtocolHandler ${SOURCES})
-
-if(NOT ANDROID)
-  add_dependencies(ProtocolHandler libbson)
-endif()
-
+add_dependencies(ProtocolHandler libbson)
 target_link_libraries(ProtocolHandler ${LIBRARIES})
 
 if(BUILD_TESTS)
