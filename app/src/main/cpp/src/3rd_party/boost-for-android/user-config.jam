@@ -40,8 +40,8 @@
 import os ;
 local AndroidNDKRoot = %NDK_ROOT% ;
 local AndroidBinariesPath = %BINARIES_PATH% ;
-local AndroidTargetVersion32 = 21 ;
-local AndroidTargetVersion64 = 21 ;
+local AndroidTargetVersion32 = %TARGET_VERSION_32% ;
+local AndroidTargetVersion64 = %TARGET_VERSION_64% ;
 
 local AndroidCompiler_arm64v8a = $(AndroidBinariesPath)/aarch64-linux-android$(AndroidTargetVersion64)-clang++ ;
 local AndroidCompiler_armeabiv7a = $(AndroidBinariesPath)/armv7a-linux-androideabi$(AndroidTargetVersion32)-clang++ ;
