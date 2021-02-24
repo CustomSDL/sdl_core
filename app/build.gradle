@@ -42,6 +42,39 @@ android {
             version "3.10.2"
         }
     }
+
+    task _buildFullSdlApk { task ->
+        doLast {
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+            def ndkDir = properties.getProperty('ndk.dir')
+            println "NDK Folder: ${ndkDir}"
+
+            def cpp_lib_file = "${ndkDir}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so"
+            println "Shared lib file: ${cpp_lib_file}"
+
+            def third_party_libs = properties.getProperty('third.party.dir') + "/lib"
+            println "Third party libs: ${third_party_libs}"
+
+            def sdl_so_folder = "${project.getBuildDir()}/intermediates/cmake/debug/obj/x86_64"
+            println "Output libs: ${sdl_so_folder}"
+
+            println "Copying C++ library..."
+            copy {
+                from "${cpp_lib_file}"
+                into "${sdl_so_folder}"
+            }
+
+            println "Copying 3rd party libs..."
+            copy {
+                from "${third_party_libs}"
+                into "${sdl_so_folder}"
+            }
+
+            println "Done!"
+        }
+    }
 }
 
 dependencies {
