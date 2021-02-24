@@ -208,9 +208,10 @@ if ((NOT "${BSON_FOUND}") OR ("${BSON_VERSION}" VERSION_LESS "1.2.0"))
             PATCH_COMMAND ls -1 ${BSON_FOR_ANDROID_DIR} | xargs -L1 -I{} cp ${BSON_FOR_ANDROID_DIR}/{} ${BSON_LIB_SOURCE_DIRECTORY}
             BUILD_COMMAND cd ${BSON_LIB_SOURCE_DIRECTORY} &&
                           export NDK_PROJECT_PATH=. &&
-                          ${CMAKE_ANDROID_NDK}/ndk-build NDK_APPLICATION_MK=Application.mk &&
-                          ls -1 ${BSON_LIB_SOURCE_DIRECTORY}/libs/x86_64 | xargs -L1 -I{} cp ${BSON_LIB_SOURCE_DIRECTORY}/libs/x86_64/{} ${3RD_PARTY_INSTALL_PREFIX}/lib
-            INSTALL_COMMAND make install-data-recursive
+                          ${CMAKE_ANDROID_NDK}/ndk-build NDK_APPLICATION_MK=Application.mk
+            INSTALL_COMMAND make install-data-recursive &&
+                            mkdir -p ${3RD_PARTY_INSTALL_PREFIX}/lib &&
+                            ls -1 ${BSON_LIB_SOURCE_DIRECTORY}/libs/x86_64 | xargs -L1 -I{} cp ${BSON_LIB_SOURCE_DIRECTORY}/libs/x86_64/{} ${3RD_PARTY_INSTALL_PREFIX}/lib
             UPDATE_COMMAND git pull)
   else()
     set(BSON_INSTALL_COMMAND make install)
