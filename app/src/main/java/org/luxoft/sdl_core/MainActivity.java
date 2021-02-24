@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean startSDL() {
         try {
             System.loadLibrary("c++_shared");
+            System.loadLibrary("emhashmap");
+            System.loadLibrary("bson");
             System.loadLibrary("boost_system");
             System.loadLibrary("boost_regex");
             System.loadLibrary("boost_thread");

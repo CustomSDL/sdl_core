@@ -194,22 +194,43 @@ if ((NOT "${BSON_FOUND}") OR ("${BSON_VERSION}" VERSION_LESS "1.2.0"))
   set(EMHASHMAP_LIBS_DIRECTORY ${3RD_PARTY_INSTALL_PREFIX}/lib CACHE INTERNAL "Installation path of emashmap libraries" FORCE)
   set(EMHASHMAP_INCLUDE_DIRECTORY ${3RD_PARTY_INSTALL_PREFIX}/include CACHE INTERNAL "Installation path of emashmap headers" FORCE)
 
-  set(BSON_INSTALL_COMMAND make install)
-  if (${3RD_PARTY_INSTALL_PREFIX} MATCHES "/usr/local")
-    set(BSON_INSTALL_COMMAND sudo make install)
+  if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    set(BSON_FOR_ANDROID_DIR ${3RD_PARTY_SOURCE_DIRECTORY}/android-helpers/bson)
+    include(ExternalProject)
+    ExternalProject_Add(libbson
+            GIT_REPOSITORY "https://github.com/smartdevicelink/bson_c_lib.git"
+            GIT_TAG "master"
+            DOWNLOAD_DIR ${BSON_LIB_SOURCE_DIRECTORY}
+            SOURCE_DIR ${BSON_LIB_SOURCE_DIRECTORY}
+            BINARY_DIR ${BSON_LIB_SOURCE_DIRECTORY}
+            INSTALL_DIR ${3RD_PARTY_INSTALL_PREFIX}
+            CONFIGURE_COMMAND touch aclocal.m4 configure.ac Makefile.am Makefile.in configure config.h.in libbson.pc.in && ./configure --prefix=${3RD_PARTY_INSTALL_PREFIX}
+            PATCH_COMMAND ls -1 ${BSON_FOR_ANDROID_DIR} | xargs -L1 -I{} cp ${BSON_FOR_ANDROID_DIR}/{} ${BSON_LIB_SOURCE_DIRECTORY}
+            BUILD_COMMAND cd ${BSON_LIB_SOURCE_DIRECTORY} &&
+                          export NDK_PROJECT_PATH=. &&
+                          ${CMAKE_ANDROID_NDK}/ndk-build NDK_APPLICATION_MK=Application.mk &&
+                          ls -1 ${BSON_LIB_SOURCE_DIRECTORY}/libs/x86_64 | xargs -L1 -I{} cp ${BSON_LIB_SOURCE_DIRECTORY}/libs/x86_64/{} ${3RD_PARTY_INSTALL_PREFIX}/lib
+            INSTALL_COMMAND make install-data-recursive
+            UPDATE_COMMAND git pull)
+  else()
+    set(BSON_INSTALL_COMMAND make install)
+    if (${3RD_PARTY_INSTALL_PREFIX} MATCHES "/usr/local")
+      set(BSON_INSTALL_COMMAND sudo make install)
+    endif()
+    include(ExternalProject)
+    ExternalProject_Add(libbson
+            GIT_REPOSITORY "https://github.com/smartdevicelink/bson_c_lib.git"
+            GIT_TAG "master"
+            BINARY_DIR ${BSON_LIB_SOURCE_DIRECTORY}
+            INSTALL_DIR ${3RD_PARTY_INSTALL_PREFIX}
+            DOWNLOAD_DIR ${BSON_LIB_SOURCE_DIRECTORY}
+            SOURCE_DIR ${BSON_LIB_SOURCE_DIRECTORY}
+            CONFIGURE_COMMAND touch aclocal.m4 configure.ac Makefile.am Makefile.in configure config.h.in libbson.pc.in && ./configure --prefix=${3RD_PARTY_INSTALL_PREFIX}
+            BUILD_COMMAND make
+            INSTALL_COMMAND ${BSON_INSTALL_COMMAND}
+            UPDATE_COMMAND git pull)
   endif()
-  include(ExternalProject)
-  ExternalProject_Add(libbson
-      GIT_REPOSITORY "https://github.com/smartdevicelink/bson_c_lib.git"
-      GIT_TAG "master"
-      BINARY_DIR ${BSON_LIB_SOURCE_DIRECTORY}
-      INSTALL_DIR ${3RD_PARTY_INSTALL_PREFIX}
-      DOWNLOAD_DIR ${BSON_LIB_SOURCE_DIRECTORY}
-      SOURCE_DIR ${BSON_LIB_SOURCE_DIRECTORY}
-      CONFIGURE_COMMAND touch aclocal.m4 configure.ac Makefile.am Makefile.in configure config.h.in libbson.pc.in && ./configure --prefix=${3RD_PARTY_INSTALL_PREFIX}
-      BUILD_COMMAND make
-      INSTALL_COMMAND ${BSON_INSTALL_COMMAND}
-      UPDATE_COMMAND git pull)
+
 else()
   set(BSON_LIBS_DIRECTORY ${BSON_LIBDIR} CACHE INTERNAL "Installation path of bson libraries" FORCE)
   set(EMHASHMAP_LIBS_DIRECTORY ${BSON_LIBDIR} CACHE INTERNAL "Installation path of emashmap libraries" FORCE)
@@ -229,7 +250,7 @@ SET_PROPERTY(GLOBAL PROPERTY GLOBAL_BOOST_LIBS ${BOOST_LIBS_DIRECTORY})
 if (NOT ${Boost_FOUND})
   message(STATUS "Did not find boost. Downloading and installing boost 1.68")
   if (CMAKE_SYSTEM_NAME STREQUAL "Android")
-    set(BOOST_FOR_ANDROID_DIR ${3RD_PARTY_SOURCE_DIRECTORY}/boost-for-android)
+    set(BOOST_FOR_ANDROID_DIR ${3RD_PARTY_SOURCE_DIRECTORY}/android-helpers/boost)
     set(BOOST_FOR_ANDROID_TARGET_VER 21)
     include(ExternalProject)
     ExternalProject_Add(
