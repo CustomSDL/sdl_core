@@ -43,13 +43,41 @@
 #ifdef __ANDROID__
   #include <android/log.h>
 
-  #define LOG_ANFROID_WITH_LEVEL(LEVEL__, logEvent) \
-  {std::stringstream accumulator;                    \
-  accumulator << logEvent;                          \
-  __android_log_print(ANDROID_LOG_##LEVEL__, #LEVEL__, accumulator.str().c_str(), " %s : %s :%s", __FILE__, __FUNCTION__ , __LINE__);}
+  #define LOG_ANDROID_WITH_LEVEL(logLevel, logEvent) {                                 \
+    std::stringstream accumulator;                                                     \
+    accumulator << logEvent;                                                           \
+    __android_log_print(logLevel, logger_.c_str(),                                     \
+        accumulator.str().c_str(), " %s : %s :%s", __FILE__, __FUNCTION__ , __LINE__); \
+  }
 
-  #define LOG_WITH_LEVEL(logLevel, logEvent) \
-  {LOG_ANFROID_WITH_LEVEL(DEBUG, logEvent)}
+  #define LOG_WITH_LEVEL(logLevel, logEvent) {                                       \
+    switch (logLevel) {                                                              \
+      case logger::LogLevel::TRACE_LEVEL: {                                          \
+        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_VERBOSE, logEvent)   \
+        break;                                                                       \
+      }                                                                              \
+      case logger::LogLevel::DEBUG_LEVEL: {                                          \
+        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_DEBUG, logEvent)     \
+        break;                                                                       \
+      }                                                                              \
+      case logger::LogLevel::INFO_LEVEL: {                                           \
+        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_INFO, logEvent)      \
+        break;                                                                       \
+      }                                                                              \
+      case logger::LogLevel::WARNING_LEVEL: {                                        \
+        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_WARN, logEvent)      \
+        break;                                                                       \
+      }                                                                              \
+      case logger::LogLevel::ERROR_LEVEL: {                                          \
+        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_ERROR, logEvent)     \
+        break;                                                                       \
+      }                                                                              \
+      case logger::LogLevel::FATAL_LEVEL: {                                          \
+        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_FATAL, logEvent)     \
+        break;                                                                       \
+      }                                                                              \
+    }                                                                                \
+  }
   
 #else
 #define LOG_WITH_LEVEL(logLevel, logEvent)                               \
