@@ -1,8 +1,14 @@
 #include <jni.h>
 
-#include "utils/logger.h"
 #include "config_profile/profile.h"
 #include "appMain/life_cycle_impl.h"
+
+#ifdef ENABLE_LOG
+#include "utils/logger.h"
+#include "utils/logger/logger_impl.h"
+#endif  // ENABLE_LOG
+
+SDL_CREATE_LOCAL_LOG_VARIABLE("Main")
 
 void StartSDL(JNIEnv* env, jobject);
 void StopSDL(JNIEnv* env, jobject);
@@ -29,16 +35,57 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
 
 void StartSDL(JNIEnv* env, jobject)
 {
-    SDL_LOG_INFO("Start SDL");
+    SDL_LOG_TRACE("Start SDL: enter");
+
+#ifdef ENABLE_LOG
+    auto logger_impl =
+            std::unique_ptr<logger::LoggerImpl>(new logger::LoggerImpl());
+    logger::Logger::instance(logger_impl.get());
+#endif  // ENABLE_LOG
 
 	profile::Profile profile_instance;
 	std::unique_ptr<main_namespace::LifeCycle> life_cycle(
       new main_namespace::LifeCycleImpl(profile_instance));
 
-    //StartComponents();
-    //LInitMessageSystem();
+    profile_instance.set_config_file_name("/sdcard/SDL/smartDeviceLink.ini");
 
-    SDL_LOG_INFO("SDL is OK");
+    SDL_LOG_INFO("Application started!");
+    SDL_LOG_INFO("SDL version: " << profile_instance.sdl_version());
+
+    // Check if no error values were read from config file
+    if (profile_instance.ErrorOccured()) {
+        SDL_LOG_FATAL(profile_instance.ErrorDescription());
+        SDL_DEINIT_LOGGER();
+        exit(EXIT_FAILURE);
+    }
+
+    if (!life_cycle->StartComponents()) {
+        SDL_LOG_FATAL("Failed to start components");
+        life_cycle->StopComponents();
+        SDL_DEINIT_LOGGER();
+        return;
+    }
+
+    SDL_LOG_INFO("Components Started");
+
+    if (!life_cycle->InitMessageSystem()) {
+        SDL_LOG_FATAL("Failed to init message system");
+        life_cycle->StopComponents();
+        SDL_DEINIT_LOGGER();
+        return;
+    }
+
+    life_cycle->Run();
+    SDL_LOG_INFO("Stop SDL due to caught signal");
+
+    life_cycle->StopComponents();
+    SDL_LOG_INFO("Application has been stopped successfully");
+
+    SDL_DEINIT_LOGGER();
+
+    SDL_LOG_TRACE("StartSDL: exit");
 }
 void StopSDL(JNIEnv*, jobject) {
+    SDL_LOG_INFO("Stop from main activity requested");
+    // TODO: Implement sending of SIGTERM to lifecycle thread
 }
