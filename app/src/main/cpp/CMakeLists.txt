@@ -81,10 +81,6 @@ set(SNAPSHOT_TAG 	"$ENV{SNAPSHOT_TAG}")
 #set(CMAKE_C_COMPILER     $ENV{CMAKE_C_COMPILER})
 set(BUILDDIR "$ENV{BUILDDIR}")
 
-set(ENV{THIRD_PARTY_INSTALL_PREFIX} "/home/anrew/git/lib/android")
-set(ENV{THIRD_PARTY_INSTALL_PREFIX_ARCH} "/home/anrew/git/lib/android")
-set(ENV{LD_LIBRARY_PATH} "/home/anrew/git/lib/genivi/lib:$ENV{LD_LIBRARY_PATH}")
-
 if (ARCH_TYPE_OPTION)
   if (NOT (${ARCH_TYPE_OPTION} STREQUAL "x86") AND NOT (${ARCH_TYPE_OPTION} STREQUAL "armv7"))
     message(AUTHOR_WARNING "HW architecture is not defined, using x86. Allowed values are x86/armv7 (case sensitive)")
