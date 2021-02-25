@@ -343,7 +343,9 @@ endif()
 
 if(ENABLE_LOG)
   add_definitions(-DENABLE_LOG)
+  if (NOT ANDROID)
   set(install-3rd_party_logger "install-3rd_party_logger")
+  endif ()
   message(STATUS "Logger enabled")
 endif()
 
@@ -419,9 +421,12 @@ include_directories(
 add_subdirectory(./src/3rd_party EXCLUDE_FROM_ALL)
 
 #find_package(OpenSSL REQUIRED)
+
+if (NOT ANDROID)
 if(ENABLE_LOG)
   include_directories ( ${LOG4CXX_INCLUDE_DIRECTORY} )
 endif()
+endif ()
 
 if(ENABLE_SECURITY)
   add_definitions(-DENABLE_SECURITY)

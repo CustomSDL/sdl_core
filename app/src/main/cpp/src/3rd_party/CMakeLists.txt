@@ -47,7 +47,7 @@ if(FORCE_3RD_PARTY)
   endif()
 endif()
 
-if(ENABLE_LOG)
+if(ENABLE_LOG AND NOT ANDROID)
   # --- libexpat
   add_subdirectory(expat-2.1.0)
   set(EXPAT_LIBS_DIRECTORY ${3RD_PARTY_INSTALL_PREFIX_ARCH}/lib PARENT_SCOPE)
@@ -176,7 +176,9 @@ if(ENABLE_LOG)
   add_subdirectory(apr-util-cmake)
 
   # --- log4cxx
+  if(NOT ANDROID)
   add_subdirectory(apache-log4cxx-cmake)
+  endif()
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -304,9 +306,17 @@ else()
 add_custom_target(Boost) # empty target, Boost is already installed
 endif()
 
+if(ANDROID)
+add_custom_target(install-3rd_party
+  DEPENDS libbson
+  DEPENDS Boost
+  WORKING_DIRECTORY ${3RD_PARTY_BINARY_DIRECTORY}
+)
+else()
 add_custom_target(install-3rd_party
   DEPENDS libbson
   DEPENDS Boost
   DEPENDS ${install-3rd_party_logger_var}
   WORKING_DIRECTORY ${3RD_PARTY_BINARY_DIRECTORY}
 )
+endif()

@@ -79,11 +79,16 @@ add_library("LowVoltageHandlerObjLibrary" OBJECT ${CMAKE_CURRENT_SOURCE_DIR}/low
 add_dependencies("LowVoltageHandlerObjLibrary" Boost)
 
 set (SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/main.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/life_cycle_impl.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/signal_handlers.cc
   $<TARGET_OBJECTS:LowVoltageHandlerObjLibrary>
 )
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+  list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/android_platform_interface.cc)
+  else()
+  list(APPEND SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cc)
+endif()
 
 cmake_policy(PUSH)
 # make link_directories() treat paths relative to the source dir
@@ -138,7 +143,7 @@ if (BUILD_USB_SUPPORT)
   endif()
 endif()
 
-if(ENABLE_LOG)
+if(ENABLE_LOG AND NOT ANDROID)
   list(APPEND LIBRARIES log4cxx -L${LOG4CXX_LIBS_DIRECTORY})
   list(APPEND LIBRARIES apr-1 -L${APR_LIBS_DIRECTORY})
   list(APPEND LIBRARIES aprutil-1 -L${APR_UTIL_LIBS_DIRECTORY})

@@ -62,7 +62,7 @@ set(LIBRARIES
   sdl_rpc_plugin_static
 )
 
-if(ENABLE_LOG)
+if(ENABLE_LOG AND NOT ANDROID)
   list(APPEND LIBRARIES log4cxx -L${LOG4CXX_LIBS_DIRECTORY})
 endif()
 

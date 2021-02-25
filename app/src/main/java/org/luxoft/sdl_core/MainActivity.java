@@ -40,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private native static void StartSDL();
+    private native static void StopSDL();
+
     private boolean startSDL() {
         try {
             System.loadLibrary("c++_shared");
@@ -57,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         showToastMessage("SDL library has been successfully loaded");
+
+        StartSDL();
+
         return true;
     }
 

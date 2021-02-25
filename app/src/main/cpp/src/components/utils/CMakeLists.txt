@@ -69,7 +69,7 @@ if(NOT BUILD_BACKTRACE_SUPPORT)
   )
 endif()
 
-if(ENABLE_LOG)
+if(ENABLE_LOG AND NOT ANDROID)
   list(APPEND LIBRARIES
 	log4cxx -L${LOG4CXX_LIBS_DIRECTORY}
     apr-1 -L${APR_LIBS_DIRECTORY}
@@ -127,8 +127,13 @@ list(APPEND LIBRARIES boost_filesystem -L${BOOST_LIBS_DIRECTORY})
 target_link_libraries("Utils" ${LIBRARIES})
 add_dependencies("Utils" Boost)
 
+if(ANDROID)
+target_link_libraries("Utils"
+                      android 
+                      log)
+endif()
 
-if(ENABLE_LOG)
+if(ENABLE_LOG AND NOT ANDROID)
   add_dependencies("Utils" install-3rd_party_logger Boost)
 endif()
 
