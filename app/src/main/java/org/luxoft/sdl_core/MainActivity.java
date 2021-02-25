@@ -10,58 +10,84 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
+    private Thread sdl_thread_ = null;
+    private boolean is_first_load_ = true;
+    private Button start_sdl_button;
+    private Button stop_sdl_button;
+
+    private native static void StartSDL();
+    private native static void StopSDL();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final Button start_sdl = findViewById(R.id.start_sdl_button);
-        final Button stop_sdl = findViewById(R.id.stop_sdl_button);
+        start_sdl_button = findViewById(R.id.start_sdl_button);
+        stop_sdl_button = findViewById(R.id.stop_sdl_button);
 
-        start_sdl.setEnabled(true);
-        stop_sdl.setEnabled(false);
+        start_sdl_button.setEnabled(true);
+        stop_sdl_button.setEnabled(false);
 
-        start_sdl.setOnClickListener(new View.OnClickListener() {
+        start_sdl_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (startSDL()) {
-                    start_sdl.setEnabled(false);
-                    stop_sdl.setEnabled(true);
+                    start_sdl_button.setEnabled(false);
+                    stop_sdl_button.setEnabled(true);
                 }
             }
         });
 
-        stop_sdl.setOnClickListener(new View.OnClickListener() {
+        stop_sdl_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                start_sdl.setEnabled(true);
-                stop_sdl.setEnabled(false);
+                StopSDL();
             }
         });
     }
 
-    private native static void StartSDL();
-    private native static void StopSDL();
+    private void onSdlStopped() {
+        start_sdl_button.setEnabled(true);
+        stop_sdl_button.setEnabled(false);
+        showToastMessage("SDL has been stopped");
+    }
 
     private boolean startSDL() {
-        try {
-            System.loadLibrary("c++_shared");
-            System.loadLibrary("emhashmap");
-            System.loadLibrary("bson");
-            System.loadLibrary("boost_system");
-            System.loadLibrary("boost_regex");
-            System.loadLibrary("boost_thread");
-            System.loadLibrary("boost_date_time");
-            System.loadLibrary("boost_filesystem");
-            System.loadLibrary("smartDeviceLinkCore");
-        } catch (UnsatisfiedLinkError e) {
-            showToastMessage("Failed to load the library: " + e.getMessage());
-            return false;
+        if (is_first_load_) {
+            try {
+                System.loadLibrary("c++_shared");
+                System.loadLibrary("emhashmap");
+                System.loadLibrary("bson");
+                System.loadLibrary("boost_system");
+                System.loadLibrary("boost_regex");
+                System.loadLibrary("boost_thread");
+                System.loadLibrary("boost_date_time");
+                System.loadLibrary("boost_filesystem");
+                System.loadLibrary("smartDeviceLinkCore");
+                showToastMessage("SDL libraries has been successfully loaded");
+                is_first_load_ = false;
+            } catch (UnsatisfiedLinkError e) {
+                showToastMessage("Failed to load the library: " + e.getMessage());
+                return false;
+            }
         }
 
-        showToastMessage("SDL library has been successfully loaded");
+        sdl_thread_ = new Thread() {
+            @Override
+            public void run() {
+                StartSDL();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        onSdlStopped();
+                    }
+                });
+            }
+        };
 
-        StartSDL();
+        sdl_thread_.start();
+        showToastMessage("SDL has been started");
 
         return true;
     }
