@@ -31,14 +31,13 @@
 include(${CMAKE_SOURCE_DIR}/tools/cmake/helpers/platform.cmake)
 include(${CMAKE_SOURCE_DIR}/tools/cmake/helpers/sources.cmake)
 
-find_package(Sqlite3 REQUIRED)
-
 include_directories (
   ${COMPONENTS_DIR}/utils/include
   ${COMPONENTS_DIR}/config_profile/include
   ${COMPONENTS_DIR}/media_manager/include
   ${COMPONENTS_DIR}/protocol_handler/include
   ${JSONCPP_INCLUDE_DIRECTORY}
+  ${SQLITE_INCLUDE_DIRECTORY}
   ${LOG4CXX_INCLUDE_DIRECTORY}
   ${BOOST_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/src
@@ -61,6 +60,7 @@ set(EXCLUDE_PATHS
 set(LIBRARIES
   encryption
   jsoncpp
+        sqlite_static
 )
 
 if(NOT BUILD_BACKTRACE_SUPPORT)
@@ -110,8 +110,8 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # --- SQLite Wrapper
     add_subdirectory(./src/sqlite_wrapper)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
-    # --- Android specific Wrapper
-    add_subdirectory(./src/android_wrapper)
+    # --- SQLite Wrapper
+    add_subdirectory(./src/sqlite_wrapper)
 endif ()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
