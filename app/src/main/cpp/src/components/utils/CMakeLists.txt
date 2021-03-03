@@ -69,19 +69,29 @@ if(NOT BUILD_BACKTRACE_SUPPORT)
   )
 endif()
 
-if(ENABLE_LOG AND NOT ANDROID)
-  list(APPEND LIBRARIES
-	log4cxx -L${LOG4CXX_LIBS_DIRECTORY}
+if(ENABLE_LOG)
+  if(ANDROID)
+    list(APPEND EXCLUDE_PATHS
+    logger/log4cxxlogger.cc
+    )
+  else()
+    list(APPEND LIBRARIES
+	  log4cxx -L${LOG4CXX_LIBS_DIRECTORY}
     apr-1 -L${APR_LIBS_DIRECTORY}
     aprutil-1 -L${APR_UTIL_LIBS_DIRECTORY}
-	ConfigProfile
-  )
-else()
+	  ConfigProfile
+    )
+    list(APPEND EXCLUDE_PATHS
+    logger/androidlogger.cc
+    )
+  endif()
+else()  #(ENABLE_LOG)
   list(APPEND EXCLUDE_PATHS
     auto_trace.cc
     logger/log4cxxlogger.cc
+    logger/androidlogger.cc
   )
-endif()
+endif() #(ENABLE_LOG)
 
 if(NOT BUILD_BT_SUPPORT)
   list(APPEND EXCLUDE_PATHS

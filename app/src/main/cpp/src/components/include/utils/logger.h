@@ -39,63 +39,19 @@
 #include <sstream>
 #include <string>
 
-
-#ifdef __ANDROID__
-  #include <android/log.h>
-
-  #define LOG_ANDROID_WITH_LEVEL(logLevel, logEvent) {                                 \
-    std::stringstream accumulator;                                                     \
-    accumulator << logEvent;                                                           \
-    __android_log_print(logLevel, logger_.c_str(),                                     \
-        accumulator.str().c_str(), " %s : %s :%s", __FILE__, __FUNCTION__ , __LINE__); \
-  }
-
-  #define LOG_WITH_LEVEL(logLevel, logEvent) {                                       \
-    switch (logLevel) {                                                              \
-      case logger::LogLevel::TRACE_LEVEL: {                                          \
-        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_VERBOSE, logEvent)   \
-        break;                                                                       \
-      }                                                                              \
-      case logger::LogLevel::DEBUG_LEVEL: {                                          \
-        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_DEBUG, logEvent)     \
-        break;                                                                       \
-      }                                                                              \
-      case logger::LogLevel::INFO_LEVEL: {                                           \
-        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_INFO, logEvent)      \
-        break;                                                                       \
-      }                                                                              \
-      case logger::LogLevel::WARNING_LEVEL: {                                        \
-        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_WARN, logEvent)      \
-        break;                                                                       \
-      }                                                                              \
-      case logger::LogLevel::ERROR_LEVEL: {                                          \
-        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_ERROR, logEvent)     \
-        break;                                                                       \
-      }                                                                              \
-      case logger::LogLevel::FATAL_LEVEL: {                                          \
-        LOG_ANDROID_WITH_LEVEL(android_LogPriority::ANDROID_LOG_FATAL, logEvent)     \
-        break;                                                                       \
-      }                                                                              \
-    }                                                                                \
-  }
-  
-#else
-#define LOG_WITH_LEVEL(logLevel, logEvent)                               \
-  do {                                                                   \
-    if (logger::Logger::instance().IsEnabledFor(logger_, logLevel)) {    \
-      std::stringstream accumulator;                                     \
-      accumulator << logEvent;                                           \
-      logger::LogMessage message{                                        \
-          logger_,                                                       \
-          logLevel,                                                      \
-          accumulator.str(),                                             \
-          std::chrono::high_resolution_clock::now(),                     \
-          logger::LocationInfo{__FILE__, __PRETTY_FUNCTION__, __LINE__}, \
-          std::this_thread::get_id()};                                   \
-      logger::Logger::instance().PushLog(message);                       \
-    }                                                                    \
-  } while (false)
-#endif
+#define LOG_WITH_LEVEL(logLevel, logEvent)                             \
+  if (logger::Logger::instance().IsEnabledFor(logger_, logLevel)) {    \
+    std::stringstream accumulator;                                     \
+    accumulator << logEvent;                                           \
+    logger::LogMessage message{                                        \
+        logger_,                                                       \
+        logLevel,                                                      \
+        accumulator.str(),                                             \
+        std::chrono::high_resolution_clock::now(),                     \
+        logger::LocationInfo{__FILE__, __PRETTY_FUNCTION__, __LINE__}, \
+        std::this_thread::get_id()};                                   \
+    logger::Logger::instance().PushLog(message);                       \
+  }                                                                    
 
 #include "utils/auto_trace.h"
 #define SDL_CREATE_LOG_VARIABLE(component_name) \
@@ -118,13 +74,9 @@
 #define SDL_LOG_TRACE(logEvent) \
   LOG_WITH_LEVEL(logger::LogLevel::TRACE_LEVEL, logEvent)
 
-#ifndef __ANDROID__
 #define SDL_LOG_AUTO_TRACE()    \
     logger::AutoTrace auto_trace( \
     logger_, logger::LocationInfo{__FILE__, __PRETTY_FUNCTION__, __LINE__})
-#else
-#define SDL_LOG_AUTO_TRACE()
-#endif
 
 #define SDL_LOG_DEBUG(logEvent) \
   LOG_WITH_LEVEL(logger::LogLevel::DEBUG_LEVEL, logEvent)

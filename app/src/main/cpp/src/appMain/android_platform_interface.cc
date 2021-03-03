@@ -4,7 +4,7 @@
 #include "appMain/life_cycle_impl.h"
 
 #ifdef ENABLE_LOG
-#include "utils/logger.h"
+#include "utils/logger/androidlogger.h"
 #include "utils/logger/logger_impl.h"
 #endif  // ENABLE_LOG
 
@@ -19,8 +19,6 @@ static JNINativeMethod s_methods[] = {
 };
 
 jint JNI_OnLoad(JavaVM* vm, void*) {
-   SDL_LOG_INFO("Hello SDL");
-	
    JNIEnv *env = NULL;
    vm->GetEnv((void**)&env, JNI_VERSION_1_6);
 
@@ -35,8 +33,6 @@ jint JNI_OnLoad(JavaVM* vm, void*) {
 
 void StartSDL(JNIEnv* env, jobject)
 {
-    SDL_LOG_TRACE("Start SDL: enter");
-
 #ifdef ENABLE_LOG
     auto logger_impl =
             std::unique_ptr<logger::LoggerImpl>(new logger::LoggerImpl());
@@ -48,6 +44,16 @@ void StartSDL(JNIEnv* env, jobject)
       new main_namespace::LifeCycleImpl(profile_instance));
 
     profile_instance.set_config_file_name("/sdcard/SDL/smartDeviceLink.ini");
+
+#ifdef ENABLE_LOG
+  if (profile_instance.logs_enabled()) {
+    // Logger initialization
+    // Redefine for each paticular logger implementation
+    auto logger = std::unique_ptr<logger::AndroidLogger>(
+        new logger::AndroidLogger());
+    logger_impl->Init(std::move(logger));
+  }
+#endif
 
     SDL_LOG_INFO("Application started!");
     SDL_LOG_INFO("SDL version: " << profile_instance.sdl_version());
