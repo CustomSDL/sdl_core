@@ -1,6 +1,6 @@
 #include <jni.h>
 
-#include "config_profile/profile.h"
+#include "config_profile/android_profile.h"
 #include "appMain/life_cycle_impl.h"
 
 #ifdef ENABLE_LOG
@@ -18,12 +18,29 @@ static JNINativeMethod s_methods[] = {
    {"StopSDL", "()V", (void*)StopSDL}
 };
 
+// To call Java methods when running native code inside an Android activity,
+// a reference is needed to the JavaVM
+static JavaVM *gJavaVM;
+
+std::string JNI_GetMainActivityStringProperty(const char* property) {
+    JNIEnv *env = NULL;
+    gJavaVM->GetEnv((void**)&env, JNI_VERSION_1_6);
+
+    jclass cls = env->FindClass("org/luxoft/sdl_core/MainActivity");
+    jfieldID fieldID = env->GetStaticFieldID(cls, property, "Ljava/lang/String;");
+    auto fieldValue = static_cast<jstring>(env->GetStaticObjectField(cls, fieldID));
+
+    const char *path_chars = env->GetStringUTFChars(fieldValue, NULL);
+    return std::string(path_chars);
+}
+
 jint JNI_OnLoad(JavaVM* vm, void*) {
+   gJavaVM = vm;
    JNIEnv *env = NULL;
-   vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+   gJavaVM->GetEnv((void**)&env, JNI_VERSION_1_6);
 
    jclass cls = env->FindClass("org/luxoft/sdl_core/MainActivity");
-   jclass globalClass = reinterpret_cast<jclass>(env->NewGlobalRef(cls));
+   auto globalClass = reinterpret_cast<jclass>(env->NewGlobalRef(cls));
 
    int len = sizeof(s_methods) / sizeof(s_methods[0]);
 
@@ -38,12 +55,20 @@ void StartSDL(JNIEnv* env, jobject)
             std::unique_ptr<logger::LoggerImpl>(new logger::LoggerImpl());
     logger::Logger::instance(logger_impl.get());
 #endif  // ENABLE_LOG
+    const std::string internal_storage = JNI_GetMainActivityStringProperty("sdl_cache_folder_path");
+    const std::string external_storage = JNI_GetMainActivityStringProperty("sdl_external_dir_folder_path");
 
-	profile::Profile profile_instance;
+	profile::AndroidProfile profile_instance(internal_storage, external_storage);
 	std::unique_ptr<main_namespace::LifeCycle> life_cycle(
       new main_namespace::LifeCycleImpl(profile_instance));
 
-    profile_instance.set_config_file_name("/sdcard/SDL/smartDeviceLink.ini");
+
+    std::string ini_name = "androidSmartDeviceLink.ini";
+	if (!external_storage.empty()) {
+	    ini_name = external_storage + "/" + ini_name;
+	}
+
+    profile_instance.set_config_file_name(ini_name);
 
 #ifdef ENABLE_LOG
   if (profile_instance.logs_enabled()) {

@@ -2646,6 +2646,7 @@ bool Profile::ReadStringValue(std::string* value,
     *value = default_value;
     return false;
   }
+  SubstituteMacroInString(*value);
   return true;
 }
 
