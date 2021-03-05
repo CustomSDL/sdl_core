@@ -37,6 +37,22 @@
             android:layout_gravity="center"
             android:text="Stop SDL" />
 
+        <TextView
+            android:id="@+id/cache_folder"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:text="Cache folder:"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"/>
+
+        <TextView
+            android:id="@+id/external_folder"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="External folder:" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
