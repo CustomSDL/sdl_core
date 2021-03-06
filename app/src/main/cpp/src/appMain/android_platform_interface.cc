@@ -2,6 +2,8 @@
 
 #include "config_profile/android_profile.h"
 #include "appMain/life_cycle_impl.h"
+#include "utils/lock.h"
+#include "utils/conditional_variable.h"
 
 #ifdef ENABLE_LOG
 #include "utils/logger/androidlogger.h"
@@ -21,6 +23,9 @@ static JNINativeMethod s_methods[] = {
 // To call Java methods when running native code inside an Android activity,
 // a reference is needed to the JavaVM
 static JavaVM *gJavaVM;
+
+sync_primitives::Lock wait_lock_;
+sync_primitives::ConditionalVariable wait_var_;
 
 std::string JNI_GetMainActivityStringProperty(const char* property) {
     JNIEnv *env = NULL;
@@ -106,17 +111,27 @@ void StartSDL(JNIEnv* env, jobject)
         return;
     }
 
-    life_cycle->Run();
+    {
+        // TODO: Replace with lifecycle Run() once signal handling is fixed
+        sync_primitives::AutoLock auto_lock(wait_lock_);
+        wait_var_.Wait(auto_lock);
+    }
+
     SDL_LOG_INFO("Stop SDL due to caught signal");
 
     life_cycle->StopComponents();
     SDL_LOG_INFO("Application has been stopped successfully");
 
-    SDL_DEINIT_LOGGER();
-
     SDL_LOG_TRACE("StartSDL: exit");
+
+    SDL_DEINIT_LOGGER();
 }
+
 void StopSDL(JNIEnv*, jobject) {
     SDL_LOG_INFO("Stop from main activity requested");
-    // TODO: Implement sending of SIGTERM to lifecycle thread
+    {
+        // TODO: Replace with sigkill(SIGINT) once signal handling is fixed
+        sync_primitives::AutoLock auto_lock(wait_lock_);
+        wait_var_.NotifyOne();
+    }
 }
