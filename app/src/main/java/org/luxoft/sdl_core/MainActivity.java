@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         TextView cache_folder_view = findViewById(R.id.cache_folder);
         cache_folder_view.setText(String.format("Cache folder: %s", sdl_cache_folder_path));
 
-        sdl_external_dir_folder_path = Environment.getExternalStorageDirectory().toString().concat("/SDL");
+        sdl_external_dir_folder_path = getFilesDir().toString();
         TextView external_folder_view = findViewById(R.id.external_folder);
         external_folder_view.setText(String.format("External folder: %s", sdl_external_dir_folder_path));
 
