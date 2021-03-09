@@ -126,6 +126,14 @@ set(LIBRARIES
   SystemTimeLibrary
 )
 
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+  list(APPEND LIBRARIES app_service_rpc_plugin)
+  list(APPEND LIBRARIES sdl_rpc_plugin)
+  list(APPEND LIBRARIES rc_rpc_plugin)
+  list(APPEND LIBRARIES vehicle_info_plugin)
+endif()
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   list(APPEND LIBRARIES pthread)
   list(APPEND LIBRARIES dl)
