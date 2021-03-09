@@ -16,8 +16,9 @@ android {
             cmake {
                 arguments "-DBUILD_USB_SUPPORT=OFF",
                         "-DBUILD_BT_SUPPORT=OFF",
-                        "-DENABLE_SECURITY=OFF",
-                        "-DENABLE_LOG=ON"
+                        "-DENABLE_SECURITY=ON",
+                        "-DENABLE_LOG=ON",
+                        "-DBUILD_WEBSOCKET_SERVER_SUPPORT=OFF"
                 cppFlags
                 targets "smartDeviceLinkCore"
             }
