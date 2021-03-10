@@ -2,7 +2,7 @@
 #define THIRDPARTYLIBS_ENCRYPTION_INCLUDE_ENCRYPTION_HASHING_H_
 
 #include <string>
-//#include <openssl/sha.h>
+#include <openssl/sha.h>
 
 namespace encryption {
 
