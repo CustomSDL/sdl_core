@@ -126,14 +126,6 @@ set(LIBRARIES
   SystemTimeLibrary
 )
 
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Android")
-  list(APPEND LIBRARIES app_service_rpc_plugin)
-  list(APPEND LIBRARIES sdl_rpc_plugin)
-  list(APPEND LIBRARIES rc_rpc_plugin)
-  list(APPEND LIBRARIES vehicle_info_plugin)
-endif()
-
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   list(APPEND LIBRARIES pthread)
   list(APPEND LIBRARIES dl)
@@ -162,8 +154,10 @@ list(APPEND LIBRARIES bson -L${BSON_LIBS_DIRECTORY})
 list(APPEND LIBRARIES emhashmap -L${EMHASHMAP_LIBS_DIRECTORY})
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+  set(INI_FILE_NAME androidSmartDeviceLink.ini)
   add_library(${PROJECT} SHARED ${SOURCES})
 else()
+  set(INI_FILE_NAME smartDeviceLink.ini)
   add_executable(${PROJECT} ${SOURCES})
 endif()
 
@@ -176,11 +170,19 @@ endif()
 target_link_libraries(${PROJECT} ${LIBRARIES})
 
 add_dependencies(${PROJECT} Policy)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+  add_dependencies(${PROJECT} copy_sdl_rpc_plugin)
+  add_dependencies(${PROJECT} copy_vehicle_info_plugin)
+  add_dependencies(${PROJECT} copy_rc_rpc_plugin)
+  add_dependencies(${PROJECT} copy_app_service_rpc_plugin)
+endif()
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/build_config.txt DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/log4cxx.properties DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/audio.8bit.wav DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test.txt DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/smartDeviceLink.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${INI_FILE_NAME} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/hmi_capabilities.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/sdl_preloaded_pt.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/sample_policy_manager.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -200,7 +202,7 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/.git)
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE GITCOMMIT ERROR_QUIET
       OUTPUT_STRIP_TRAILING_WHITESPACE)
-    set(INI_FILE ${CMAKE_CURRENT_BINARY_DIR}/smartDeviceLink.ini)
+    set(INI_FILE ${CMAKE_CURRENT_BINARY_DIR}/${INI_FILE_NAME})
     if(EXISTS ${INI_FILE})
       file(READ ${INI_FILE} FILE_CONTENT)
       set(LINE SDLVersion)
@@ -235,7 +237,7 @@ endif ()
 install(TARGETS ${PROJECT} DESTINATION bin)
 install(
   FILES build_config.txt log4cxx.properties audio.8bit.wav test.txt
-    ${CMAKE_CURRENT_BINARY_DIR}/smartDeviceLink.ini
+    ${CMAKE_CURRENT_BINARY_DIR}/${INI_FILE_NAME}
     hmi_capabilities.json sdl_preloaded_pt.json sample_policy_manager.py
     ${CMAKE_SOURCE_DIR}/mycert.pem ${CMAKE_SOURCE_DIR}/mykey.pem
   DESTINATION bin
