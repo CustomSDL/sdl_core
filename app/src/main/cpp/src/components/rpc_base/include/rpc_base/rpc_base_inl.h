@@ -388,13 +388,14 @@ bool Array<T, minsize, maxsize>::operator==(const Array& that) {
   if (this->size() != that.size())
     return false;
 
-  // TODO: Const cast?
-//  for (auto i = std::begin(*this), j = std::begin(that); i != std::end(*this);
-//       ++i, ++j) {
-//    if (!(*i == *j)) {
-//      return false;
-//    }
-//  }
+  using It = decltype(std::begin(that));
+
+  for (It i = std::begin(*this), j = std::begin(that); i != std::end(*this);
+       ++i, ++j) {
+    if (!(*i == *j)) {
+      return false;
+    }
+  }
   return true;
 }
 
