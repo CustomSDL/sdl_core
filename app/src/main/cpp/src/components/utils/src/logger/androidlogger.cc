@@ -87,14 +87,14 @@ void AndroidLogger::PushLog(const LogMessage& log_message) {
   time_stamp += "::";
   time_stamp += std::to_string(timeInMicroSec % 1000);                    // mcs
 
-  __android_log_print(getLogLevel(
-    log_message.log_level_),
-    log_message.log_event_.c_str(),
-    "%s: %s : %s :%s",
+  __android_log_print(
+    getLogLevel(log_message.log_level_),
     time_stamp.c_str(),
+    "%s: %s : %s :%d",
+    log_message.log_event_.c_str(),
     log_message.location_.file_name.c_str(),
     log_message.location_.function_name.c_str(),
-    std::to_string(log_message.location_.line_number).c_str());
+    log_message.location_.line_number);
 }
 
 }  // namespace logger
