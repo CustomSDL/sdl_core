@@ -36,23 +36,20 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <ifaddrs.h>
 #include <memory.h>
 #include <signal.h>
 #include <sys/select.h>
 #include <sys/socket.h>
-//#include <sys/sysctl.h>
-#include "ifaddrs.h"
 #include <sys/types.h>
 #include <unistd.h>
-#ifdef __linux__
 #include <linux/tcp.h>
-#else  // __linux__
+#ifdef __LINUX__
+#include <ifaddrs.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <netinet/tcp_var.h>
 #include <sys/time.h>
-#endif  // __linux__
+#endif  // __LINUX__
 
 #include <sstream>
 
@@ -63,6 +60,9 @@
 #include "transport_manager/tcp/tcp_socket_connection.h"
 #include "transport_manager/transport_adapter/transport_adapter_controller.h"
 #include "utils/threads/thread.h"
+#ifdef __ANDROID__
+#include "transport_manager/tcp/ifaddrs_android/ifaddrs-android.h"
+#endif // __ANDROID__
 
 namespace transport_manager {
 namespace transport_adapter {
@@ -657,10 +657,10 @@ bool TcpClientListener::GetIPv4Address(const std::string interface_name,
 #endif  // BUILD_TESTS
 
   struct ifaddrs* if_list;
-//  if (getifaddrs(&if_list) != 0) {
+  if (getifaddrs(&if_list) != 0) {
     SDL_LOG_WARN("getifaddrs failed");
     return false;
-//  }
+  }
 
   struct ifaddrs* interface;
   bool found = false;
@@ -690,7 +690,7 @@ bool TcpClientListener::GetIPv4Address(const std::string interface_name,
     }
   }
 
-//  freeifaddrs(if_list);
+  freeifaddrs(if_list);
 
   return found;
 }
