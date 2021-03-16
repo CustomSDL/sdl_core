@@ -17,7 +17,6 @@ android {
                 arguments "-DBUILD_USB_SUPPORT=OFF",
                         "-DBUILD_BT_SUPPORT=OFF",
                         "-DENABLE_SECURITY=OFF",
-                        "-DTELEMETRY_MONITOR=OFF",
                         "-DENABLE_LOG=ON"
                 cppFlags
                 targets "smartDeviceLinkCore"
