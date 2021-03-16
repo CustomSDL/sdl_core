@@ -76,7 +76,7 @@ static int pthread_setcancelstate(int state, int *oldstate) {
 }
 
 static inline int pthread_cancel(pthread_t thread) {
-    return pthread_kill(thread, SIG_CANCEL_SIGNAL);
+    return pthread_kill(thread, SIGINT);
 }
 #endif
 
