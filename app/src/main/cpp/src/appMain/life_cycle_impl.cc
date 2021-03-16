@@ -182,11 +182,8 @@ bool LifeCycleImpl::StartComponents() {
                                          profile_.wake_up_signal_offset(),
                                          profile_.ignition_off_signal_offset()};
 
-#ifndef __ANDROID__
-  // TODO: Remove ifdef once signals handling is fixed
   low_voltage_signals_handler_.reset(
       new LowVoltageSignalsHandler(*this, signals_offset));
-#endif
 
   return true;
 }
