@@ -420,8 +420,6 @@ include_directories(
 # --- 3rd party libs
 add_subdirectory(./src/3rd_party EXCLUDE_FROM_ALL)
 
-#find_package(OpenSSL REQUIRED)
-
 if (NOT ANDROID)
 if(ENABLE_LOG)
   include_directories ( ${LOG4CXX_INCLUDE_DIRECTORY} )
@@ -475,6 +473,13 @@ if(BUILD_TESTS)
 endif()
 
 # --- 3rd party libs (static)
+if (NOT ANDROID)
+  find_package(OpenSSL REQUIRED)
+else()
+  set(OPENSSL_INCLUDE_DIRECTORY ${CMAKE_SOURCE_DIR}/src/3rd_party-static/openssl/include)
+  set(OPENSSL_LIBS_DIRECTORY ${CMAKE_SOURCE_DIR}/src/3rd_party-static/openssl/x86_64)
+endif()
+
 add_subdirectory(./src/3rd_party-static)
 
 # --- Tools

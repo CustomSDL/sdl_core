@@ -50,26 +50,21 @@ include_directories(
 )
 add_subdirectory(./sqlite_static)
 
-# --- openssl
-set(OPENSSL_INCLUDE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/openssl/include)
-set(OPENSSL_INCLUDE_DIRECTORY ${OPENSSL_INCLUDE_DIRECTORY} PARENT_SCOPE)
+if (ANDROID)
+  # --- openssl
+  include_directories(
+          ${OPENSSL_INCLUDE_DIRECTORY}
+  )
+  add_library(crypto STATIC IMPORTED)
+  set_target_properties(crypto
+          PROPERTIES
+          IMPORTED_LOCATION ${OPENSSL_LIBS_DIRECTORY}/libcrypto.a)
 
-set(OPENSSL_LIBS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/openssl/x86_64)
-set(OPENSSL_LIBS_DIRECTORY ${OPENSSL_LIBS_DIRECTORY} PARENT_SCOPE)
-
-include_directories(
-  ${OPENSSL_INCLUDE_DIRECTORY}
-)
-
-add_library(crypto STATIC IMPORTED)
-set_target_properties(crypto
-        PROPERTIES
-        IMPORTED_LOCATION ${OPENSSL_LIBS_DIRECTORY}/libcrypto.a)
-
-add_library(ssl STATIC IMPORTED)
-set_target_properties(ssl
-        PROPERTIES
-        IMPORTED_LOCATION ${OPENSSL_LIBS_DIRECTORY}/libssl.a)
+  add_library(ssl STATIC IMPORTED)
+  set_target_properties(ssl
+          PROPERTIES
+          IMPORTED_LOCATION ${OPENSSL_LIBS_DIRECTORY}/libssl.a)
+endif()
 
 # --- encryption
 add_subdirectory(./encryption)
