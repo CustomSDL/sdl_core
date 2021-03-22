@@ -54,32 +54,6 @@ typedef pthread_t PlatformThreadHandle;
 #error Please implement thread for your OS
 #endif
 
-#if defined(__ANDROID__)
-#define SIG_CANCEL_SIGNAL SIGUSR1
-#define PTHREAD_CANCEL_ENABLE 1
-#define PTHREAD_CANCEL_DISABLE 0
-
-typedef long pthread_t;
-
-static int pthread_setcancelstate(int state, int *oldstate) {
-    sigset_t   new_sig, old_sig;
-    int ret;
-    sigemptyset (&new_sig);
-    sigaddset (&new_sig, SIG_CANCEL_SIGNAL);
-
-    ret = pthread_sigmask(state == PTHREAD_CANCEL_ENABLE ? SIG_BLOCK : SIG_UNBLOCK, &new_sig , &old_sig);
-    if(oldstate != NULL)
-    {
-        *oldstate =sigismember(&old_sig,SIG_CANCEL_SIGNAL) == 0 ? PTHREAD_CANCEL_DISABLE : PTHREAD_CANCEL_ENABLE;
-    }
-    return ret;
-}
-
-static inline int pthread_cancel(pthread_t thread) {
-    return pthread_kill(thread, SIGINT);
-}
-#endif
-
 /**
  * @brief Non platform specific thread abstraction that establishes a
  * threads::ThreadDelegate on a new thread.
