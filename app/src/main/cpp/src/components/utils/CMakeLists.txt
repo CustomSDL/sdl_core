@@ -37,11 +37,13 @@ include_directories (
   ${COMPONENTS_DIR}/media_manager/include
   ${COMPONENTS_DIR}/protocol_handler/include
   ${JSONCPP_INCLUDE_DIRECTORY}
-  ${SQLITE_INCLUDE_DIRECTORY}
   ${LOG4CXX_INCLUDE_DIRECTORY}
   ${BOOST_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/src
 )
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    include_directories(${SQLITE_INCLUDE_DIRECTORY})
+endif ()
 
 # dbms
 set(DBMS_PATHS
@@ -60,8 +62,13 @@ set(EXCLUDE_PATHS
 set(LIBRARIES
   encryption
   jsoncpp
-        sqlite_static
 )
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    list(APPEND LIBRARIES sqlite_static)
+else()
+    find_package(Sqlite3 REQUIRED)
+endif ()
 
 if(NOT BUILD_BACKTRACE_SUPPORT)
   list(APPEND EXCLUDE_PATHS
