@@ -31,8 +31,6 @@
 include(${CMAKE_SOURCE_DIR}/tools/cmake/helpers/platform.cmake)
 include(${CMAKE_SOURCE_DIR}/tools/cmake/helpers/sources.cmake)
 
-find_package(Sqlite3 REQUIRED)
-
 include_directories (
   ${COMPONENTS_DIR}/utils/include
   ${COMPONENTS_DIR}/config_profile/include
@@ -68,6 +66,8 @@ set(LIBRARIES
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     list(APPEND LIBRARIES sqlite_static)
+else()
+    find_package(Sqlite3 REQUIRED)
 endif ()
 
 if(NOT BUILD_BACKTRACE_SUPPORT)
