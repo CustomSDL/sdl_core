@@ -129,13 +129,8 @@ inline int pthread_cancel(pthread_t t) {
             return 0;
         }
 
-        if (p->attr.flags & PTHREAD_ATTR_FLAG_CANCEL_ASYNCRONOUS) {
-            pthread_mutex_unlock(&p->cancel_lock);
-            err = __pthread_do_cancel(p);
-        } else {
-            // DEFERRED CANCEL NOT IMPLEMENTED YET
-            pthread_mutex_unlock(&p->cancel_lock);
-        }
+        pthread_mutex_unlock(&p->cancel_lock);
+        err = __pthread_do_cancel(p);
 
         return err;
     }
