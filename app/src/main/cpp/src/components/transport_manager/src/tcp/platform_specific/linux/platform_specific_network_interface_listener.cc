@@ -4,9 +4,12 @@
 #include <asm/types.h>
 #include <errno.h>
 #include <fcntl.h>
-#ifdef __LINUX__
+
+#ifdef __ANDROID__
+#include "transport_manager/tcp/ifaddrs_android/ifaddrs-android.h"
+#else
 #include <ifaddrs.h>
-#endif // __LINUX__
+#endif // __ANDROID__
 
 #include <net/if.h>
 #include <sys/select.h>
@@ -20,9 +23,6 @@
 #include "transport_manager/tcp/tcp_client_listener.h"
 #include "utils/logger.h"
 #include "utils/threads/thread.h"
-#ifdef __ANDROID__
-#include "transport_manager/tcp/ifaddrs_android/ifaddrs-android.h"
-#endif // __ANDROID__
 
 namespace transport_manager {
 namespace transport_adapter {
