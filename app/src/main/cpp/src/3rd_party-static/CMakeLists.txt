@@ -41,6 +41,7 @@ include_directories(
 collect_sources(SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/jsoncpp/src/lib_json")
 add_library(jsoncpp ${SOURCES})
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
 # --- sqlite3
 set(SQLITE_INCLUDE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/sqlite_static ${CMAKE_SOURCE_DIR}/src/components/utils/include)
 set(SQLITE_INCLUDE_DIRECTORY ${SQLITE_INCLUDE_DIRECTORY} PARENT_SCOPE)
@@ -49,6 +50,7 @@ include_directories(
   ${SQLITE_INCLUDE_DIRECTORY}
 )
 add_subdirectory(./sqlite_static)
+endif ()
 
 if (ANDROID)
   # --- openssl

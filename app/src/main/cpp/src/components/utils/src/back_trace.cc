@@ -48,22 +48,22 @@ using threads::Thread;
 
 namespace utils {
 
-namespace {
-string demangle(const char* symbol) {
-  char temp[2048];
-  if (1 == sscanf(symbol, "%*[^(]%*[^_]%2047[^)+]", temp)) {
-    size_t size;
-    int32_t status;
-    char* demangled = abi::__cxa_demangle(temp, NULL, &size, &status);
-    if (demangled != NULL) {
-      string result(demangled);
-      free(demangled);
-      return result;
-    }
-  }
-  return symbol;
-}
-}  // namespace
+//namespace {
+//string demangle(const char* symbol) {
+//  char temp[2048];
+//  if (1 == sscanf(symbol, "%*[^(]%*[^_]%2047[^)+]", temp)) {
+//    size_t size;
+//    int32_t status;
+//    char* demangled = abi::__cxa_demangle(temp, NULL, &size, &status);
+//    if (demangled != NULL) {
+//      string result(demangled);
+//      free(demangled);
+//      return result;
+//    }
+//  }
+//  return symbol;
+//}
+//}  // namespace
 
 Backtrace::Backtrace(int32_t count, int32_t skip_top)
     : thread_id_(threads::Thread::CurrentId()) {

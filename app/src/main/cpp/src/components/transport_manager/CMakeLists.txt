@@ -50,7 +50,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "QNX")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/include/transport_manager/tcp/platform_specific/linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
-    include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/include/transport_manager/tcp/platform_specific/android")
+    include_directories ("${CMAKE_CURRENT_SOURCE_DIR}/include/transport_manager/tcp/platform_specific/linux")
 endif ()
 
 set(PATHS
@@ -146,7 +146,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "QNX")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   collect_sources(PLATFORM_DEPENDENT_SOURCES "${COMPONENTS_DIR}/transport_manager/src/tcp/platform_specific/linux")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Android")
-  collect_sources(PLATFORM_DEPENDENT_SOURCES "${COMPONENTS_DIR}/transport_manager/src/tcp/platform_specific/android")
+  collect_sources(PLATFORM_DEPENDENT_SOURCES "${COMPONENTS_DIR}/transport_manager/src/tcp/platform_specific/linux")
 endif ()
 list(APPEND SOURCES ${PLATFORM_DEPENDENT_SOURCES})
 

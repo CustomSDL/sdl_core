@@ -43,6 +43,10 @@
 #include "utils/threads/thread.h"
 #include "utils/threads/thread_delegate.h"
 
+#ifdef __ANDROID__
+#include "utils/threads/pthread_android.h"
+#endif // __ANDROID__
+
 #ifndef __QNXNTO__
 const int EOK = 0;
 #endif
@@ -71,7 +75,7 @@ void* Thread::threadFunc(void* arg) {
   auto thread_procedure_execution = [](Thread* thread) {
     thread->thread_state_ = kThreadStateRunning;
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-//    pthread_testcancel();
+    pthread_testcancel();
     thread->state_lock_.Release();
     thread->delegate_->threadMain();
     thread->state_lock_.Acquire();
