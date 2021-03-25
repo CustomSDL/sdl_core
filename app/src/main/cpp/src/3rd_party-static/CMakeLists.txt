@@ -41,10 +41,6 @@ include_directories(
 collect_sources(SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/jsoncpp/src/lib_json")
 add_library(jsoncpp ${SOURCES})
 
-# --- encryption
-add_subdirectory(./encryption)
-set(ENCRYPTION_INCLUDE_DIRECTORY ${ENCRYPTION_INCLUDE_DIRECTORY} PARENT_SCOPE)
-
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
 # --- sqlite3
 set(SQLITE_INCLUDE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/sqlite_static ${CMAKE_SOURCE_DIR}/src/components/utils/include)
@@ -55,6 +51,26 @@ include_directories(
 )
 add_subdirectory(./sqlite_static)
 endif ()
+
+if (ANDROID)
+  # --- openssl
+  include_directories(
+          ${OPENSSL_INCLUDE_DIRECTORY}
+  )
+  add_library(crypto STATIC IMPORTED)
+  set_target_properties(crypto
+          PROPERTIES
+          IMPORTED_LOCATION ${OPENSSL_LIBS_DIRECTORY}/libcrypto.a)
+
+  add_library(ssl STATIC IMPORTED)
+  set_target_properties(ssl
+          PROPERTIES
+          IMPORTED_LOCATION ${OPENSSL_LIBS_DIRECTORY}/libssl.a)
+endif()
+
+# --- encryption
+add_subdirectory(./encryption)
+set(ENCRYPTION_INCLUDE_DIRECTORY ${ENCRYPTION_INCLUDE_DIRECTORY} PARENT_SCOPE)
 
 # --- gmock
 if(BUILD_TESTS)
