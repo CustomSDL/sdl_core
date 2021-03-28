@@ -676,8 +676,8 @@ void ApplicationImpl::WakeUpStreaming(
       }
     }
 
-    video_stream_suspend_timer_.Start(video_stream_suspend_timeout_,
-                                      timer::kPeriodic);
+//    video_stream_suspend_timer_.Start(video_stream_suspend_timeout_,
+//                                      timer::kPeriodic);
   } else if (ServiceType::kAudio == service_type) {
     {  // reduce the range of audio_streaming_suspended_lock_
       sync_primitives::AutoLock auto_lock(audio_streaming_suspended_lock_);
@@ -689,8 +689,8 @@ void ApplicationImpl::WakeUpStreaming(
         audio_streaming_suspended_ = false;
       }
     }
-    audio_stream_suspend_timer_.Start(audio_stream_suspend_timeout_,
-                                      timer::kPeriodic);
+//    audio_stream_suspend_timer_.Start(audio_stream_suspend_timeout_,
+//                                      timer::kPeriodic);
   }
 }
 
