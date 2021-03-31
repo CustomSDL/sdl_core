@@ -18,7 +18,7 @@ android {
                         "-DBUILD_BT_SUPPORT=OFF",
                         "-DENABLE_SECURITY=ON",
                         "-DENABLE_LOG=ON",
-                        "-DBUILD_WEBSOCKET_SERVER_SUPPORT=OFF"
+                        "-DBUILD_WEBSOCKET_SERVER_SUPPORT=ON"
                 cppFlags
                 targets "smartDeviceLinkCore"
             }
@@ -86,6 +86,7 @@ android {
             println "Done!"
         }
     }
+    ndkVersion '21.0.6113669'
 }
 
 dependencies {
