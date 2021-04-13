@@ -207,13 +207,14 @@ if ((NOT "${BSON_FOUND}") OR ("${BSON_VERSION}" VERSION_LESS "1.2.0"))
             BINARY_DIR ${BSON_LIB_SOURCE_DIRECTORY}
             INSTALL_DIR ${3RD_PARTY_INSTALL_PREFIX}
             CONFIGURE_COMMAND touch aclocal.m4 configure.ac Makefile.am Makefile.in configure config.h.in libbson.pc.in && ./configure --prefix=${3RD_PARTY_INSTALL_PREFIX}
-            PATCH_COMMAND ls -1 ${BSON_FOR_ANDROID_DIR} | xargs -L1 -I{} cp ${BSON_FOR_ANDROID_DIR}/{} ${BSON_LIB_SOURCE_DIRECTORY}
+            PATCH_COMMAND ls -1 ${BSON_FOR_ANDROID_DIR} | xargs -L1 -I{} cp ${BSON_FOR_ANDROID_DIR}/{} ${BSON_LIB_SOURCE_DIRECTORY} &&
+                          sed -i "s@%ARCH_ABI%@${CMAKE_ANDROID_ARCH_ABI}@" Application.mk
             BUILD_COMMAND cd ${BSON_LIB_SOURCE_DIRECTORY} &&
                           export NDK_PROJECT_PATH=. &&
                           ${CMAKE_ANDROID_NDK}/ndk-build NDK_APPLICATION_MK=Application.mk
             INSTALL_COMMAND make install-data-recursive &&
                             mkdir -p ${3RD_PARTY_INSTALL_PREFIX}/lib &&
-                            ls -1 ${BSON_LIB_SOURCE_DIRECTORY}/libs/x86_64 | xargs -L1 -I{} cp ${BSON_LIB_SOURCE_DIRECTORY}/libs/x86_64/{} ${3RD_PARTY_INSTALL_PREFIX}/lib
+                            ls -1 ${BSON_LIB_SOURCE_DIRECTORY}/libs/${CMAKE_ANDROID_ARCH_ABI} | xargs -L1 -I{} cp ${BSON_LIB_SOURCE_DIRECTORY}/libs/${CMAKE_ANDROID_ARCH_ABI}/{} ${3RD_PARTY_INSTALL_PREFIX}/lib
             UPDATE_COMMAND git pull)
   else()
     set(BSON_INSTALL_COMMAND make install)
@@ -255,6 +256,11 @@ if (NOT ${Boost_FOUND})
   if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(BOOST_FOR_ANDROID_DIR ${3RD_PARTY_SOURCE_DIRECTORY}/android-helpers/boost)
     set(BOOST_FOR_ANDROID_TARGET_VER 21)
+    set(BOOST_CLANG_TARGET_ARCH ${CMAKE_ANDROID_ARCH_ABI})
+    string(REPLACE "-" "" BOOST_CLANG_TARGET_ARCH ${BOOST_CLANG_TARGET_ARCH})
+    string(REPLACE "_" "" BOOST_CLANG_TARGET_ARCH ${BOOST_CLANG_TARGET_ARCH})
+    message(STATUS "Traget clang compiler is clang-${BOOST_CLANG_TARGET_ARCH}")
+
     include(ExternalProject)
     ExternalProject_Add(
       Boost
@@ -273,7 +279,7 @@ if (NOT ${Boost_FOUND})
       INSTALL_COMMAND ./b2 -q -d+2
                       --ignore-site-config -j4
                       target-os=android
-                      toolset=clang-x8664
+                      toolset=clang-${BOOST_CLANG_TARGET_ARCH}
                       link=shared threading=multi
                       --layout=system
                       --build-dir=${BOOST_LIB_SOURCE_DIRECTORY}
