@@ -441,12 +441,15 @@ void Thread::StopForce(sync_primitives::AutoLock& auto_lock) {
 
 void Thread::JoinDelegate(sync_primitives::AutoLock& auto_lock) {
   SDL_LOG_AUTO_TRACE();
+
+  #ifndef __ANDROID__
   if (kThreadStateRunning != thread_state_) {
     SDL_LOG_WARN("Thread " << name_
                            << ": delegate is not joinable thread_state_ is: "
                            << thread_state_);
     return;
   }
+  #endif
 
   if (!pthread_equal(pthread_self(), handle_)) {
     SDL_LOG_DEBUG("Waiting for #" << handle_
