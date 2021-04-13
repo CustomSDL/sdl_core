@@ -16,7 +16,7 @@ android {
             cmake {
                 arguments "-DBUILD_USB_SUPPORT=OFF",
                         "-DBUILD_BT_SUPPORT=OFF",
-                        "-DENABLE_SECURITY=ON",
+                        "-DENABLE_SECURITY=OFF",
                         "-DENABLE_LOG=ON",
                         "-DBUILD_WEBSOCKET_SERVER_SUPPORT=ON"
                 cppFlags
@@ -27,7 +27,7 @@ android {
         ndk {
             // Specifies the ABI configurations of your native
             // libraries Gradle should build and package with your APK.
-            abiFilters 'x86_64', "armeabi-v7a"
+            abiFilters "armeabi-v7a", "x86", "x86_64", "arm64-v8a"
         }
     }
 
@@ -57,7 +57,7 @@ android {
                 println "NDK Folder from local properties: ${ndkDir}"
             }
 
-            def cpp_lib_file = "${ndkDir}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so"
+            def cpp_lib_file = "${ndkDir}/sources/cxx-stl/llvm-libc++/libs/%ARCH%/libc++_shared.so"
             println "Shared lib file: ${cpp_lib_file}"
 
             def third_party_libs = System.getenv("THIRD_PARTY_INSTALL_PREFIX")
@@ -68,19 +68,34 @@ android {
                 println "Third party libs from local properties: ${third_party_libs}"
             }
 
-            def sdl_so_folder = "${project.getBuildDir()}/intermediates/cmake/debug/obj/x86_64"
-            println "Output libs: ${sdl_so_folder}"
-
-            println "Copying C++ library..."
-            copy {
-                from "${cpp_lib_file}"
-                into "${sdl_so_folder}"
+            def obj_build_folder =  "${project.getBuildDir()}/intermediates/cmake/debug/obj"
+            def archs = []
+            fileTree("${obj_build_folder}").visit { FileVisitDetails details ->
+                if (details.isDirectory()) {
+                    archs << details.file.name
+                }
             }
 
-            println "Copying 3rd party libs..."
-            copy {
-                from "${third_party_libs}/lib"
-                into "${sdl_so_folder}"
+            archs.each {
+                println "Prepare libraries for ${it}"
+
+                def sdl_so_folder = "${obj_build_folder}/${it}"
+                println "Output libs: ${sdl_so_folder}"
+
+                def target_cpp_lib_file = cpp_lib_file.replace("%ARCH%", it)
+                
+                println "Copying C++ library from ${target_cpp_lib_file}"
+                copy {
+                    from "${target_cpp_lib_file}"
+                    into "${sdl_so_folder}"
+                }
+
+                def third_party_arch = "${third_party_libs}/${it}/lib"
+                println "Copying 3rd party libs..."
+                copy {
+                    from "${third_party_arch}"
+                    into "${sdl_so_folder}"
+                }
             }
 
             println "Done!"
