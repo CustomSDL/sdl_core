@@ -181,6 +181,28 @@ if(ENABLE_LOG AND NOT ANDROID)
   endif()
 endif()
 
+if(ANDROID)
+  set(OPENSSL_SOURCE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/openssl_src)
+  set(OPENSSL_INCLUDE_DIRECTORY ${3RD_PARTY_INSTALL_PREFIX}/include)
+  set(OPENSSL_LIBS_DIRECTORY ${3RD_PARTY_INSTALL_PREFIX}/lib)
+  set(OPENSSL_FOR_ANDROID_DIR ${3RD_PARTY_SOURCE_DIRECTORY}/android-helpers/openssl)
+
+  include(ExternalProject)
+  ExternalProject_Add(
+   openssl_external
+    URL https://www.openssl.org/source/openssl-1.1.1.tar.gz
+    DOWNLOAD_DIR ${OPENSSL_SOURCE_DIRECTORY}
+    SOURCE_DIR ${OPENSSL_SOURCE_DIRECTORY}
+    CONFIGURE_COMMAND cp ${OPENSSL_FOR_ANDROID_DIR}/build_openssl.sh ${OPENSSL_SOURCE_DIRECTORY}/build_openssl.sh &&
+                      cd ${OPENSSL_SOURCE_DIRECTORY} &&
+                      sh build_openssl.sh ${CMAKE_ANDROID_NDK} ./ ${3RD_PARTY_INSTALL_PREFIX} ${CMAKE_ANDROID_ARCH_ABI}
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    INSTALL_DIR ${3RD_PARTY_INSTALL_PREFIX}
+    BUILD_IN_SOURCE true
+  )
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}")
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${3RD_PARTY_INSTALL_PREFIX}/etc")
 set(ENV{PKG_CONFIG_PATH} $ENV{CMAKE_PREFIX_PATH} "${3RD_PARTY_INSTALL_PREFIX}/etc")
@@ -288,6 +310,7 @@ if (NOT ${Boost_FOUND})
                       install > boost_install.log
       INSTALL_DIR ${3RD_PARTY_INSTALL_PREFIX}
       BUILD_IN_SOURCE true
+      DEPENDS openssl_external
     )
   else()
     set(BOOST_INSTALL_COMMAND ./b2 install)

@@ -90,11 +90,12 @@ void AndroidLogger::PushLog(const LogMessage& log_message) {
   __android_log_print(
     getLogLevel(log_message.log_level_),
     time_stamp.c_str(),
-    "%s: %s : %s :%d",
+    "%s: %s:%d %s",
     log_message.log_event_.c_str(),
     log_message.location_.file_name.c_str(),
-    log_message.location_.function_name.c_str(),
-    log_message.location_.line_number);
+    log_message.location_.line_number,
+    log_message.location_.function_name.c_str()
+    );
 }
 
 }  // namespace logger

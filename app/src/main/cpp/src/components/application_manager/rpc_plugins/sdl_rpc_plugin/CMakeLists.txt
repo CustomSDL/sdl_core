@@ -60,6 +60,7 @@ set(LIBRARIES
   Utils
   PolicyStatic
   jsoncpp
+  crypto
 )
 
 if(ENABLE_LOG AND NOT ANDROID)
