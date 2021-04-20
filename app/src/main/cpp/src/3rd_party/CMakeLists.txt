@@ -193,12 +193,13 @@ if(ANDROID)
     URL https://www.openssl.org/source/openssl-1.1.1.tar.gz
     DOWNLOAD_DIR ${OPENSSL_SOURCE_DIRECTORY}
     SOURCE_DIR ${OPENSSL_SOURCE_DIRECTORY}
-    CONFIGURE_COMMAND cp ${OPENSSL_FOR_ANDROID_DIR}/build_openssl.sh ${OPENSSL_SOURCE_DIRECTORY}/build_openssl.sh &&
+    CONFIGURE_COMMAND echo "Build openssl for ${ANDROID_PLATFORM}" &&
+                      cp ${OPENSSL_FOR_ANDROID_DIR}/patch_openssl.sh ${OPENSSL_SOURCE_DIRECTORY}/patch_openssl.sh &&
                       cd ${OPENSSL_SOURCE_DIRECTORY} &&
-                      sh build_openssl.sh ${CMAKE_ANDROID_NDK} ./ ${3RD_PARTY_INSTALL_PREFIX} ${CMAKE_ANDROID_ARCH_ABI}
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-    INSTALL_DIR ${3RD_PARTY_INSTALL_PREFIX}
+                      sh patch_openssl.sh ${ANDROID_PLATFORM}
+    BUILD_COMMAND cp ${OPENSSL_FOR_ANDROID_DIR}/build_openssl.sh ${OPENSSL_SOURCE_DIRECTORY}/build_openssl.sh &&
+                  sh build_openssl.sh ${CMAKE_ANDROID_NDK} ${ANDROID_PLATFORM} ./ ${3RD_PARTY_INSTALL_PREFIX} ${CMAKE_ANDROID_ARCH_ABI}
+    INSTALL_COMMAND ""            
     BUILD_IN_SOURCE true
   )
 endif()

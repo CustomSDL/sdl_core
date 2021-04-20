@@ -1,43 +1,16 @@
 #!/bin/bash \
 
 ANDROID_NDK=$1
-API_LEVEL=23
-BUILD_DIR=$2
-OUT_DIR=$3
-
-##### Prepare Files #####
-sed -i 's/.*-mandroid.*//' Configurations/15-android.conf
-patch -p1 -N <<EOP
---- old/Configurations/unix-Makefile.tmpl   2018-09-11 14:48:19.000000000 +0200
-+++ new/Configurations/unix-Makefile.tmpl   2018-10-18 09:06:27.282007245 +0200
-@@ -43,12 +43,17 @@
-      # will return the name from shlib(\$libname) with any SO version number
-      # removed.  On some systems, they may therefore return the exact same
-      # string.
--     sub shlib {
-+     sub shlib_simple {
-          my \$lib = shift;
-          return () if \$disabled{shared} || \$lib =~ /\\.a$/;
--         return \$unified_info{sharednames}->{\$lib}. \$shlibvariant. '\$(SHLIB_EXT)';
-+
-+         if (windowsdll()) {
-+             return \$lib . '\$(SHLIB_EXT_IMPORT)';
-+         }
-+         return \$lib .  '\$(SHLIB_EXT_SIMPLE)';
-      }
--     sub shlib_simple {
-+     
-+   sub shlib {
-          my \$lib = shift;
-          return () if \$disabled{shared} || \$lib =~ /\\.a$/;
-
-EOP
+API_LEVEL=$(echo $2 | tr -dc '0-9')
+BUILD_DIR=$3
+OUT_DIR=$4
 
 ##### export ndk directory. Required by openssl-build-scripts #####
 export ANDROID_NDK
 
 ##### build-function #####
 build_the_thing() {
+    echo ---build for android $API_LEVEL
     TOOLCHAIN=$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64
     export PATH=$TOOLCHAIN/$TRIBLE/bin:$TOOLCHAIN/bin:"$PATH"
     ./Configure $SSL_TARGET $OPTIONS -fuse-ld="$TOOLCHAIN/$TRIBLE/bin/ld" && \
@@ -46,11 +19,10 @@ build_the_thing() {
 }
 
 ##### set variables according to build-tagret #####
-case $4 in
+case $5 in
 armeabi)
     TRIBLE="arm-linux-androideabi"
     TC_NAME="arm-linux-androideabi-4.9"
-    #OPTIONS="--target=armv5te-linux-androideabi -mthumb -fPIC -latomic -D__ANDROID_API__=$API_LEVEL"
     OPTIONS="--target=armv5te-linux-androideabi -mthumb -fPIC -latomic -D__ANDROID_API__=$API_LEVEL"
     DESTDIR="$BUILD_DIR/armeabi"
     SSL_TARGET="android-arm"
@@ -93,7 +65,4 @@ esac
 #### copy libraries and includes to output-directory #####
 mkdir -p $OUT_DIR/include/openssl
 cp -R $DESTDIR/usr/local/include/* $OUT_DIR/include
-#mkdir -p $OUT_DIR/lib/openssl
 cp -R $DESTDIR/usr/local/lib/*.so $OUT_DIR/lib
-
-echo Success
