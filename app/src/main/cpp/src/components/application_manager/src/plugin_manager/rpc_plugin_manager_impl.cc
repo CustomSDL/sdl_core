@@ -83,12 +83,46 @@ RPCPluginManagerImpl::RPCPluginPtr RPCPluginManagerImpl::LoadPlugin(
   RPCPlugin* plugin = create_plugin(&logger::Logger::instance());
   return RPCPluginPtr(plugin, plugin_destroyer);
 }
+#ifdef __ANDROID__
+        uint32_t RPCPluginManagerImpl::LoadPlugins(const std::string& plugins_path) {
 
-uint32_t RPCPluginManagerImpl::LoadPlugins(const std::string& plugins_path) {
+            SDL_LOG_INFO("Loading plugins from " << plugins_path);
+            std::vector<std::string> plugin_files {"libapp_service_rpc_plugin.so", "librc_rpc_plugin.so", "libsdl_rpc_plugin.so", "libvehicle_info_plugin.so"};
+
+            for (auto& plugin_file : plugin_files) {
+
+                std::string full_name =  plugin_file;
+
+                auto plugin = LoadPlugin(full_name);
+                if (!plugin) {
+                    continue;
+                }
+                SDL_LOG_DEBUG("Loaded " << plugin->PluginName() << " plugin from "
+                                        << full_name);
+                if (plugin->Init(app_manager_,
+                                 rpc_service_,
+                                 hmi_capabilities_,
+                                 policy_handler_,
+                                 last_state_)) {
+                    loaded_plugins_.push_back(std::move(plugin));
+                } else {
+                    SDL_LOG_ERROR("Initialisation of " << plugin->PluginName()
+                                                       << " plugin from " << full_name
+                                                       << " failed");
+                }
+            }
+            return loaded_plugins_.size();
+        }
+
+#else
+    uint32_t RPCPluginManagerImpl::LoadPlugins(const std::string& plugins_path) {
+
+
   SDL_LOG_INFO("Loading plugins from " << plugins_path);
   std::vector<std::string> plugin_files = file_system::ListFiles(plugins_path);
   for (auto& plugin_file : plugin_files) {
     std::string full_name = plugins_path + '/' + plugin_file;
+
     auto plugin = LoadPlugin(full_name);
     if (!plugin) {
       continue;
@@ -109,6 +143,9 @@ uint32_t RPCPluginManagerImpl::LoadPlugins(const std::string& plugins_path) {
   }
   return loaded_plugins_.size();
 }
+
+#endif // __ANDROID__
+
 
 utils::Optional<RPCPlugin> RPCPluginManagerImpl::FindPluginToProcess(
     const int32_t function_id,

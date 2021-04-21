@@ -27,7 +27,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        sdl_cache_folder_path = getCacheDir().toString();
+        //for now use the external sd card for the storage directory so that sharpHMI can access the grapchis and other files
+        //the user will need to manually go to the app settings after installed on the device and enable read/write permission to external storage
+        sdl_cache_folder_path = Environment.getExternalStorageDirectory().toString().concat("/SDL");//getCacheDir().toString();
         TextView cache_folder_view = findViewById(R.id.cache_folder);
         cache_folder_view.setText(String.format("Cache folder: %s", sdl_cache_folder_path));
 

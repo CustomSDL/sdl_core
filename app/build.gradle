@@ -69,6 +69,17 @@ android {
             }
 
             def obj_build_folder =  "${project.getBuildDir()}/intermediates/cmake/debug/obj"
+            println "obj build dir: {$obj_build_folder}"
+
+
+            def obj_plugin_folder =  "${project.getProjectDir()}/.cxx/cmake/debug/%ARCH%/src/appMain"
+            println "proj plugin dir: {$obj_plugin_folder}"
+
+
+            def obj_jni_folder =  "${project.android.sourceSets.main.jniLibs.getSrcDirs()[0].path}"
+
+            println "jni so dir: {$obj_jni_folder}"
+
             def archs = []
             fileTree("${obj_build_folder}").visit { FileVisitDetails details ->
                 if (details.isDirectory()) {
@@ -80,15 +91,25 @@ android {
                 println "Prepare libraries for ${it}"
 
                 def sdl_so_folder = "${obj_build_folder}/${it}"
+                def target_jni_folder = "${obj_jni_folder}/${it}"
                 println "Output libs: ${sdl_so_folder}"
 
                 def target_cpp_lib_file = cpp_lib_file.replace("%ARCH%", it)
-                
+                def target_cpp_plugin_lib_file = obj_plugin_folder.replace("%ARCH%", it)
+
                 println "Copying C++ library from ${target_cpp_lib_file}"
                 copy {
                     from "${target_cpp_lib_file}"
                     into "${sdl_so_folder}"
                 }
+
+                println "Copying C++ plugin library from ${target_cpp_plugin_lib_file}"
+                copy {
+                    from "${target_cpp_plugin_lib_file}"
+                    into "${target_jni_folder}"
+                    include "*.so"
+                }
+
 
                 def third_party_arch = "${third_party_libs}/${it}/lib"
                 println "Copying 3rd party libs..."
