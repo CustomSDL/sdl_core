@@ -57,15 +57,15 @@ if (ANDROID)
   include_directories(
           ${OPENSSL_INCLUDE_DIRECTORY}
   )
-  add_library(crypto STATIC IMPORTED)
+  add_library(crypto SHARED IMPORTED)
   set_target_properties(crypto
           PROPERTIES
-          IMPORTED_LOCATION ${OPENSSL_LIBS_DIRECTORY}/libcrypto.a)
+          IMPORTED_LOCATION ${OPENSSL_LIBS_DIRECTORY}/libcrypto.so)
 
-  add_library(ssl STATIC IMPORTED)
+ add_library(ssl SHARED IMPORTED)
   set_target_properties(ssl
           PROPERTIES
-          IMPORTED_LOCATION ${OPENSSL_LIBS_DIRECTORY}/libssl.a)
+          IMPORTED_LOCATION ${OPENSSL_LIBS_DIRECTORY}/libssl.so)
 endif()
 
 # --- encryption

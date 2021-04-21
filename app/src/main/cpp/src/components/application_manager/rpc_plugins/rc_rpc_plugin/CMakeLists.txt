@@ -57,6 +57,7 @@ set(LIBRARIES
   v4_protocol_v1_2_no_extra
   SmartObjects
   Utils
+  crypto
 )
 
 if(ENABLE_LOG AND NOT ANDROID)
