@@ -6,7 +6,6 @@ namespace encryption {
 
 std::string MakeHash(const std::string& input) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
-// TODO: Fix OpenSSL
     SHA256_CTX sha_hasher;
     SHA256_Init(&sha_hasher);
     SHA256_Update(&sha_hasher, input.c_str(), input.size());
