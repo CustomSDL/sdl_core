@@ -1,14 +1,18 @@
 package org.luxoft.sdl_core;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.core.content.ContextCompat;
 
 import androidx.appcompat.app.AppCompatActivity;
+import android.bluetooth.BluetoothAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private Button stop_sdl_button;
     public static String sdl_cache_folder_path;
     public static String sdl_external_dir_folder_path;
+    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
     private native static void StartSDL();
     private native static void StopSDL();
@@ -41,6 +46,10 @@ public class MainActivity extends AppCompatActivity {
         start_sdl_button.setEnabled(true);
         stop_sdl_button.setEnabled(false);
 
+        if (savedInstanceState == null) {
+            initBT();
+        }
+
         start_sdl_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -48,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
                     start_sdl_button.setEnabled(false);
                     stop_sdl_button.setEnabled(true);
                 }
+
+                startService(new Intent(MainActivity.this, BleCentralService.class));
             }
         });
 
@@ -55,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 StopSDL();
+                stopService(new Intent(MainActivity.this, BleCentralService.class));
             }
         });
     }
@@ -102,6 +114,27 @@ public class MainActivity extends AppCompatActivity {
         showToastMessage("SDL has been started");
 
         return true;
+    }
+
+    private boolean isBleSupported(Context context){
+        return BluetoothAdapter.getDefaultAdapter() != null &&
+                context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+    }
+
+    private void CheckPermissions(Context context){
+        if(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+        }
+    }
+
+    private void initBT() {
+
+        if(!isBleSupported(getApplicationContext())){
+            showToastMessage("BLE is NOT supported");
+            return;
+        }
+
+        CheckPermissions(getApplicationContext());
     }
 
     private void showToastMessage(String message) {
