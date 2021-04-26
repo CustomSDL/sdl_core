@@ -2280,7 +2280,7 @@ void MessageHelper::SendGetListOfPermissionsResponse(
 
   SmartObject& params = (*message)[strings::params];
 
-  params[strings::function_id] = FunctionID::SDL_GetListOfPermissions;
+  params[strings::function_id] = hmi_apis::FunctionID::SDL_GetListOfPermissions;
   params[strings::message_type] = MessageType::kResponse;
   params[strings::correlation_id] = correlation_id;
   params[hmi_response::code] = static_cast<int32_t>(Common_Result::SUCCESS);
