@@ -24,9 +24,12 @@ import android.os.Looper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static android.bluetooth.BluetoothDevice.TRANSPORT_LE;
 import static android.bluetooth.BluetoothGatt.GATT_SUCCESS;
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE;
+import static android.bluetooth.BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT;
 
 public class BleCentralService extends Service {
         /**
@@ -216,6 +219,16 @@ public class BleCentralService extends Service {
         }
 
         @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                //broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+                readCharacteristic(characteristic);
+            } else {
+                Log.w(TAG, "onCharacteristicWrite GATT_FAILURE");
+            }
+        }
+
+        @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
@@ -327,6 +340,11 @@ public class BleCentralService extends Service {
 
         BluetoothGattCharacteristic characteristic = null;
 
+        UUID HEALTH_THERMOMETER_SERVICE_UUID = UUID
+                .fromString("00001809-0000-1000-8000-00805f9b34fb");
+        UUID MEASUREMENT_INTERVAL_UUID = UUID
+                .fromString("00002A21-0000-1000-8000-00805f9b34fb");
+
         if (mDeviceServices != null) {
 
             /* iterate all the Services the connected device offer.
@@ -334,10 +352,15 @@ public class BleCentralService extends Service {
              */
             for (ArrayList<BluetoothGattCharacteristic> service : mDeviceServices) {
                 for (BluetoothGattCharacteristic serviceCharacteristic : service) {
-                    characteristic = serviceCharacteristic;
-                }
+                    if (serviceCharacteristic.getService().getUuid().equals(HEALTH_THERMOMETER_SERVICE_UUID)) {
+
+                        if (serviceCharacteristic.getUuid().equals(MEASUREMENT_INTERVAL_UUID)) {
+                            characteristic = serviceCharacteristic;
+                        }
+                    }
                 }
             }
+        }
 
 
            /*
@@ -346,7 +369,8 @@ public class BleCentralService extends Service {
             */
 
             if (characteristic != null) {
-                readCharacteristic(characteristic);
+                //readCharacteristic(characteristic);
+                writeCharacteristic(characteristic);
                 //setCharacteristicNotification(mCharacteristic, true);
             }
         }
@@ -368,13 +392,42 @@ public class BleCentralService extends Service {
         mBluetoothGatt.readCharacteristic(characteristic);
     }
 
+    public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
+        characteristic.setWriteType(WRITE_TYPE_DEFAULT);
+        byte[] value = new byte[2];
+        int some_good_value_to_write = 24;
+        value[0] = (byte) (some_good_value_to_write);
+        characteristic.setValue(value);
+        mBluetoothGatt.writeCharacteristic(characteristic);
+    }
+
     private void broadcastUpdate(final String action, final BluetoothGattCharacteristic characteristic) {
 
         Intent intent = new Intent(action);
+
+        UUID MEASUREMENT_INTERVAL_UUID = UUID
+                .fromString("00002A21-0000-1000-8000-00805f9b34fb");
+        if (MEASUREMENT_INTERVAL_UUID.equals(characteristic.getUuid())) {
+
+            int flag = characteristic.getProperties();
+            int format = -1;
+
+            if ((flag & 0x01) != 0) {
+                format = BluetoothGattCharacteristic.FORMAT_UINT16;
+                Log.d(TAG, "data format UINT16.");
+            } else {
+                format = BluetoothGattCharacteristic.FORMAT_UINT8;
+                Log.d(TAG, "data format UINT16.");
+            }
+
+            int msg = characteristic.getIntValue(format, 0);
+            Log.d(TAG, String.format("message: %d", msg));
+            intent.putExtra(EXTRA_DATA, msg);
+        }
             /*
             for all profiles, writes the data formatted in HEX.
             */
-            final byte[] data = characteristic.getValue();
+            /*final byte[] data = characteristic.getValue();
 
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
@@ -387,9 +440,8 @@ public class BleCentralService extends Service {
                 intent.putExtra(EXTRA_DATA, read_data);
                 Log.w(TAG, read_data);
             }
-        sendBroadcast(intent);
+        sendBroadcast(intent);*/
     }
-
 
 }
 
