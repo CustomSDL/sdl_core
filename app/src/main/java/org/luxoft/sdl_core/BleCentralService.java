@@ -23,7 +23,9 @@ import android.os.Handler;
 import android.os.Looper;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 
 import static android.bluetooth.BluetoothDevice.TRANSPORT_LE;
@@ -37,6 +39,7 @@ public class BleCentralService extends Service {
          */
         private static final long SCAN_PERIOD = 30000;
         public static final String TAG = "BleCentralService";
+        private final Handler handler = new Handler();
 
         private DevicesAdapter mDevicesAdapter;
         private ArrayList<ArrayList<BluetoothGattCharacteristic>> mDeviceServices;
@@ -66,13 +69,19 @@ public class BleCentralService extends Service {
             return null;
         }
 
+        private void initBluetoothHandler(){
+            BluetoothHandler.getInstance();
+        }
+
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
-            startBLEScan();
+            //startBLEScan();
+            initBluetoothHandler();
             return super.onStartCommand(intent, flags, startId);
         }
 
-        private void startBLEScan() {
+
+    private void startBLEScan() {
             BluetoothAdapter BleAdapter = BluetoothAdapter.getDefaultAdapter();
             BluetoothLeScanner bluetoothLeScanner = BleAdapter.getBluetoothLeScanner();
             Log.d(TAG, "Starting Scanning");
@@ -279,6 +288,32 @@ public class BleCentralService extends Service {
         }
     }
 
+    public abstract class Operation{};
+
+    public class DiscoverOperation extends Operation{};
+
+    private class OperationManager {
+        private Queue<Operation> operations = new LinkedList<>();
+        private Operation currentOperation;
+
+        public synchronized void request(Operation operation){
+            operations.add(operation);
+            if(currentOperation == null){
+                currentOperation = operations.poll();
+                //getServer(perform(currentOperation));
+            }
+        }
+
+        public synchronized void operationCompleted(){
+            currentOperation = null;
+            if(operations.peek() != null){
+                currentOperation = operations.poll();
+                //getServer(perform(currentOperation));
+            }
+        }
+
+    }
+
     private void setGattServices(List<BluetoothGattService> gattServices) {
 
         if (gattServices == null) {
@@ -442,6 +477,5 @@ public class BleCentralService extends Service {
             }
         sendBroadcast(intent);*/
     }
-
 }
 
