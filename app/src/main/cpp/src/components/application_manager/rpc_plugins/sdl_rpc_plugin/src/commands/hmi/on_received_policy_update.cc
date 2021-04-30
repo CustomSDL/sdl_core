@@ -63,11 +63,19 @@ void OnReceivedPolicyUpdate::Run() {
   const std::string& file_path =
       (*message_)[strings::msg_params][hmi_notification::policyfile].asString();
   policy::BinaryMessage file_content;
-  if (!file_system::ReadBinaryFile(file_path, file_content)) {
+
+  std::string file_name = file_path;
+
+#ifdef __ANDROID__
+  const std::string t_name = file_path.substr(file_path.find_last_of("/\\") + 1);
+  file_name = "/data/user/0/org.luxoft.sdl_core/cache/ivsu_cache/" + t_name;
+#endif
+
+  if (!file_system::ReadBinaryFile(file_name, file_content)) {
     SDL_LOG_ERROR("Failed to read Update file.");
     return;
   }
-  policy_handler_.ReceiveMessageFromSDK(file_path, file_content);
+  policy_handler_.ReceiveMessageFromSDK(file_name, file_content);
 #else
   SDL_LOG_WARN(
       "This RPC is part of extended policy flow. "

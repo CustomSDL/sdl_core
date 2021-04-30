@@ -22,6 +22,8 @@ parser.add_argument("--add_http_header", action="store_true",
                     help="Enter this parameter to add HTTP heaer on packing policy table")
 parser.add_argument("--encryption", action="store_true",
                     help="Encrypt policy table")
+parser.add_argument("--android", action="store_true",
+                    help="SDL Core is runing on android device")
 
 
 def http_header(data):
@@ -50,8 +52,12 @@ def decrypt(data):
     return data
 
 
-def pack(data, encryption, add_http_header):
+def pack(data, encryption, add_http_header, android):
     file_path = data['fileName']
+
+    if android:
+        path = "/tmp/sdl_snapshot.json"
+
     file_ptr = open(file_path, "r+")
 
     request_type = data['requestType']
@@ -70,8 +76,12 @@ def pack(data, encryption, add_http_header):
     return file_path
 
 
-def unpack(data, encryption):
+def unpack(data, encryption, android):
     file_path = data['fileName']
+
+    if android:
+        path = "/tmp/sdl_snapshot.json"
+
     file_ptr = open(file_path, 'r+')
 
     request_type = data['requestType']
@@ -167,11 +177,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    pack_application = tornado.web.Application([(r'/', WebSocketHandler, dict(encryption=args.encryption, add_http_header=args.add_http_header, 
-        handle_func = lambda data, encryption, add_http_header: pack(data, encryption, add_http_header)))])
+    pack_application = tornado.web.Application([(r'/', WebSocketHandler, dict(encryption=args.encryption, add_http_header=args.add_http_header,
+        handle_func = lambda data, encryption, add_http_header, android: pack(data, encryption, add_http_header, args.android)))])
 
     unpack_application = tornado.web.Application([(r'/', WebSocketHandler, dict(encryption=args.encryption, add_http_header=None,
-        handle_func = lambda data, encryption, add_http_header: unpack(data, encryption)))])
+        handle_func = lambda data, encryption, add_http_header, android: unpack(data, encryption, args.android)))])
 
     pack_server = tornado.httpserver.HTTPServer(pack_application)
     unpack_server = tornado.httpserver.HTTPServer(unpack_application)
