@@ -1,8 +1,12 @@
 package org.luxoft.sdl_core;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -10,7 +14,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class MainActivity extends AppCompatActivity {
+
+    static final String TAG = MainActivity.class.getSimpleName();
 
     private Thread sdl_thread_ = null;
     private boolean is_first_load_ = true;
@@ -57,6 +69,68 @@ public class MainActivity extends AppCompatActivity {
                 StopSDL();
             }
         });
+
+        final ProgressDialog dialog = new ProgressDialog(MainActivity.this);
+        dialog.setMessage("Initializing assets..");
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setCancelable(false);
+        dialog.show();
+
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                InitializeAssets();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                    }
+                });
+            }
+        };
+
+        thread.start();
+    }
+
+    private void InitializeAssets() {
+        String target_folder = getFilesDir().toString();
+        String arch = System.getProperty("os.arch");
+
+        Log.d(TAG, "Initializing assets for " + arch);
+
+        try {
+            AssetManager assetManager = getAssets();
+            String[] assets = assetManager.list(arch);
+
+            for (String asset : assets) {
+                Log.d(TAG, "Found asset: " + asset);
+
+                File target_asset_file = new File(target_folder + File.separator + asset);
+                if (target_asset_file.exists()) {
+                    Log.d(TAG, "Asset already initialized in " + target_asset_file);
+                    continue;
+                }
+
+                Log.d(TAG, "Initializing asset: " + target_asset_file);
+
+                InputStream in = assetManager.open(arch + File.separator + asset);
+                DataOutputStream outw = new DataOutputStream(new FileOutputStream(
+                    target_asset_file.getAbsolutePath()));
+
+                final int max_buffer_size = 80000;
+                byte[] buf = new byte[max_buffer_size];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    outw.write(buf, 0, len);
+                }
+
+                in.close();
+                outw.close();
+            }
+
+        } catch (IOException e) {
+            Log.e(TAG, "Exception during assets initialization: " + e.toString());
+        }
     }
 
     private void onSdlStopped() {

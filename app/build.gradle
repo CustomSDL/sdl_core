@@ -68,12 +68,13 @@ android {
                 println "Third party libs from local properties: ${third_party_libs}"
             }
 
+            def app_main_folder_src =  "${project.getProjectDir()}/.cxx/cmake/debug/%ARCH%/src/appMain"
+            println "AppMain src build folder: {$app_main_folder_src}"
+
             def obj_build_folder =  "${project.getBuildDir()}/intermediates/cmake/debug/obj"
             def archs = []
-            fileTree("${obj_build_folder}").visit { FileVisitDetails details ->
-                if (details.isDirectory()) {
-                    archs << details.file.name
-                }
+            android.defaultConfig.ndk.abiFilters.each {
+                archs << it
             }
 
             archs.each {
@@ -96,12 +97,31 @@ android {
                     from "${third_party_arch}"
                     into "${sdl_so_folder}"
                 }
+
+                def app_main_folder_src_arch = app_main_folder_src.replace("%ARCH%", it)
+                def app_main_assets_folder = "${android.sourceSets.main.assets.srcDirs[0]}/${it}"
+                println "Copying assets from ${app_main_folder_src_arch} into ${app_main_assets_folder}"
+                copy {
+                    from app_main_folder_src_arch
+                    exclude "**/CMakeFiles/**"
+                    exclude "*.cmake"
+                    exclude "*.txt"
+                    exclude "*.sh"
+                    into "${app_main_assets_folder}"
+                }
             }
 
             println "Done!"
         }
     }
     ndkVersion '21.0.6113669'
+    sourceSets {
+        main {
+            assets {
+                srcDirs 'src/main/assets'
+            }
+        }
+    }
 }
 
 dependencies {
