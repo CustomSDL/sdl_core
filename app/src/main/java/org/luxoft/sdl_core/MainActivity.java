@@ -1,9 +1,13 @@
 package org.luxoft.sdl_core;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.nfc.Tag;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.documentfile.provider.DocumentFile;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -42,11 +48,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        sdl_cache_folder_path = getCacheDir().toString();
+        sdl_cache_folder_path = getDataDir().toString();
         TextView cache_folder_view = findViewById(R.id.cache_folder);
         cache_folder_view.setText(String.format("Cache folder: %s", sdl_cache_folder_path));
 
-        sdl_external_dir_folder_path = getFilesDir().toString();
+        sdl_external_dir_folder_path = getExternalDirectory();
         TextView external_folder_view = findViewById(R.id.external_folder);
         external_folder_view.setText(String.format("External folder: %s", sdl_external_dir_folder_path));
 
@@ -175,6 +181,98 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             Log.e(TAG, "Exception during assets initialization: " + e.toString());
         }
+    }
+
+    private String getWritableExternalDirectory() {
+        // Create a temporary file to see whether a volume is really writeable.
+        // It's important not to put it in the root directory which may have a
+        // limit on the number of files.
+        String directoryName = Environment.getExternalStorageDirectory().toString().concat("/SDL");
+
+        File directory = new File(directoryName);
+        if (!directory.isDirectory()) {
+            if (!directory.mkdirs()) {
+                return null;
+            }
+        }
+
+        return directoryName;
+    }
+
+    public boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (PackageManager.PERMISSION_GRANTED == checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Log.v(TAG,"Permission is granted");
+                return true;
+            } else {
+                Log.v(TAG,"Permission is revoked");
+                startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), 1);
+                return false;
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (PackageManager.PERMISSION_GRANTED == checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Log.v(TAG,"Permission is granted");
+                return true;
+            } else {
+                Log.v(TAG,"Permission is revoked");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        } else { //permission is automatically granted on sdk < 23 upon installation
+            Log.v(TAG,"Permission is granted");
+            return true;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        super.onActivityResult(requestCode, resultCode, resultData);
+
+        if (resultCode == RESULT_OK) {
+            Uri treeUri = resultData.getData();
+            DocumentFile pickedDir = DocumentFile.fromTreeUri(this, treeUri);
+            grantUriPermission(getPackageName(), treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            getContentResolver().takePersistableUriPermission(treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+            if (pickedDir != null) {
+                sdl_external_dir_folder_path = FileUtil.getFullPathFromTreeUri(pickedDir.getUri(), this);
+                TextView external_folder_view = findViewById(R.id.external_folder);
+                external_folder_view.setText(String.format("External folder: %s", sdl_external_dir_folder_path));
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length > 0) {
+            Log.v(TAG,"Permission: " + permissions[0]+ " was " + grantResults[0]);
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                sdl_external_dir_folder_path = getWritableExternalDirectory();
+                TextView external_folder_view = findViewById(R.id.external_folder);
+                external_folder_view.setText(String.format("External folder: %s", sdl_external_dir_folder_path));
+            }
+        }
+    }
+
+    private static boolean isStorageMounted() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    private String getExternalDirectory() {
+        String path = null;
+        if (isStorageMounted()) {
+            if (isStoragePermissionGranted()) {
+                path = getWritableExternalDirectory();
+            }
+        }
+
+        if (path == null) {
+            return getFilesDir().toString();
+        }
+
+        return path;
     }
 
     private void onSdlStopped() {
