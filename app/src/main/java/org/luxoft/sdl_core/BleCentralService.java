@@ -37,31 +37,31 @@ public class BleCentralService extends Service {
         /**
          * Stops scanning after 30 seconds.
          */
-        private static final long SCAN_PERIOD = 30000;
+        //private static final long SCAN_PERIOD = 30000;
         public static final String TAG = "BleCentralService";
-        private final Handler handler = new Handler();
+        //private final Handler handler = new Handler();
 
-        private DevicesAdapter mDevicesAdapter;
-        private ArrayList<ArrayList<BluetoothGattCharacteristic>> mDeviceServices;
-        private ScanCallback mScanCallback;
-        private Handler mHandler;
-        private BluetoothManager mBluetoothManager;
-        private BluetoothAdapter mBluetoothAdapter;
-        private BluetoothGatt mBluetoothGatt;
-        private ArrayList<BluetoothGattCharacteristic> mCharacteristics;
+        //private DevicesAdapter mDevicesAdapter;
+        //private ArrayList<ArrayList<BluetoothGattCharacteristic>> mDeviceServices;
+        //private ScanCallback mScanCallback;
+        //private Handler mHandler;
+        //private BluetoothManager mBluetoothManager;
+        //private BluetoothAdapter mBluetoothAdapter;
+        //private BluetoothGatt mBluetoothGatt;
+        //private ArrayList<BluetoothGattCharacteristic> mCharacteristics;
 
-        public final static String ACTION_GATT_CONNECTED = "ACTION_GATT_CONNECTED";
+        /*public final static String ACTION_GATT_CONNECTED = "ACTION_GATT_CONNECTED";
         public final static String ACTION_GATT_DISCONNECTED = "ACTION_GATT_DISCONNECTED";
         public final static String ACTION_GATT_SERVICES_DISCOVERED = "ACTION_GATT_SERVICES_DISCOVERED";
         public final static String ACTION_DATA_AVAILABLE = "ACTION_DATA_AVAILABLE";
-        public final static String EXTRA_DATA = "EXTRA_DATA";
+        public final static String EXTRA_DATA = "EXTRA_DATA";*/
 
         @Override
         public void onCreate() {
             super.onCreate();
-            mDevicesAdapter = new DevicesAdapter();
-            mHandler = new Handler(Looper.getMainLooper());
-            mDeviceServices = new ArrayList<>();
+            //mDevicesAdapter = new DevicesAdapter();
+            //mHandler = new Handler(Looper.getMainLooper());
+            //mDeviceServices = new ArrayList<>();
         }
 
         @Override
@@ -70,7 +70,7 @@ public class BleCentralService extends Service {
         }
 
         private void initBluetoothHandler(){
-            BluetoothHandler.getInstance();
+            BluetoothHandler.getInstance(this);
         }
 
         @Override
@@ -80,7 +80,7 @@ public class BleCentralService extends Service {
             return super.onStartCommand(intent, flags, startId);
         }
 
-
+/*
     private void startBLEScan() {
             BluetoothAdapter BleAdapter = BluetoothAdapter.getDefaultAdapter();
             BluetoothLeScanner bluetoothLeScanner = BleAdapter.getBluetoothLeScanner();
@@ -288,31 +288,6 @@ public class BleCentralService extends Service {
         }
     }
 
-    public abstract class Operation{};
-
-    public class DiscoverOperation extends Operation{};
-
-    private class OperationManager {
-        private Queue<Operation> operations = new LinkedList<>();
-        private Operation currentOperation;
-
-        public synchronized void request(Operation operation){
-            operations.add(operation);
-            if(currentOperation == null){
-                currentOperation = operations.poll();
-                //getServer(perform(currentOperation));
-            }
-        }
-
-        public synchronized void operationCompleted(){
-            currentOperation = null;
-            if(operations.peek() != null){
-                currentOperation = operations.poll();
-                //getServer(perform(currentOperation));
-            }
-        }
-
-    }
 
     private void setGattServices(List<BluetoothGattService> gattServices) {
 
@@ -334,7 +309,7 @@ public class BleCentralService extends Service {
     private void broadcastUpdate(final String action) {
         final Intent intent = new Intent(action);
         sendBroadcast(intent);
-    }
+    }*/
 
     /*
      Handles various events fired by the Service.
@@ -343,6 +318,7 @@ public class BleCentralService extends Service {
      ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
      ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read or notification operations.
     */
+    /*
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -381,10 +357,11 @@ public class BleCentralService extends Service {
                 .fromString("00002A21-0000-1000-8000-00805f9b34fb");
 
         if (mDeviceServices != null) {
-
+*/
             /* iterate all the Services the connected device offer.
             a Service is a collection of Characteristic.
              */
+    /*
             for (ArrayList<BluetoothGattCharacteristic> service : mDeviceServices) {
                 for (BluetoothGattCharacteristic serviceCharacteristic : service) {
                     if (serviceCharacteristic.getService().getUuid().equals(HEALTH_THERMOMETER_SERVICE_UUID)) {
@@ -396,19 +373,19 @@ public class BleCentralService extends Service {
                 }
             }
         }
-
+*/
 
            /*
             int charaProp = characteristic.getProperties();
             if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
             */
-
+/*
             if (characteristic != null) {
                 //readCharacteristic(characteristic);
                 writeCharacteristic(characteristic);
                 //setCharacteristicNotification(mCharacteristic, true);
             }
-        }
+        }*/
 
     /**
      * Request a read on a given {@code BluetoothGattCharacteristic}. The read result is reported
@@ -416,17 +393,17 @@ public class BleCentralService extends Service {
      * callback.
      *
      * @param characteristic The characteristic to read from.
-     */
-    public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
+     *//*
+    public void readCharacteristic(BluetoothGattCharacteristic characteristic) {*/
 
         /*if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }*/
 
-        mBluetoothGatt.readCharacteristic(characteristic);
-    }
-
+        /*mBluetoothGatt.readCharacteristic(characteristic);
+    }*/
+/*
     public void writeCharacteristic(BluetoothGattCharacteristic characteristic) {
         characteristic.setWriteType(WRITE_TYPE_DEFAULT);
         byte[] value = new byte[2];
@@ -458,7 +435,7 @@ public class BleCentralService extends Service {
             int msg = characteristic.getIntValue(format, 0);
             Log.d(TAG, String.format("message: %d", msg));
             intent.putExtra(EXTRA_DATA, msg);
-        }
+        }*/
             /*
             for all profiles, writes the data formatted in HEX.
             */
@@ -476,6 +453,6 @@ public class BleCentralService extends Service {
                 Log.w(TAG, read_data);
             }
         sendBroadcast(intent);*/
-    }
+    //}
 }
 

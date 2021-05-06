@@ -39,6 +39,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelUuid;
+import android.util.Log;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -331,7 +332,7 @@ public class BluetoothCentralManager {
     }
 
     private void startScan(final List<ScanFilter> filters, final ScanSettings scanSettings, final ScanCallback scanCallback) {
-        if (bleNotReady()) return;
+        //if (bleNotReady()) return;
 
         if (isScanning()) {
             //Timber.e("other scan still active, stopping scan");
@@ -706,11 +707,11 @@ public class BluetoothCentralManager {
     }
 
     private boolean bleNotReady() {
-        if (isBleSupported()) {
+        /*if (isBleSupported()) {
             if (isBluetoothEnabled()) {
                 return !permissionsGranted();
             }
-        }
+        }*/
         return true;
     }
 
