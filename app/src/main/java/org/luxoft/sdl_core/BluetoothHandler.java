@@ -8,7 +8,7 @@ import android.util.Log;
 
 import java.util.UUID;
 
-import static org.luxoft.sdl_core.BluetoothBytesParser.bytes2String;
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE;
 
 class BluetoothHandler {
     public BluetoothCentralManager central;
@@ -17,16 +17,16 @@ class BluetoothHandler {
     private final Handler handler = new Handler();
 
     // Testing-only service with ability to notify and write
-    private static final UUID HEART_RATE_SERVICE_UUID = UUID
-            .fromString("0000180D-0000-1000-8000-00805f9b34fb");
+    private static final UUID SDL_TESTER_SERVICE_UUID = UUID
+            .fromString("00001101-0000-1000-8000-00805f9b34fb");
 
     // Testing-only characteristic with permissions to write
-    private static final UUID HEART_RATE_CONTROL_POINT_UUID = UUID
-            .fromString("00002A39-0000-1000-8000-00805f9b34fb");
+    private static final UUID MOBILE_RESPONSE_CHARACTERISTIC = UUID
+            .fromString("00001103-0000-1000-8000-00805f9b34fb");
 
     // Testing-only characteristic for notifications
-    private static final UUID HEART_RATE_MEASUREMENT_UUID = UUID
-            .fromString("00002A37-0000-1000-8000-00805f9b34fb");
+    private static final UUID MOBILE_REQUEST_CHARACTERISTIC = UUID
+            .fromString("00001102-0000-1000-8000-00805f9b34fb");
 
 
     public static synchronized BluetoothHandler getInstance(Context context) {
@@ -39,37 +39,16 @@ class BluetoothHandler {
     private final BluetoothPeripheralCallback peripheralCallback = new BluetoothPeripheralCallback() {
         @Override
         public void onServicesDiscovered(BluetoothPeripheral peripheral) {
-            // Request a higher MTU, iOS always asks for 185
-            //peripheral.requestMtu(185);
-
-            // Request a new connection priority
-            //peripheral.requestConnectionPriority(ConnectionPriority.HIGH);
-
-            // Try to turn on notifications for other characteristics
-            peripheral.setNotify(HEART_RATE_SERVICE_UUID, HEART_RATE_MEASUREMENT_UUID, true);
+            // Try to turn on notification
+            peripheral.setNotify(SDL_TESTER_SERVICE_UUID, MOBILE_REQUEST_CHARACTERISTIC, true);
         }
-/*
-        @Override
-        public void onNotificationStateUpdate(BluetoothPeripheral peripheral, BluetoothGattCharacteristic characteristic, GattStatus status) {
-            if (status == GattStatus.SUCCESS) {
-                final boolean isNotifying = peripheral.isNotifying(characteristic);
-                Timber.i("SUCCESS: Notify set to '%s' for %s", isNotifying, characteristic.getUuid());
-                if (characteristic.getUuid().equals(CONTOUR_CLOCK)) {
-                    writeContourClock(peripheral);
-                } else if (characteristic.getUuid().equals(GLUCOSE_RECORD_ACCESS_POINT_CHARACTERISTIC_UUID)) {
-                    writeGetAllGlucoseMeasurements(peripheral);
-                }
-            } else {
-                Timber.e("ERROR: Changing notification state failed for %s (%s)", characteristic.getUuid(), status);
-            }
-        }*/
 
         @Override
         public void onCharacteristicWrite(BluetoothPeripheral peripheral, byte[] value, BluetoothGattCharacteristic characteristic, GattStatus status) {
             if (status == GattStatus.SUCCESS) {
-                Log.i(BleCentralService.TAG, "SUCCESS: Writing " + bytes2String(value) + " to " + characteristic.getUuid());
+                Log.i(BleCentralService.TAG, "SUCCESS: Writing " + String.valueOf(value) + " to " + characteristic.getUuid());
             } else {
-                Log.i(BleCentralService.TAG, "ERROR: Failed writing " + bytes2String(value) + " to " + characteristic.getUuid() + " with " + status);
+                Log.i(BleCentralService.TAG, "ERROR: Failed writing " + String.valueOf(value) + " to " + characteristic.getUuid() + " with " + status);
             }
         }
 
@@ -78,35 +57,17 @@ class BluetoothHandler {
             if (status != GattStatus.SUCCESS) return;
 
             UUID characteristicUUID = characteristic.getUuid();
-            BluetoothBytesParser parser = new BluetoothBytesParser(value);
-
-            if (characteristicUUID.equals(HEART_RATE_MEASUREMENT_UUID)) {
-                /*BloodPressureMeasurement measurement = new BloodPressureMeasurement(value);
-                Intent intent = new Intent(MEASUREMENT_BLOODPRESSURE);
-                intent.putExtra(MEASUREMENT_BLOODPRESSURE_EXTRA, measurement);
-                sendMeasurement(intent, peripheral);*/
-
-                    int flag = characteristic.getProperties();
-                    int format = -1;
-
-                    if ((flag & 0x01) != 0) {
-                        format = BluetoothGattCharacteristic.FORMAT_UINT16;
-                        Log.d(BleCentralService.TAG, "data format UINT16.");
-                    } else {
-                        format = BluetoothGattCharacteristic.FORMAT_UINT8;
-                        Log.d(BleCentralService.TAG, "data format UINT16.");
-                    }
-
-                    int msg = characteristic.getIntValue(format, 0);
-                    Log.d(BleCentralService.TAG, String.format("message: %d", msg));
-                    //intent.putExtra(EXTRA_DATA, msg);
+            if (characteristicUUID.equals(MOBILE_REQUEST_CHARACTERISTIC)) {
+                    String msg = characteristic.getStringValue(0);
+                    Log.d(BleCentralService.TAG, "message: " + msg);
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        public void run() {
+                            writeMessage(peripheral);
+                        }
+                }, 3000);
             }
         }
-
-        /*@Override
-        public void onMtuChanged(@NotNull BluetoothPeripheral peripheral, int mtu, @NotNull GattStatus status) {
-            Timber.i("new MTU set: %d", mtu);
-        }*/
     };
 
     // Callback for central
@@ -119,7 +80,7 @@ class BluetoothHandler {
 
         @Override
         public void onConnectionFailed(BluetoothPeripheral peripheral, final HciStatus status) {
-            //Timber.e("connection '%s' failed with status %s", peripheral.getName(), status);
+            Log.e(BleCentralService.TAG, "connection " + peripheral.getName() + " failed with status " + status);
         }
 
         @Override
@@ -143,6 +104,19 @@ class BluetoothHandler {
             central.connectPeripheral(peripheral, peripheralCallback);
         }
     };
+
+    private void writeMessage(BluetoothPeripheral peripheral){
+        // Hardcoded UUIDs of characteristics, which are suitable for testing
+        BluetoothGattCharacteristic responseCharacteristic = peripheral.getCharacteristic(SDL_TESTER_SERVICE_UUID, MOBILE_RESPONSE_CHARACTERISTIC);
+        if (responseCharacteristic != null) {
+            if ((responseCharacteristic.getProperties() & PROPERTY_WRITE) > 0) {
+                String response = "Response from SDL!";
+                Log.d(BleCentralService.TAG, "response: " + response);
+                byte[] byte_response = response.getBytes();
+                peripheral.writeCharacteristic(responseCharacteristic, byte_response, WriteType.WITH_RESPONSE);
+            }
+        }
+    }
 
     private BluetoothHandler(Context context) {
         // Create BluetoothCentral

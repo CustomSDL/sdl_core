@@ -285,7 +285,7 @@ public class BluetoothPeripheral {
         public void onCharacteristicWrite(final BluetoothGatt gatt, final BluetoothGattCharacteristic characteristic, final int status) {
             final GattStatus gattStatus = GattStatus.fromValue(status);
             if (gattStatus != GattStatus.SUCCESS) {
-                Log.e(BleCentralService.TAG, "failed to write " + bytes2String(currentWriteBytes) + " to descriptor of characteristic " + characteristic.getUuid() + " with status " + gattStatus);
+                Log.e(BleCentralService.TAG, "failed to write " + bytes2String(currentWriteBytes) + " to characteristic " + characteristic.getUuid() + " with status " + gattStatus);
                 if (failureThatShouldTriggerBonding(gattStatus)) return;
             }
 
@@ -1106,20 +1106,22 @@ public class BluetoothPeripheral {
         Objects.requireNonNull(writeType, NO_VALID_WRITE_TYPE_PROVIDED);
 
         if (notConnected()) {
-            //Timber.e(PERIPHERAL_NOT_CONNECTED);
+            Log.e(BleCentralService.TAG, PERIPHERAL_NOT_CONNECTED);
             return false;
         }
 
         if (value.length == 0) {
+            Log.e(BleCentralService.TAG, VALUE_BYTE_ARRAY_IS_EMPTY);
             throw new IllegalArgumentException(VALUE_BYTE_ARRAY_IS_EMPTY);
         }
 
         if (value.length > getMaximumWriteValueLength(writeType)) {
+            Log.e(BleCentralService.TAG, VALUE_BYTE_ARRAY_IS_TOO_LONG);
             throw new IllegalArgumentException(VALUE_BYTE_ARRAY_IS_TOO_LONG);
         }
 
         if (doesNotSupportWriteType(characteristic, writeType)) {
-            //Timber.e("characteristic <%s> does not support writeType '%s'", characteristic.getUuid(), writeType);
+            Log.e(BleCentralService.TAG, "characteristic does not support writeType" + writeType);
             return false;
         }
 
@@ -1142,12 +1144,13 @@ public class BluetoothPeripheral {
                         // See https://stackoverflow.com/questions/48216517/rxandroidble-write-only-sends-the-first-20b
                         //Timber.w("value byte array is longer than allowed by MTU, write will fail if peripheral does not support long writes");
                     }
-                    characteristic.setValue(bytesToWrite);
+                    //characteristic.setValue(bytesToWrite);
+                    characteristic.setValue("Response from SDL!");
                     if (!bluetoothGatt.writeCharacteristic(characteristic)) {
-                        //Timber.e("writeCharacteristic failed for characteristic: %s", characteristic.getUuid());
+                        Log.e(BleCentralService.TAG, "writeCharacteristic failed for characteristic");
                         completedCommand();
                     } else {
-                        //Timber.d("writing <%s> to characteristic <%s>", bytes2String(bytesToWrite), characteristic.getUuid());
+                        Log.d(BleCentralService.TAG, "writing " + bytes2String(bytesToWrite) + " to characteristic completed");
                         nrTries++;
                     }
                 } else {
@@ -1159,7 +1162,7 @@ public class BluetoothPeripheral {
         if (result) {
             nextCommand();
         } else {
-            //Timber.e("could not enqueue write characteristic command");
+            Log.e(BleCentralService.TAG,"could not enqueue write characteristic command");
         }
         return result;
     }
@@ -1225,15 +1228,17 @@ public class BluetoothPeripheral {
         Objects.requireNonNull(value, NO_VALID_VALUE_PROVIDED);
 
         if (notConnected()) {
-            //Timber.e(PERIPHERAL_NOT_CONNECTED);
+            Log.e(BleCentralService.TAG, PERIPHERAL_NOT_CONNECTED);
             return false;
         }
 
         if (value.length == 0) {
+            Log.e(BleCentralService.TAG, VALUE_BYTE_ARRAY_IS_EMPTY);
             throw new IllegalArgumentException(VALUE_BYTE_ARRAY_IS_EMPTY);
         }
 
         if (value.length > getMaximumWriteValueLength(WriteType.WITH_RESPONSE)) {
+            Log.e(BleCentralService.TAG, VALUE_BYTE_ARRAY_IS_TOO_LONG);
             throw new IllegalArgumentException(VALUE_BYTE_ARRAY_IS_TOO_LONG);
         }
 
@@ -1247,6 +1252,7 @@ public class BluetoothPeripheral {
                     currentWriteBytes = bytesToWrite;
                     descriptor.setValue(bytesToWrite);
                     if (!bluetoothGatt.writeDescriptor(descriptor)) {
+                        Log.e(BleCentralService.TAG, VALUE_BYTE_ARRAY_IS_EMPTY);
                         //Timber.e("writeDescriptor failed for descriptor: %s", descriptor.getUuid());
                         completedCommand();
                     } else {
