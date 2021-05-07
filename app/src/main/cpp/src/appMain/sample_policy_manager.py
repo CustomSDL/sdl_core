@@ -56,7 +56,7 @@ def pack(data, encryption, add_http_header, android):
     file_path = data['fileName']
 
     if android:
-        path = "/tmp/sdl_snapshot.json"
+        file_path = "/tmp/sdl_snapshot.json"
 
     file_ptr = open(file_path, "r+")
 
@@ -80,7 +80,7 @@ def unpack(data, encryption, android):
     file_path = data['fileName']
 
     if android:
-        path = "/tmp/sdl_snapshot.json"
+        file_path = "/tmp/sdl_snapshot.json"
 
     file_ptr = open(file_path, 'r+')
 
@@ -143,10 +143,11 @@ def get_proprietary_handler(handler_type):
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
-    def initialize(self,encryption, add_http_header, handle_func):
+    def initialize(self,encryption, add_http_header, is_android, handle_func):
         self.handle_func = handle_func
         self.encryption = encryption
         self.add_http_header = add_http_header
+        self.is_android = is_android
 
     def open(self):
         print ("Socket Connected\n")
@@ -164,7 +165,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             print('\033[31;1mMissing fileName parameter: %s\033[0m' % str(json_data))
             return
 
-        self.write_message(self.handle_func(json_data, self.encryption, self.add_http_header))
+        self.write_message(self.handle_func(json_data, self.encryption, self.add_http_header, self.is_android))
 
     def on_close(self):
         print ("Connection Closed\n")
@@ -177,11 +178,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    pack_application = tornado.web.Application([(r'/', WebSocketHandler, dict(encryption=args.encryption, add_http_header=args.add_http_header,
-        handle_func = lambda data, encryption, add_http_header, android: pack(data, encryption, add_http_header, args.android)))])
+    pack_application = tornado.web.Application([(r'/', WebSocketHandler, dict(encryption=args.encryption, add_http_header=args.add_http_header, is_android = args.android,
+        handle_func = lambda data, encryption, add_http_header, is_android: pack(data, encryption, add_http_header, is_android)))])
 
-    unpack_application = tornado.web.Application([(r'/', WebSocketHandler, dict(encryption=args.encryption, add_http_header=None,
-        handle_func = lambda data, encryption, add_http_header, android: unpack(data, encryption, args.android)))])
+    unpack_application = tornado.web.Application([(r'/', WebSocketHandler, dict(encryption=args.encryption, add_http_header=None, is_android = args.android,
+        handle_func = lambda data, encryption, add_http_header, is_android: unpack(data, encryption, is_android)))])
 
     pack_server = tornado.httpserver.HTTPServer(pack_application)
     unpack_server = tornado.httpserver.HTTPServer(unpack_application)
