@@ -6,11 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
-import android.nfc.Tag;
+import android.database.Cursor;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -48,14 +50,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        sdl_cache_folder_path = getDataDir().toString();
-        TextView cache_folder_view = findViewById(R.id.cache_folder);
-        cache_folder_view.setText(String.format("Cache folder: %s", sdl_cache_folder_path));
-
-        sdl_external_dir_folder_path = getExternalDirectory();
-        TextView external_folder_view = findViewById(R.id.external_folder);
-        external_folder_view.setText(String.format("External folder: %s", sdl_external_dir_folder_path));
-
         start_sdl_button = findViewById(R.id.start_sdl_button);
         stop_sdl_button = findViewById(R.id.stop_sdl_button);
 
@@ -79,6 +73,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        sdl_cache_folder_path = getDataDir().toString();
+        TextView cache_folder_view = findViewById(R.id.cache_folder);
+        cache_folder_view.setText(String.format("Cache folder: %s", sdl_cache_folder_path));
+
+        if (isStorageMounted()) {
+            if (isStoragePermissionGranted()) {
+                updateExternalDirField(getExternalDirectory());
+                runInitializeAssetsThread();
+            } else {
+                updateExternalDirField(getDefaultExternalDirectory()); // fallback path
+                askForStoragePermissions();
+            }
+        }
+    }
+
+    private void updateExternalDirField(final String path) {
+        sdl_external_dir_folder_path = path;
+        TextView external_folder_view = findViewById(R.id.external_folder);
+        external_folder_view.setText(String.format("External folder: %s", sdl_external_dir_folder_path));
+    }
+
+    private void runInitializeAssetsThread() {
         final ProgressDialog dialog = new ProgressDialog(MainActivity.this);
         dialog.setMessage("Initializing assets..");
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -199,6 +215,35 @@ public class MainActivity extends AppCompatActivity {
         return directoryName;
     }
 
+    private static boolean isStorageMounted() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    private String getDefaultExternalDirectory() {
+        return getDir("SDL", 0).getPath();
+    }
+
+    private String getExternalDirectory() {
+        String path = getWritableExternalDirectory();
+
+        if (path == null) {
+            path = getDefaultExternalDirectory();
+        }
+
+        return path;
+    }
+
+    private void askForStoragePermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+          startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), 1);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+          ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+
+        //permission is automatically granted on sdk < 23 upon installation, no need to ask
+    }
+
     public boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (PackageManager.PERMISSION_GRANTED == checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -206,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else {
                 Log.v(TAG,"Permission is revoked");
-                startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), 1);
                 return false;
             }
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -215,7 +259,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else {
                 Log.v(TAG,"Permission is revoked");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
             }
         } else { //permission is automatically granted on sdk < 23 upon installation
@@ -235,11 +278,11 @@ public class MainActivity extends AppCompatActivity {
             getContentResolver().takePersistableUriPermission(treeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
             if (pickedDir != null) {
-                sdl_external_dir_folder_path = FileUtil.getFullPathFromTreeUri(pickedDir.getUri(), this);
-                TextView external_folder_view = findViewById(R.id.external_folder);
-                external_folder_view.setText(String.format("External folder: %s", sdl_external_dir_folder_path));
+                  // TODO: Add support for a file operations for Anroid 10 on external storage
             }
         }
+
+        runInitializeAssetsThread();
     }
 
     @Override
@@ -248,31 +291,11 @@ public class MainActivity extends AppCompatActivity {
         if (grantResults.length > 0) {
             Log.v(TAG,"Permission: " + permissions[0]+ " was " + grantResults[0]);
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                sdl_external_dir_folder_path = getWritableExternalDirectory();
-                TextView external_folder_view = findViewById(R.id.external_folder);
-                external_folder_view.setText(String.format("External folder: %s", sdl_external_dir_folder_path));
-            }
-        }
-    }
-
-    private static boolean isStorageMounted() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state);
-    }
-
-    private String getExternalDirectory() {
-        String path = null;
-        if (isStorageMounted()) {
-            if (isStoragePermissionGranted()) {
-                path = getWritableExternalDirectory();
+                updateExternalDirField(getWritableExternalDirectory());
             }
         }
 
-        if (path == null) {
-            return getFilesDir().toString();
-        }
-
-        return path;
+        runInitializeAssetsThread();
     }
 
     private void onSdlStopped() {
