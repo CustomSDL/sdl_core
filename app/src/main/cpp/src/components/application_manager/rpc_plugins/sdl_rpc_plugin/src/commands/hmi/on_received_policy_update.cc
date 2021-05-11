@@ -68,7 +68,8 @@ void OnReceivedPolicyUpdate::Run() {
 
 #ifdef __ANDROID__
   const std::string t_name = file_path.substr(file_path.find_last_of("/\\") + 1);
-  file_name = "/data/user/0/org.luxoft.sdl_core/cache/ivsu_cache/" + t_name;
+  const std::string system_folder = application_manager_.get_settings().system_files_path();
+  file_name = system_folder + "/" + t_name;
 #endif
 
   if (!file_system::ReadBinaryFile(file_name, file_content)) {
