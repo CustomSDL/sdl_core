@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.nfc.Tag;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -19,6 +20,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -79,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         Thread thread = new Thread() {
             @Override
             public void run() {
-                InitializeAssets();
+                initializeAssets();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -92,16 +95,57 @@ public class MainActivity extends AppCompatActivity {
         thread.start();
     }
 
-    private void InitializeAssets() {
-        String target_folder = getFilesDir().toString();
-        String arch = System.getProperty("os.arch");
+    private ArrayList<String> getAvailableAbi(AssetManager manager) throws IOException {
+        ArrayList<String> output = new ArrayList<>();
+        String[] available_archs = manager.list("");
+        for (String available : available_archs) {
+            String[] available_content = manager.list(available);
+            for (String content : available_content) {
+                if (content.contains(".so")) {
+                    output.add(available);
+                    break;
+                }
+            }
+        }
 
-        Log.d(TAG, "Initializing assets for " + arch);
+        return output;
+    }
+
+    private String getPreferableAbi(ArrayList<String> supported, ArrayList<String> available) {
+        for (String supported_abi : supported ) {
+            if (available.contains(supported_abi)) {
+                Log.d(TAG, "Supported ABI " + supported_abi + " assets are available. Use this ABI for initialization");
+                return supported_abi;
+            }
+
+            Log.d(TAG, "ABI " + supported_abi + " is not available. Check the next supported");
+        }
+
+        // In case if no ABI supported
+        if (!available.isEmpty()) {
+            String first_available = available.get(0);
+            Log.w(TAG, "No supported ABI found. Use first available " + first_available);
+            return first_available;
+        }
+
+        Log.e(TAG, "No any available ABI found. Exiting");
+        return null;
+    }
+
+    private void initializeAssets() {
+        Log.d(TAG, "Initializing assets");
 
         try {
             AssetManager assetManager = getAssets();
-            String[] assets = assetManager.list(arch);
+            ArrayList<String> available_abi = getAvailableAbi(assetManager);
+            ArrayList<String> supported_abi = new ArrayList<String>(Arrays.asList(Build.SUPPORTED_ABIS));
+            String target_abi = getPreferableAbi(supported_abi, available_abi);
+            if (target_abi == null) {
+                return;
+            }
 
+            String target_folder = getFilesDir().toString();
+            String[] assets = assetManager.list(target_abi);
             for (String asset : assets) {
                 Log.d(TAG, "Found asset: " + asset);
 
@@ -113,14 +157,14 @@ public class MainActivity extends AppCompatActivity {
 
                 Log.d(TAG, "Initializing asset: " + target_asset_file);
 
-                InputStream in = assetManager.open(arch + File.separator + asset);
+                InputStream in = assetManager.open(target_abi + File.separator + asset);
                 DataOutputStream outw = new DataOutputStream(new FileOutputStream(
                     target_asset_file.getAbsolutePath()));
 
                 final int max_buffer_size = 80000;
                 byte[] buf = new byte[max_buffer_size];
                 int len;
-                while ((len = in.read(buf)) > 0) {
+                while ((len = in.read(buf, 0, max_buffer_size)) > 0) {
                     outw.write(buf, 0, len);
                 }
 

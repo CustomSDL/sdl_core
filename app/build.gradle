@@ -1,5 +1,11 @@
 apply plugin: 'com.android.application'
 
+// Mapping of build flavors to corresponding ABI
+ext.abiMapping = ['x86_64': 'x86_64',
+                  'x86': 'x86',
+                  'armeabi-v7a': 'armeabi_v7a',
+                  'arm64-v8a': 'arm64_v8a']
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.1"
@@ -23,12 +29,6 @@ android {
                 targets "smartDeviceLinkCore"
             }
         }
-
-        ndk {
-            // Specifies the ABI configurations of your native
-            // libraries Gradle should build and package with your APK.
-            abiFilters "armeabi-v7a", "x86", "x86_64", "arm64-v8a"
-        }
     }
 
     buildTypes {
@@ -37,12 +37,39 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
             version "3.10.2"
         }
     }
+
+    flavorDimensions "version"
+    productFlavors {
+        x86_64 {
+            ndk {
+                abiFilter "x86_64"
+            }
+        }
+        x86 {
+            ndk {
+                abiFilter "x86"
+            }
+        }
+        armeabi_v7a {
+            ndk {
+                abiFilter "armeabi-v7a"
+            }
+        }
+        arm64_v8a {
+            ndk {
+                abiFilter "arm64-v8a"
+            }
+        }
+    }
+
+    ndkVersion '21.0.6113669'
 
     task _buildFullSdlApk { task ->
         doLast {
@@ -68,22 +95,18 @@ android {
                 println "Third party libs from local properties: ${third_party_libs}"
             }
 
-            def app_main_folder_src =  "${project.getProjectDir()}/.cxx/cmake/debug/%ARCH%/src/appMain"
+            def app_main_folder_src =  "${project.getProjectDir()}/.cxx/cmake/%FLAVOR%Debug/%ARCH%/src/appMain"
             println "AppMain src build folder: {$app_main_folder_src}"
 
-            def obj_build_folder =  "${project.getBuildDir()}/intermediates/cmake/debug/obj"
-            def archs = []
-            android.defaultConfig.ndk.abiFilters.each {
-                archs << it
-            }
+            def obj_build_folder =  "${project.getBuildDir()}/intermediates/cmake/%FLAVOR%Debug/obj/%ARCH%"
 
-            archs.each {
-                println "Prepare libraries for ${it}"
+            project.ext.abiMapping.each {
+                println "Prepare libraries for ${it.key}"
 
-                def sdl_so_folder = "${obj_build_folder}/${it}"
+                def sdl_so_folder = obj_build_folder.replace("%ARCH%", it.key).replace("%FLAVOR%", it.value)
                 println "Output libs: ${sdl_so_folder}"
 
-                def target_cpp_lib_file = cpp_lib_file.replace("%ARCH%", it)
+                def target_cpp_lib_file = cpp_lib_file.replace("%ARCH%", it.key)
                 
                 println "Copying C++ library from ${target_cpp_lib_file}"
                 copy {
@@ -91,15 +114,15 @@ android {
                     into "${sdl_so_folder}"
                 }
 
-                def third_party_arch = "${third_party_libs}/${it}/lib"
+                def third_party_arch = "${third_party_libs}/${it.key}/lib"
                 println "Copying 3rd party libs..."
                 copy {
                     from "${third_party_arch}"
                     into "${sdl_so_folder}"
                 }
 
-                def app_main_folder_src_arch = app_main_folder_src.replace("%ARCH%", it)
-                def app_main_assets_folder = "${android.sourceSets.main.assets.srcDirs[0]}/${it}"
+                def app_main_folder_src_arch = app_main_folder_src.replace("%ARCH%", it.key).replace("%FLAVOR%", it.value)
+                def app_main_assets_folder = "${project.getProjectDir()}/src/${it.value}/assets/${it.key}"
                 println "Copying assets from ${app_main_folder_src_arch} into ${app_main_assets_folder}"
                 copy {
                     from app_main_folder_src_arch
@@ -112,14 +135,6 @@ android {
             }
 
             println "Done!"
-        }
-    }
-    ndkVersion '21.0.6113669'
-    sourceSets {
-        main {
-            assets {
-                srcDirs 'src/main/assets'
-            }
         }
     }
 }
