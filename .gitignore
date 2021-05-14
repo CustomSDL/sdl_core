@@ -8,6 +8,7 @@ app/src/arm64_v8a
 app/src/armeabi_v7a
 app/src/x86_64
 app/src/x86
+app/src/universal_build
 /build
 /captures
 .externalNativeBuild
