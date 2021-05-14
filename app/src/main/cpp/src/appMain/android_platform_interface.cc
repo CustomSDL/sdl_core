@@ -69,8 +69,8 @@ void StartSDL(JNIEnv* env, jobject)
 
 
     std::string ini_name = "androidSmartDeviceLink.ini";
-	if (!external_storage.empty()) {
-	    ini_name = external_storage + "/" + ini_name;
+	if (!internal_storage.empty()) {
+	    ini_name = internal_storage + "/files/" + ini_name;
 	}
 
     profile_instance.set_config_file_name(ini_name);
