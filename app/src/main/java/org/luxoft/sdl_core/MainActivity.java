@@ -76,7 +76,9 @@ public class MainActivity extends AppCompatActivity {
                     stop_sdl_button.setEnabled(true);
                 }
 
-                startService(new Intent(MainActivity.this, BleCentralService.class));
+                if (isBleSupported()) {
+                    startService(new Intent(MainActivity.this, BleCentralService.class));
+                }
             }
         });
 
@@ -84,7 +86,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 StopSDL();
-                stopService(new Intent(MainActivity.this, BleCentralService.class));
+
+                if (isBleSupported()) {
+                    stopService(new Intent(MainActivity.this, BleCentralService.class));
+                }
             }
         });
 
@@ -358,9 +363,9 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private boolean isBleSupported(Context context){
+    private boolean isBleSupported(){
         return BluetoothAdapter.getDefaultAdapter() != null &&
-                context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+                getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
     }
 
     private void CheckPermissions(Context context){
@@ -371,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initBT() {
 
-        if(!isBleSupported(getApplicationContext())){
+        if(!isBleSupported()){
             showToastMessage("BLE is NOT supported");
             return;
         }
