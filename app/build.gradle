@@ -27,7 +27,8 @@ android {
                         "-DBUILD_BT_SUPPORT=OFF",
                         "-DENABLE_SECURITY=ON",
                         "-DENABLE_LOG=ON",
-                        "-DBUILD_WEBSOCKET_SERVER_SUPPORT=ON"
+                        "-DBUILD_WEBSOCKET_SERVER_SUPPORT=ON",
+                        "-DEXTENDED_POLICY=EXTERNAL_PROPRIETARY"
                 cppFlags
                 targets "smartDeviceLinkCore"
             }
