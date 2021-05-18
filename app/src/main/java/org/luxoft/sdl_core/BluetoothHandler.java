@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE;
@@ -13,6 +14,7 @@ import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE;
 class BluetoothHandler {
     public BluetoothCentralManager central;
     private static BluetoothHandler instance = null;
+    private BluetoothPeripheral mPeripheral = null;
     private final Context context;
     private final Handler handler = new Handler();
 
@@ -63,7 +65,7 @@ class BluetoothHandler {
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         public void run() {
-                            writeMessage(peripheral);
+                            writeMessage(peripheral, "Response to: " + msg);
                         }
                 }, 3000);
             }
@@ -76,6 +78,7 @@ class BluetoothHandler {
         @Override
         public void onConnectedPeripheral(BluetoothPeripheral peripheral) {
             Log.i(BleCentralService.TAG, "connected to " + peripheral.getName());
+            mPeripheral = peripheral;
         }
 
         @Override
@@ -85,16 +88,17 @@ class BluetoothHandler {
 
         @Override
         public void onDisconnectedPeripheral(final BluetoothPeripheral peripheral, final HciStatus status) {
-            //Timber.i("disconnected '%s' with status %s", peripheral.getName(), status);
+            Log.d(BleCentralService.TAG, "Disconnected from " + peripheral.getName());
 
-            // Reconnect to this device when it becomes available again
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    central.autoConnectPeripheral(peripheral, peripheralCallback);
-                }
-            }, 5000);
-
+            if (mPeripheral != null && peripheral.getAddress().equals(mPeripheral.getAddress())) {
+                // Reconnect to this device when it becomes available again
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        central.autoConnectPeripheral(peripheral, peripheralCallback);
+                    }
+                }, 5000);
+            }
         }
 
         @Override
@@ -105,14 +109,13 @@ class BluetoothHandler {
         }
     };
 
-    private void writeMessage(BluetoothPeripheral peripheral){
+    private void writeMessage(BluetoothPeripheral peripheral, String message){
         // Hardcoded UUIDs of characteristics, which are suitable for testing
         BluetoothGattCharacteristic responseCharacteristic = peripheral.getCharacteristic(SDL_TESTER_SERVICE_UUID, MOBILE_RESPONSE_CHARACTERISTIC);
         if (responseCharacteristic != null) {
             if ((responseCharacteristic.getProperties() & PROPERTY_WRITE) > 0) {
-                String response = "Response from SDL!";
-                Log.d(BleCentralService.TAG, "response: " + response);
-                byte[] byte_response = response.getBytes();
+                Log.d(BleCentralService.TAG, "response: " + message);
+                byte[] byte_response = message.getBytes();
                 peripheral.writeCharacteristic(responseCharacteristic, byte_response, WriteType.WITH_RESPONSE);
             }
         }
@@ -122,13 +125,32 @@ class BluetoothHandler {
         // Create BluetoothCentral
         this.context = context;
         central = new BluetoothCentralManager(context, bluetoothCentralManagerCallback, new Handler());
+    }
+
+    public void disconnect() {
+        Log.d(BleCentralService.TAG, "Closing bluetooth handler...");
+        if (central != null) {
+            if (mPeripheral != null) {
+                central.cancelConnection(mPeripheral);
+                mPeripheral = null;
+            }
+            central.close();
+            central = null;
+        }
+    }
+
+    public void connect() {
+        Log.d(BleCentralService.TAG, "Prepare to start scanning...");
 
         // Scan for peripherals with a certain service UUIDs
         //central.startPairingPopupHack();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                central.scanForPeripherals();
+                Log.d(BleCentralService.TAG, "Searching for SDL-compatible peripherals...");
+                UUID[] servicesToSearch = new UUID[1];
+                servicesToSearch[0] = SDL_TESTER_SERVICE_UUID;
+                central.scanForPeripheralsWithServices(servicesToSearch);
             }
         }, 1000);
     }

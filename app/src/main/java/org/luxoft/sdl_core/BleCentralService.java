@@ -5,11 +5,19 @@ import android.content.Intent;
 import android.os.IBinder;
 
 public class BleCentralService extends Service {
-        public static final String TAG = "BleCentralService";
+        public static final String TAG = BleCentralService.class.getSimpleName();
 
         @Override
         public void onCreate() {
             super.onCreate();
+        }
+
+        @Override
+        public void onDestroy() {
+            //TODO: perform disconnect before calling onDestroy
+            BluetoothHandler handler = BluetoothHandler.getInstance(this);
+            handler.disconnect();
+            super.onDestroy();
         }
 
         @Override
@@ -18,7 +26,8 @@ public class BleCentralService extends Service {
         }
 
         private void initBluetoothHandler(){
-            BluetoothHandler.getInstance(this);
+            BluetoothHandler handler = BluetoothHandler.getInstance(this);
+            handler.connect();
         }
 
         @Override

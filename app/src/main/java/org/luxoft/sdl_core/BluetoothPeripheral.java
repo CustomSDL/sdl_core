@@ -1144,13 +1144,13 @@ public class BluetoothPeripheral {
                         // See https://stackoverflow.com/questions/48216517/rxandroidble-write-only-sends-the-first-20b
                         //Timber.w("value byte array is longer than allowed by MTU, write will fail if peripheral does not support long writes");
                     }
-                    //characteristic.setValue(bytesToWrite);
-                    characteristic.setValue("Response from SDL!");
+                    characteristic.setValue(bytesToWrite);
+
                     if (!bluetoothGatt.writeCharacteristic(characteristic)) {
                         Log.e(BleCentralService.TAG, "writeCharacteristic failed for characteristic");
                         completedCommand();
                     } else {
-                        Log.d(BleCentralService.TAG, "writing " + bytes2String(bytesToWrite) + " to characteristic completed");
+                        Log.d(BleCentralService.TAG, "writing " + Arrays.toString(bytesToWrite) + " to characteristic completed");
                         nrTries++;
                     }
                 } else {
