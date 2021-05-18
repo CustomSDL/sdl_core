@@ -186,45 +186,59 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
+    private void extractAssets(AssetManager manager, String target_folder, String target_abi) throws IOException {
+        String[] assets = manager.list(target_abi);
+        for (String asset : assets) {
+            Log.d(TAG, "Found asset: " + asset);
+
+            File target_asset_file = new File(target_folder + File.separator + asset);
+            if (target_asset_file.exists()) {
+                Log.d(TAG, "Asset already initialized in " + target_asset_file);
+                continue;
+            }
+
+            String assetName = target_abi + File.separator + asset;
+            Log.d(TAG, "Initializing asset: " + assetName);
+
+            if (manager.list(assetName).length > 0) {
+                if (target_asset_file.mkdir()) {
+                    extractAssets(manager, target_asset_file.getAbsolutePath(), assetName);
+                } else {
+                    Log.e(TAG, "Failed to make folder: " + target_asset_file.getAbsolutePath());
+                }
+                continue;
+            }
+
+            InputStream in = manager.open(assetName);
+            DataOutputStream outw = new DataOutputStream(new FileOutputStream(
+                    target_asset_file.getAbsolutePath()));
+
+            final int max_buffer_size = 80000;
+            byte[] buf = new byte[max_buffer_size];
+            int len;
+            while ((len = in.read(buf, 0, max_buffer_size)) > 0) {
+                outw.write(buf, 0, len);
+            }
+
+            in.close();
+            outw.close();
+        }
+    }
+
     private void initializeAssets() {
         Log.d(TAG, "Initializing assets");
 
         try {
             AssetManager assetManager = getAssets();
             ArrayList<String> available_abi = getAvailableAbi(assetManager);
-            ArrayList<String> supported_abi = new ArrayList<String>(Arrays.asList(Build.SUPPORTED_ABIS));
+            ArrayList<String> supported_abi = new ArrayList<>(Arrays.asList(Build.SUPPORTED_ABIS));
             String target_abi = getPreferableAbi(supported_abi, available_abi);
             if (target_abi == null) {
                 return;
             }
 
             String target_folder = getFilesDir().toString();
-            String[] assets = assetManager.list(target_abi);
-            for (String asset : assets) {
-                Log.d(TAG, "Found asset: " + asset);
-
-                File target_asset_file = new File(target_folder + File.separator + asset);
-                if (target_asset_file.exists()) {
-                    Log.d(TAG, "Asset already initialized in " + target_asset_file);
-                    continue;
-                }
-
-                Log.d(TAG, "Initializing asset: " + target_asset_file);
-
-                InputStream in = assetManager.open(target_abi + File.separator + asset);
-                DataOutputStream outw = new DataOutputStream(new FileOutputStream(
-                    target_asset_file.getAbsolutePath()));
-
-                final int max_buffer_size = 80000;
-                byte[] buf = new byte[max_buffer_size];
-                int len;
-                while ((len = in.read(buf, 0, max_buffer_size)) > 0) {
-                    outw.write(buf, 0, len);
-                }
-
-                in.close();
-                outw.close();
-            }
+            extractAssets(assetManager, target_folder, target_abi);
 
         } catch (IOException e) {
             Log.e(TAG, "Exception during assets initialization: " + e.toString());
