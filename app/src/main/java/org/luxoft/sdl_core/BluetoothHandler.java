@@ -124,11 +124,11 @@ class BluetoothHandler {
     private BluetoothHandler(Context context) {
         // Create BluetoothCentral
         this.context = context;
-        central = new BluetoothCentralManager(context, bluetoothCentralManagerCallback, new Handler());
     }
 
     public void disconnect() {
         Log.d(BleCentralService.TAG, "Closing bluetooth handler...");
+        handler.removeCallbacksAndMessages(null);
         if (central != null) {
             if (mPeripheral != null) {
                 central.cancelConnection(mPeripheral);
@@ -141,6 +141,7 @@ class BluetoothHandler {
 
     public void connect() {
         Log.d(BleCentralService.TAG, "Prepare to start scanning...");
+        central = new BluetoothCentralManager(context, bluetoothCentralManagerCallback, new Handler());
 
         // Scan for peripherals with a certain service UUIDs
         //central.startPairingPopupHack();
