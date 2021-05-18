@@ -37,6 +37,13 @@
             android:layout_gravity="center"
             android:text="Stop SDL" />
 
+        <Button
+            android:id="@+id/exit_button"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Exit App" />
+
         <TextView
             android:id="@+id/cache_folder"
             android:layout_height="wrap_content"

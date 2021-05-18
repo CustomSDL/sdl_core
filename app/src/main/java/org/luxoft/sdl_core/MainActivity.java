@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean is_first_load_ = true;
     private Button start_sdl_button;
     private Button stop_sdl_button;
+    private Button exit_button;
+
     public static String sdl_cache_folder_path;
     public static String sdl_external_dir_folder_path;
     private static final int ACCESS_LOCATION_REQUEST = 1;
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         start_sdl_button = findViewById(R.id.start_sdl_button);
         stop_sdl_button = findViewById(R.id.stop_sdl_button);
+        exit_button = findViewById(R.id.exit_button);
 
         start_sdl_button.setEnabled(true);
         stop_sdl_button.setEnabled(false);
@@ -87,6 +90,14 @@ public class MainActivity extends AppCompatActivity {
                 if (isBleSupported()) {
                     stopService(new Intent(MainActivity.this, BleCentralService.class));
                 }
+            }
+        });
+
+        exit_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                System.exit(0);
             }
         });
 
