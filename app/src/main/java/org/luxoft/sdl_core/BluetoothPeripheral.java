@@ -331,12 +331,12 @@ public class BluetoothPeripheral {
             });
             completedCommand();
         }
-/*
+
         @Override
         public void onMtuChanged(final BluetoothGatt gatt, final int mtu, final int status) {
             final GattStatus gattStatus = GattStatus.fromValue(status);
             if (gattStatus != GattStatus.SUCCESS) {
-                Timber.e("change MTU failed, status '%s'", gattStatus);
+                Log.e(BleCentralService.TAG, "change MTU failed, status " + gattStatus);
             }
 
             currentMtu = mtu;
@@ -347,7 +347,7 @@ public class BluetoothPeripheral {
                 }
             });
             completedCommand();
-        }*/
+        }
 /*
         @Override
         public void onPhyRead(@NotNull final BluetoothGatt gatt, final int txPhy, final int rxPhy, final int status) {
@@ -365,7 +365,7 @@ public class BluetoothPeripheral {
                 }
             });
             completedCommand();
-        }*/
+        }
 /*
         @Override
         public void onPhyUpdate(@NotNull final BluetoothGatt gatt, final int txPhy, final int rxPhy, final int status) {
@@ -1431,7 +1431,7 @@ public class BluetoothPeripheral {
         }
 
         if (notConnected()) {
-            //Timber.e(PERIPHERAL_NOT_CONNECTED);
+            Log.e(BleCentralService.TAG, PERIPHERAL_NOT_CONNECTED);
             return false;
         }
 
@@ -1440,10 +1440,10 @@ public class BluetoothPeripheral {
             public void run() {
                 if (isConnected()) {
                     if (!bluetoothGatt.requestMtu(mtu)) {
-                        //Timber.e("requestMtu failed");
+                        Log.e(BleCentralService.TAG, "requestMtu failed");
                         completedCommand();
                     } else {
-                        //Timber.i("requesting MTU of %d", mtu);
+                        Log.i(BleCentralService.TAG, "requesting MTU of " + mtu);
                     }
                 } else {
                     completedCommand();
@@ -1454,7 +1454,7 @@ public class BluetoothPeripheral {
         if (result) {
             nextCommand();
         } else {
-            //Timber.e("could not enqueue requestMtu command");
+            Log.e(BleCentralService.TAG, "could not enqueue requestMtu command");
         }
 
         return result;

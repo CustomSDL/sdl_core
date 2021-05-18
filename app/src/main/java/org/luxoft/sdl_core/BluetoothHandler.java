@@ -41,6 +41,9 @@ class BluetoothHandler {
     private final BluetoothPeripheralCallback peripheralCallback = new BluetoothPeripheralCallback() {
         @Override
         public void onServicesDiscovered(BluetoothPeripheral peripheral) {
+            // Request a higher MTU, iOS always asks for 185
+            peripheral.requestMtu(185);
+
             // Try to turn on notification
             peripheral.setNotify(SDL_TESTER_SERVICE_UUID, MOBILE_REQUEST_CHARACTERISTIC, true);
         }
