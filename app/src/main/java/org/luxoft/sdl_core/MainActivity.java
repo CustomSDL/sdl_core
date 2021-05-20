@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (isBleSupported() && isBluetoothPermissionGranted()) {
-                    startService(new Intent(MainActivity.this, org.luxoft.sdl_core.BleCentralService.class));
+                    startService(new Intent(MainActivity.this, BleCentralService.class));
                 }
             }
         });
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 StopSDL();
 
                 if (isBleSupported()) {
-                    stopService(new Intent(MainActivity.this, org.luxoft.sdl_core.BleCentralService.class));
+                    stopService(new Intent(MainActivity.this, BleCentralService.class));
                 }
             }
         });
