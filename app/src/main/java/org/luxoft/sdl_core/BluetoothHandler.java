@@ -25,6 +25,9 @@ class BluetoothHandler {
     private final Context context;
     private final Handler handler = new Handler();
 
+    // To request a higher MTU, iOS always asks for 185
+    private static final int PREFERRED_MTU = 185;
+
     // Testing-only service with ability to notify and write
     private static final UUID SDL_TESTER_SERVICE_UUID = UUID
             .fromString("00001101-0000-1000-8000-00805f9b34fb");
@@ -48,8 +51,8 @@ class BluetoothHandler {
     private final BluetoothPeripheralCallback peripheralCallback = new BluetoothPeripheralCallback() {
         @Override
         public void onServicesDiscovered(BluetoothPeripheral peripheral) {
-            // Request a higher MTU, iOS always asks for 185
-            peripheral.requestMtu(185);
+
+            peripheral.requestMtu(PREFERRED_MTU);
 
             // Try to turn on notification
             peripheral.setNotify(SDL_TESTER_SERVICE_UUID, MOBILE_REQUEST_CHARACTERISTIC, true);
@@ -75,6 +78,11 @@ class BluetoothHandler {
                     Handler handler = new Handler();
                     final BluetoothPeripheral peripheral_copy = peripheral;
                     final String msg_copy = msg;
+                    //For now there is a simple testing scenario with synthetic delay:
+                    //After receiving a notification from peripheral
+                    //we copy message from this notification, wait for 3 sec and
+                    // send response to peripheral with modified incoming message
+                    // ToDo: replace with valid business logic in the future
                     handler.postDelayed(new Runnable() {
                         public void run() {
                             writeMessage(peripheral_copy, "Response to: " + msg_copy);

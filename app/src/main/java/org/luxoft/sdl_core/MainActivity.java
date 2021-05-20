@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 StopSDL();
 
-                if (isBleSupported()) {
+                if (isBleSupported() && isBluetoothPermissionGranted()) {
                     stopService(new Intent(MainActivity.this, BleCentralService.class));
                 }
             }
