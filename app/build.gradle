@@ -85,10 +85,22 @@ android {
 
     ndkVersion '21.0.6113669'
 
+    def buildType // Your variable
+
+    android {
+        applicationVariants.all { variant ->
+            buildType = variant.buildType.name // Sets the current build type
+        }
+    }
+
+
     task _buildFullSdlApk { task ->
         doLast {
             Properties properties = new Properties()
             properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+            buildType = buildType.capitalize()
+            println "buildType: ${buildType}"
 
             def ndkDir = System.getenv("ORG_GRADLE_NDK_DIR");
             println "NDK Folder from env: ${ndkDir}"
@@ -109,10 +121,10 @@ android {
                 println "Third party libs from local properties: ${third_party_libs}"
             }
 
-            def app_main_folder_src =  "${project.getProjectDir()}/.cxx/cmake/%FLAVOR%Debug/%ARCH%/src/appMain"
+            def app_main_folder_src =  "${project.getProjectDir()}/.cxx/cmake/%FLAVOR%${buildType}/%ARCH%/src/appMain"
             println "AppMain src build folder: {$app_main_folder_src}"
 
-            def obj_build_folder =  "${project.getBuildDir()}/intermediates/cmake/%FLAVOR%Debug/obj/%ARCH%"
+            def obj_build_folder =  "${project.getBuildDir()}/intermediates/cmake/%FLAVOR%${buildType}/obj/%ARCH%"
 
             project.ext.abiMapping.each {
                 def flavor = it.key

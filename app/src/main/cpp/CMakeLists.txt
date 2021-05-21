@@ -301,7 +301,7 @@ if(ENABLE_GCOV)
   message(STATUS "GCOV enabled")
 endif()
 
-set(CMAKE_CXX_FLAGS_RELEASE " -DNDEBUG -s -O2")
+set(CMAKE_CXX_FLAGS_RELEASE " -DNDEBUG -s -Os")
 set(CMAKE_CXX_FLAGS_DEBUG   " -DDEBUG -g3 -ggdb3")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
