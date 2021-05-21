@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.core.app.ActivityCompat;
 import androidx.documentfile.provider.DocumentFile;
 
@@ -31,6 +32,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import android.bluetooth.BluetoothAdapter;
+
+import static org.luxoft.sdl_core.BleCentralService.ACTION_START_BLE;
+import static org.luxoft.sdl_core.BleCentralService.ACTION_STOP_BLE;
+
 public class MainActivity extends AppCompatActivity {
 
     static final String TAG = MainActivity.class.getSimpleName();
@@ -41,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private Button stop_sdl_button;
     public static String sdl_cache_folder_path;
     public static String sdl_external_dir_folder_path;
+    private static final int ACCESS_LOCATION_REQUEST = 1;
+    private static final int ACCESS_EXT_STORAGE_REQUEST = 2;
 
     private native static void StartSDL();
     private native static void StopSDL();
@@ -63,6 +71,10 @@ public class MainActivity extends AppCompatActivity {
                     start_sdl_button.setEnabled(false);
                     stop_sdl_button.setEnabled(true);
                 }
+                if (isBleSupported() && isBluetoothPermissionGranted()) {
+                    final Intent intent = new Intent(ACTION_START_BLE);
+                    sendBroadcast(intent);
+                }
             }
         });
 
@@ -70,6 +82,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 StopSDL();
+                if (isBleSupported() && isBluetoothPermissionGranted()) {
+                    final Intent intent = new Intent(ACTION_STOP_BLE);
+                    sendBroadcast(intent);
+                }
             }
         });
 
@@ -86,6 +102,21 @@ public class MainActivity extends AppCompatActivity {
                 askForStoragePermissions();
             }
         }
+
+        if (savedInstanceState == null) {
+            initBT();
+        }
+        if (isBleSupported() && isBluetoothPermissionGranted()) {
+            startService(new Intent(MainActivity.this, BleCentralService.class));
+        }
+    }
+
+    @Override
+    protected void onDestroy (){
+        if (isBleSupported() && isBluetoothPermissionGranted()) {
+            stopService(new Intent(MainActivity.this, BleCentralService.class));
+        }
+        super.onDestroy();
     }
 
     private void updateExternalDirField(final String path) {
@@ -236,9 +267,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void askForStoragePermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-          startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), 1);
+          startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), ACCESS_EXT_STORAGE_REQUEST);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-          ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+          ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, ACCESS_EXT_STORAGE_REQUEST);
+        }
+
+        //permission is automatically granted on sdk < 23 upon installation, no need to ask
+    }
+
+    private void askForBluetoothPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, ACCESS_LOCATION_REQUEST);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, ACCESS_LOCATION_REQUEST);
         }
 
         //permission is automatically granted on sdk < 23 upon installation, no need to ask
@@ -247,24 +288,41 @@ public class MainActivity extends AppCompatActivity {
     public boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (PackageManager.PERMISSION_GRANTED == checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                Log.v(TAG,"Permission is granted");
+                Log.v(TAG,"Storage permission is granted");
                 return true;
             } else {
-                Log.v(TAG,"Permission is revoked");
+                Log.v(TAG,"Storage permission is revoked");
                 return false;
             }
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (PackageManager.PERMISSION_GRANTED == checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                Log.v(TAG,"Permission is granted");
+                Log.v(TAG,"Storage permission is granted");
                 return true;
             } else {
-                Log.v(TAG,"Permission is revoked");
+                Log.v(TAG,"Storage permission is revoked");
                 return false;
             }
         } else { //permission is automatically granted on sdk < 23 upon installation
-            Log.v(TAG,"Permission is granted");
+            Log.v(TAG,"Storage Permission is granted");
             return true;
         }
+    }
+
+    private boolean isBluetoothPermissionGranted() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG,"Bluetooth permission is revoked");
+                return false;
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (getApplicationContext().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG,"Bluetooth permission is revoked");
+                return false;
+            }
+        }
+
+        Log.v(TAG,"Bluetooth permission is granted");
+        return true;
     }
 
     @Override
@@ -287,15 +345,31 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults.length > 0) {
-            Log.v(TAG,"Permission: " + permissions[0]+ " was " + grantResults[0]);
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                updateExternalDirField(getWritableExternalDirectory());
+        switch (requestCode) {
+            case ACCESS_LOCATION_REQUEST: {
+                if (grantResults.length > 0) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        Log.i(TAG, "Bluetooth permissions are granted");
+                    }
+                }
+                break;
             }
-        }
+            case ACCESS_EXT_STORAGE_REQUEST: {
+                if (grantResults.length > 0) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        Log.i(TAG, "External storage permissions are granted");
+                        updateExternalDirField(getWritableExternalDirectory());
+                    }
+                }
 
-        runInitializeAssetsThread();
+                runInitializeAssetsThread();
+                break;
+            }
+
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                break;
+        }
     }
 
     private void onSdlStopped() {
@@ -341,6 +415,22 @@ public class MainActivity extends AppCompatActivity {
         showToastMessage("SDL has been started");
 
         return true;
+    }
+
+    private boolean isBleSupported(){
+        return BluetoothAdapter.getDefaultAdapter() != null &&
+                getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+    }
+
+    private void initBT() {
+        if(!isBleSupported()){
+            showToastMessage("BLE is NOT supported");
+            return;
+        }
+
+        if (!isBluetoothPermissionGranted()) {
+            askForBluetoothPermissions();
+        }
     }
 
     private void showToastMessage(String message) {

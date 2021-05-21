@@ -1,0 +1,3 @@
+[submodule "blessed_android"]
+	path = blessed_android
+	url = https://github.com/CustomSDL/blessed-android

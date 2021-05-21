@@ -1,2 +1,5 @@
 include ':app'
 rootProject.name = "sdl_core"
+
+include ':blessed'
+project(':blessed').projectDir = new File(rootDir, 'blessed_android/blessed/')
