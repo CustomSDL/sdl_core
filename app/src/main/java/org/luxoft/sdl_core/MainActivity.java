@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     public static String sdl_external_dir_folder_path;
     private static final int ACCESS_LOCATION_REQUEST = 1;
     private static final int ACCESS_EXT_STORAGE_REQUEST = 2;
+    public final static String ACTION_START_BLE = "ACTION_START_BLE";
+    public final static String ACTION_STOP_BLE = "ACTION_STOP_BLE";
 
     private native static void StartSDL();
     private native static void StopSDL();
@@ -68,9 +70,9 @@ public class MainActivity extends AppCompatActivity {
                     start_sdl_button.setEnabled(false);
                     stop_sdl_button.setEnabled(true);
                 }
-
                 if (isBleSupported() && isBluetoothPermissionGranted()) {
-                    startService(new Intent(MainActivity.this, BleCentralService.class));
+                    final Intent intent = new Intent(ACTION_START_BLE);
+                    sendBroadcast(intent);
                 }
             }
         });
@@ -79,9 +81,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 StopSDL();
-
                 if (isBleSupported() && isBluetoothPermissionGranted()) {
-                    stopService(new Intent(MainActivity.this, BleCentralService.class));
+                    final Intent intent = new Intent(ACTION_STOP_BLE);
+                    sendBroadcast(intent);
                 }
             }
         });
@@ -103,6 +105,17 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             initBT();
         }
+        if (isBleSupported() && isBluetoothPermissionGranted()) {
+            startService(new Intent(MainActivity.this, BleCentralService.class));
+        }
+    }
+
+    @Override
+    protected void onDestroy (){
+        if (isBleSupported() && isBluetoothPermissionGranted()) {
+            stopService(new Intent(MainActivity.this, BleCentralService.class));
+        }
+        super.onDestroy();
     }
 
     private void updateExternalDirField(final String path) {

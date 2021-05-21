@@ -1,8 +1,12 @@
 package org.luxoft.sdl_core;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
+import android.util.Log;
 
 public class BleCentralService extends Service {
         public static final String TAG = BleCentralService.class.getSimpleName();
@@ -14,9 +18,7 @@ public class BleCentralService extends Service {
 
         @Override
         public void onDestroy() {
-            //TODO: perform disconnect before calling onDestroy
-            BluetoothHandler handler = BluetoothHandler.getInstance(this);
-            handler.disconnect();
+            unregisterReceiver(centralServiceReceiver);
             super.onDestroy();
         }
 
@@ -32,9 +34,39 @@ public class BleCentralService extends Service {
 
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
-            initBluetoothHandler();
+            registerReceiver(centralServiceReceiver, makeCentralServiceIntentFilter());
             return super.onStartCommand(intent, flags, startId);
         }
+
+        private final BroadcastReceiver centralServiceReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (action == null) {
+                    return;
+                }
+
+                switch (intent.getAction()) {
+                    case MainActivity.ACTION_START_BLE:
+                        Log.i(TAG, "ACTION_START_BLE received by centralServiceReceiver");
+                        initBluetoothHandler();
+                        break;
+
+                    case MainActivity.ACTION_STOP_BLE:
+                        Log.i(TAG, "ACTION_STOP_BLE received by centralServiceReceiver");
+                        BluetoothHandler handler = BluetoothHandler.getInstance(context);
+                        handler.disconnect();
+                        break;
+                }
+            }
+        };
+
+    private static IntentFilter makeCentralServiceIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MainActivity.ACTION_START_BLE);
+        intentFilter.addAction(MainActivity.ACTION_STOP_BLE);
+        return intentFilter;
+    }
 
 }
 

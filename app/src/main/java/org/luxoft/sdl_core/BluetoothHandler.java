@@ -25,6 +25,8 @@ class BluetoothHandler {
     private final Context context;
     private final Handler handler = new Handler();
 
+    public static final String TAG = BluetoothHandler.class.getSimpleName();
+
     // To request a higher MTU, iOS always asks for 185
     private static final int PREFERRED_MTU = 185;
 
@@ -61,9 +63,9 @@ class BluetoothHandler {
         @Override
         public void onCharacteristicWrite(BluetoothPeripheral peripheral, byte[] value, BluetoothGattCharacteristic characteristic, GattStatus status) {
             if (status == GattStatus.SUCCESS) {
-                Log.i(BleCentralService.TAG, "SUCCESS: Writing " + String.valueOf(value) + " to " + characteristic.getUuid());
+                Log.i(TAG, "SUCCESS: Writing " + String.valueOf(value) + " to " + characteristic.getUuid());
             } else {
-                Log.i(BleCentralService.TAG, "ERROR: Failed writing " + String.valueOf(value) + " to " + characteristic.getUuid() + " with " + status);
+                Log.i(TAG, "ERROR: Failed writing " + String.valueOf(value) + " to " + characteristic.getUuid() + " with " + status);
             }
         }
 
@@ -74,7 +76,7 @@ class BluetoothHandler {
             UUID characteristicUUID = characteristic.getUuid();
             if (characteristicUUID.equals(MOBILE_REQUEST_CHARACTERISTIC)) {
                     String msg = characteristic.getStringValue(0);
-                    Log.d(BleCentralService.TAG, "message: " + msg);
+                    Log.d(TAG, "message: " + msg);
                     Handler handler = new Handler();
                     final BluetoothPeripheral peripheral_copy = peripheral;
                     final String msg_copy = msg;
@@ -97,18 +99,18 @@ class BluetoothHandler {
 
         @Override
         public void onConnectedPeripheral(BluetoothPeripheral peripheral) {
-            Log.i(BleCentralService.TAG, "connected to " + peripheral.getName());
+            Log.i(TAG, "connected to " + peripheral.getName());
             mPeripheral = peripheral;
         }
 
         @Override
         public void onConnectionFailed(BluetoothPeripheral peripheral, final HciStatus status) {
-            Log.e(BleCentralService.TAG, "connection " + peripheral.getName() + " failed with status " + status);
+            Log.e(TAG, "connection " + peripheral.getName() + " failed with status " + status);
         }
 
         @Override
         public void onDisconnectedPeripheral(final BluetoothPeripheral peripheral, final HciStatus status) {
-            Log.d(BleCentralService.TAG, "Disconnected from " + peripheral.getName());
+            Log.d(TAG, "Disconnected from " + peripheral.getName());
 
             if (mPeripheral != null && peripheral.getAddress().equals(mPeripheral.getAddress())) {
                 // Reconnect to this device when it becomes available again
@@ -123,7 +125,7 @@ class BluetoothHandler {
 
         @Override
         public void onDiscoveredPeripheral(BluetoothPeripheral peripheral, ScanResult scanResult) {
-            Log.v(BleCentralService.TAG, "Found peripheral " + peripheral.getName());
+            Log.v(TAG, "Found peripheral " + peripheral.getName());
             central.stopScan();
             central.connectPeripheral(peripheral, peripheralCallback);
         }
@@ -134,7 +136,7 @@ class BluetoothHandler {
         BluetoothGattCharacteristic responseCharacteristic = peripheral.getCharacteristic(SDL_TESTER_SERVICE_UUID, MOBILE_RESPONSE_CHARACTERISTIC);
         if (responseCharacteristic != null) {
             if ((responseCharacteristic.getProperties() & PROPERTY_WRITE) > 0) {
-                Log.d(BleCentralService.TAG, "response: " + message);
+                Log.d(TAG, "response: " + message);
                 byte[] byte_response = message.getBytes();
                 peripheral.writeCharacteristic(responseCharacteristic, byte_response, WriteType.WITH_RESPONSE);
             }
@@ -147,7 +149,7 @@ class BluetoothHandler {
     }
 
     public void disconnect() {
-        Log.d(BleCentralService.TAG, "Closing bluetooth handler...");
+        Log.d(TAG, "Closing bluetooth handler...");
         handler.removeCallbacksAndMessages(null);
         if (central != null) {
             if (mPeripheral != null) {
@@ -160,15 +162,14 @@ class BluetoothHandler {
     }
 
     public void connect() {
-        Log.d(BleCentralService.TAG, "Prepare to start scanning...");
+        Log.d(TAG, "Prepare to start scanning...");
         central = new BluetoothCentralManager(context, bluetoothCentralManagerCallback, new Handler());
 
         // Scan for peripherals with a certain service UUIDs
-        //central.startPairingPopupHack();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.d(BleCentralService.TAG, "Searching for SDL-compatible peripherals...");
+                Log.d(TAG, "Searching for SDL-compatible peripherals...");
                 UUID[] servicesToSearch = new UUID[1];
                 servicesToSearch[0] = SDL_TESTER_SERVICE_UUID;
                 central.scanForPeripheralsWithServices(servicesToSearch);
