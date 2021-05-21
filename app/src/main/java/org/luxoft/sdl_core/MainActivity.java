@@ -34,6 +34,9 @@ import java.util.Arrays;
 
 import android.bluetooth.BluetoothAdapter;
 
+import static org.luxoft.sdl_core.BleCentralService.ACTION_START_BLE;
+import static org.luxoft.sdl_core.BleCentralService.ACTION_STOP_BLE;
+
 public class MainActivity extends AppCompatActivity {
 
     static final String TAG = MainActivity.class.getSimpleName();
@@ -46,8 +49,6 @@ public class MainActivity extends AppCompatActivity {
     public static String sdl_external_dir_folder_path;
     private static final int ACCESS_LOCATION_REQUEST = 1;
     private static final int ACCESS_EXT_STORAGE_REQUEST = 2;
-    public final static String ACTION_START_BLE = "ACTION_START_BLE";
-    public final static String ACTION_STOP_BLE = "ACTION_STOP_BLE";
 
     private native static void StartSDL();
     private native static void StopSDL();

@@ -10,6 +10,8 @@ import android.util.Log;
 
 public class BleCentralService extends Service {
         public static final String TAG = BleCentralService.class.getSimpleName();
+        public final static String ACTION_START_BLE = "ACTION_START_BLE";
+        public final static String ACTION_STOP_BLE = "ACTION_STOP_BLE";
 
         @Override
         public void onCreate() {
@@ -47,12 +49,12 @@ public class BleCentralService extends Service {
                 }
 
                 switch (intent.getAction()) {
-                    case MainActivity.ACTION_START_BLE:
+                    case ACTION_START_BLE:
                         Log.i(TAG, "ACTION_START_BLE received by centralServiceReceiver");
                         initBluetoothHandler();
                         break;
 
-                    case MainActivity.ACTION_STOP_BLE:
+                    case ACTION_STOP_BLE:
                         Log.i(TAG, "ACTION_STOP_BLE received by centralServiceReceiver");
                         BluetoothHandler handler = BluetoothHandler.getInstance(context);
                         handler.disconnect();
@@ -63,8 +65,8 @@ public class BleCentralService extends Service {
 
     private static IntentFilter makeCentralServiceIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(MainActivity.ACTION_START_BLE);
-        intentFilter.addAction(MainActivity.ACTION_STOP_BLE);
+        intentFilter.addAction(ACTION_START_BLE);
+        intentFilter.addAction(ACTION_STOP_BLE);
         return intentFilter;
     }
 
