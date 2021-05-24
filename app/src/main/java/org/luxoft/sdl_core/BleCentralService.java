@@ -12,6 +12,9 @@ public class BleCentralService extends Service {
         public static final String TAG = BleCentralService.class.getSimpleName();
         public final static String ACTION_START_BLE = "ACTION_START_BLE";
         public final static String ACTION_STOP_BLE = "ACTION_STOP_BLE";
+        //public static String SOCKET_ADDRESS = "./localServer";
+        BleLocalSocketServer mLocalSocketServer;
+        BleLocalSocketClient mLocalSocketClient;
 
         @Override
         public void onCreate() {
@@ -52,12 +55,18 @@ public class BleCentralService extends Service {
                     case ACTION_START_BLE:
                         Log.i(TAG, "ACTION_START_BLE received by centralServiceReceiver");
                         initBluetoothHandler();
+                        mLocalSocketServer = new BleLocalSocketServer();
+                        mLocalSocketServer.start();
+                        mLocalSocketClient = new BleLocalSocketClient();
+                        mLocalSocketClient.start();
                         break;
 
                     case ACTION_STOP_BLE:
                         Log.i(TAG, "ACTION_STOP_BLE received by centralServiceReceiver");
                         BluetoothHandler handler = BluetoothHandler.getInstance(context);
                         handler.disconnect();
+                        mLocalSocketServer.setStopThread(true);
+                        mLocalSocketServer.setStopThread(true);
                         break;
                 }
             }
@@ -69,6 +78,5 @@ public class BleCentralService extends Service {
         intentFilter.addAction(ACTION_STOP_BLE);
         return intentFilter;
     }
-
 }
 
