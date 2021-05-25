@@ -1,5 +1,7 @@
 package org.luxoft.sdl_core;
 
+import android.content.Context;
+import android.content.Intent;
 import android.net.LocalServerSocket;
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
@@ -7,9 +9,13 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+
+import static org.luxoft.sdl_core.BleCentralService.ACTION_START_BLE;
+import static org.luxoft.sdl_core.BleCentralService.GET_CLIENT_MESSAGE;
 
 public class BleLocalSocketServer extends Thread {
-        public static final String TAG = BleCentralService.class.getSimpleName();
+        public static final String TAG = BleLocalSocketServer.class.getSimpleName();
         int bufferSize = 32;
         byte[] buffer;
         int bytesRead;
@@ -20,35 +26,17 @@ public class BleLocalSocketServer extends Thread {
         InputStream input;
         private volatile boolean stopThread;
         public static String SOCKET_ADDRESS = "./localServer";
+        String message;
+        private final Context context;
+        private static BleLocalSocketServer instance = null;
 
-        public BleLocalSocketServer() {
-            Log.d(TAG, " +++ Begin of localSocketServer() +++ ");
-            buffer = new byte[bufferSize];
-            bytesRead = 0;
-            totalBytesRead = 0;
-            posOffset = 0;
-
-            try {
-                server = new LocalServerSocket(SOCKET_ADDRESS);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                Log.d(TAG, "The localSocketServer created failed !!!");
-                e.printStackTrace();
-            }
-
-            LocalSocketAddress localSocketAddress;
-            localSocketAddress = server.getLocalSocketAddress();
-            String str = localSocketAddress.getName();
-
-            Log.d(TAG, "The LocalSocketAddress = " + str);
-
-            stopThread = false;
+        public String GetMessageFromClient(){
+            return message;
         }
 
         public void run() {
-            Log.d(TAG, " +++ Begin of run() +++ ");
             while (!stopThread) {
-
+                Log.d(TAG, " +++ One server iteration +++ ");
                 if (null == server){
                     Log.d(TAG, "The localSocketServer is NULL !!!");
                     stopThread = true;
@@ -77,7 +65,6 @@ public class BleLocalSocketServer extends Thread {
                 Log.d(TAG, "The client connect to LocalServerSocket");
 
                 while (receiver != null) {
-
                     try {
                         bytesRead = input.read(buffer, posOffset,
                                 (bufferSize - totalBytesRead));
@@ -96,6 +83,10 @@ public class BleLocalSocketServer extends Thread {
                         String readed_bytes = new String(buffer);
                         Log.d(TAG, "Receive data from socket = "
                                 + readed_bytes);
+                        message = readed_bytes;
+                        final Intent intent = new Intent(GET_CLIENT_MESSAGE);
+                        context.sendBroadcast(intent);
+
                     }
 
                     if (totalBytesRead == bufferSize) {
@@ -134,6 +125,42 @@ public class BleLocalSocketServer extends Thread {
             stopThread = value;
             Thread.currentThread().interrupt(); // TODO : Check
         }
+
+        public void SendMobileRequest(String mobile_request){
+            Log.d(TAG, "mobile_request inside server: " + mobile_request);
+        }
+
+        private BleLocalSocketServer(Context context) {
+            Log.d(TAG, " +++ Begin of localSocketServer() +++ ");
+            buffer = new byte[bufferSize];
+            bytesRead = 0;
+            totalBytesRead = 0;
+            posOffset = 0;
+            this.context = context;
+
+            try {
+                server = new LocalServerSocket(SOCKET_ADDRESS);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                Log.d(TAG, "The localSocketServer created failed !!!");
+                e.printStackTrace();
+            }
+
+            LocalSocketAddress localSocketAddress;
+            localSocketAddress = server.getLocalSocketAddress();
+            String str = localSocketAddress.getName();
+
+            Log.d(TAG, "The LocalSocketAddress = " + str);
+
+            stopThread = false;
+        }
+
+    public static synchronized BleLocalSocketServer getInstance(Context context) {
+        if (instance == null) {
+            instance = new BleLocalSocketServer(context);
+        }
+        return instance;
+    }
 
     }
 

@@ -5,10 +5,11 @@ import android.net.LocalSocketAddress;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class BleLocalSocketClient extends Thread {
 
-        public static final String TAG = BleCentralService.class.getSimpleName();
+        public static final String TAG = BleLocalSocketClient.class.getSimpleName();
         private volatile boolean stopThread;
         public static String SOCKET_ADDRESS = "./localServer";
 
@@ -26,7 +27,7 @@ public class BleLocalSocketClient extends Thread {
                 try {
                     LocalSocket sender = new LocalSocket();
                     sender.connect(new LocalSocketAddress(SOCKET_ADDRESS));
-                    String data = "Hello world!";
+                    String data = "Response from client!";
                     Log.d("SENT DATA", data);
                     sender.getOutputStream().write(data.getBytes());
                     sender.getOutputStream().close();
