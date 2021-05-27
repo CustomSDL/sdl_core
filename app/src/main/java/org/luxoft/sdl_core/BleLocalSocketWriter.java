@@ -6,13 +6,14 @@ import android.util.Log;
 
 import java.io.IOException;
 
-public class BleLocalSocketWriter extends BleWriter{
+public class BleLocalSocketWriter implements BleWriter{
     public static final String TAG = BleLocalSocketWriter.class.getSimpleName();
     LocalSocket mSocket;
     public static String SOCKET_ADDRESS = "./localBleWriter";
 
     @Override
     public void Connect(){
+        Log.i(TAG, "Connect BleLocalSocketWriter");
         try{
             mSocket = new LocalSocket();
             mSocket.connect(new LocalSocketAddress(SOCKET_ADDRESS));
@@ -23,6 +24,7 @@ public class BleLocalSocketWriter extends BleWriter{
 
     @Override
     public void Disconnect(){
+        Log.i(TAG, "Disconnect BleLocalSocketWriter");
         try {
             mSocket.close();
         } catch (IOException e) {
@@ -33,7 +35,7 @@ public class BleLocalSocketWriter extends BleWriter{
 
     @Override
     public void Write(byte[] rawMessage){
-
+        Log.i(TAG, "Going to write message");
         try {
             String str = new String(rawMessage);
             Log.d(TAG, "Write raw message: " + str);
