@@ -9,10 +9,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
-import static org.luxoft.sdl_core.BleCentralService.ACTION_START_BLE;
-import static org.luxoft.sdl_core.BleCentralService.GET_CLIENT_MESSAGE;
 
 public class BleLocalSocketServer extends Thread {
         public static final String TAG = BleLocalSocketServer.class.getSimpleName();
@@ -25,7 +22,7 @@ public class BleLocalSocketServer extends Thread {
         LocalSocket receiver;
         InputStream input;
         private volatile boolean stopThread;
-        public static String SOCKET_ADDRESS = "./localServer";
+        public static String SOCKET_ADDRESS = "./localBleWriter";
         String message;
         private final Context context;
         private static BleLocalSocketServer instance = null;
@@ -83,9 +80,6 @@ public class BleLocalSocketServer extends Thread {
                         String readed_bytes = new String(buffer);
                         Log.d(TAG, "Receive data from socket = "
                                 + readed_bytes);
-                        message = readed_bytes;
-                        final Intent intent = new Intent(GET_CLIENT_MESSAGE);
-                        context.sendBroadcast(intent);
 
                     }
 

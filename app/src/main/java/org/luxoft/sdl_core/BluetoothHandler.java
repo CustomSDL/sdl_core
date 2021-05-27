@@ -18,9 +18,9 @@ import com.welie.blessed.WriteType;
 import java.util.UUID;
 
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE;
-import static org.luxoft.sdl_core.BleCentralService.ACTION_START_BLE;
+import static org.luxoft.sdl_core.BleCentralService.MOBILE_DATA_EXTRA;
 import static org.luxoft.sdl_core.BleCentralService.ON_BLE_READY;
-import static org.luxoft.sdl_core.BleCentralService.ON_MOBILE_REQUEST_RECEIVED;
+import static org.luxoft.sdl_core.BleCentralService.ON_MOBILE_MESSAGE_RECEIVED;
 
 class BluetoothHandler {
     public BluetoothCentralManager central;
@@ -28,7 +28,6 @@ class BluetoothHandler {
     private BluetoothPeripheral mPeripheral = null;
     private final Context context;
     private final Handler handler = new Handler();
-    String message;
 
     public static final String TAG = BluetoothHandler.class.getSimpleName();
 
@@ -85,8 +84,9 @@ class BluetoothHandler {
             if (characteristicUUID.equals(MOBILE_REQUEST_CHARACTERISTIC)) {
                     String msg = characteristic.getStringValue(0);
                     Log.d(TAG, "message: " + msg);
-                    message = msg;
-                    final Intent intent = new Intent(ON_MOBILE_REQUEST_RECEIVED);
+                    byte[] msg_value = characteristic.getValue();
+                    final Intent intent = new Intent(ON_MOBILE_MESSAGE_RECEIVED);
+                    intent.putExtra(MOBILE_DATA_EXTRA, msg_value);
                     context.sendBroadcast(intent);
 
             }
@@ -130,25 +130,21 @@ class BluetoothHandler {
         }
     };
 
-    public void writeMessage(String message){
-        // Hardcoded UUIDs of characteristics, which are suitable for testing
+    public void writeMessage(byte[] message){
+
         if (mPeripheral == null) {
             Log.e(TAG, "mPeripheral is null");
             return;
         }
 
+        // Hardcoded UUIDs of characteristics, which are suitable for testing
         BluetoothGattCharacteristic responseCharacteristic = mPeripheral.getCharacteristic(SDL_TESTER_SERVICE_UUID, MOBILE_RESPONSE_CHARACTERISTIC);
         if (responseCharacteristic != null) {
             if ((responseCharacteristic.getProperties() & PROPERTY_WRITE) > 0) {
-                Log.d(TAG, "response: " + message);
-                byte[] byte_response = message.getBytes();
-                mPeripheral.writeCharacteristic(responseCharacteristic, byte_response, WriteType.WITH_RESPONSE);
+                Log.d(TAG, "response: " + message.toString());
+                mPeripheral.writeCharacteristic(responseCharacteristic, message, WriteType.WITH_RESPONSE);
             }
         }
-    }
-
-    public String GetMobileRequest(){
-        return message;
     }
 
     private BluetoothHandler(Context context) {

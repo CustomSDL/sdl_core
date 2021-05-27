@@ -12,22 +12,25 @@ public class BleCentralService extends Service {
         public static final String TAG = BleCentralService.class.getSimpleName();
         public final static String ACTION_START_BLE = "ACTION_START_BLE";
         public final static String ACTION_STOP_BLE = "ACTION_STOP_BLE";
-        public final static String GET_CLIENT_MESSAGE = "GET_CLIENT_MESSAGE";
         public final static String ON_BLE_READY = "ON_BLE_READY";
-        public final static String ON_MOBILE_REQUEST_RECEIVED = "ON_MOBILE_REQUEST_RECEIVED";
+        public final static String ON_MOBILE_MESSAGE_RECEIVED = "ON_MOBILE_REQUEST_RECEIVED";
+        public final static String MOBILE_DATA_EXTRA = "MOBILE_DATA_EXTRA";
         //public static String SOCKET_ADDRESS = "./localServer";
-        BleLocalSocketServer mLocalSocketServer;
-        BleLocalSocketClient mLocalSocketClient;
+        BleLocalSocketServer mTestSocketServer;
+        //BleLocalSocketClient mLocalSocketClient;
         BluetoothHandler mBluetoothHandler;
+        JavaToNativeBleAdapter mNativeBleAdapter;
 
         @Override
         public void onCreate() {
+            mNativeBleAdapter = new JavaToNativeBleAdapter();
             super.onCreate();
         }
 
         @Override
         public void onDestroy() {
             unregisterReceiver(centralServiceReceiver);
+            //Destroy adapter?
             super.onDestroy();
         }
 
@@ -42,11 +45,12 @@ public class BleCentralService extends Service {
         }
 
         private void initBleLocalSocketServer(){
-            mLocalSocketServer = BleLocalSocketServer.getInstance(this);
-            mLocalSocketServer.start();
+            mTestSocketServer = BleLocalSocketServer.getInstance(this);
+            mTestSocketServer.start();
         }
 
-        @Override
+
+    @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
             registerReceiver(centralServiceReceiver, makeCentralServiceIntentFilter());
             return super.onStartCommand(intent, flags, startId);
@@ -64,32 +68,33 @@ public class BleCentralService extends Service {
                     case ACTION_START_BLE:
                         Log.i(TAG, "ACTION_START_BLE received by centralServiceReceiver");
                         initBluetoothHandler();
+                        initBleLocalSocketServer();
+                        mNativeBleAdapter.start();
+                        //initBleLocalSocketServer();
                         break;
 
                     case ACTION_STOP_BLE:
                         Log.i(TAG, "ACTION_STOP_BLE received by centralServiceReceiver");
                         mBluetoothHandler.disconnect();
-                        mLocalSocketServer.setStopThread(true);
-                        mLocalSocketServer.setStopThread(true);
-                        break;
+                        mNativeBleAdapter.setStopThread(true);
+                        mTestSocketServer.setStopThread(true);
+                        //mLocalSocketClient.setStopThread(true);
 
-                    case GET_CLIENT_MESSAGE:
-                        Log.i(TAG, "GET_CLIENT_MESSAGE received by centralServiceReceiver");
-                        String message = mLocalSocketServer.GetMessageFromClient();
-                        mBluetoothHandler.writeMessage(message);
                         break;
 
                     case ON_BLE_READY:
                         Log.i(TAG, "ON_BLE_READY received by centralServiceReceiver");
-                        initBleLocalSocketServer();
-                        mLocalSocketClient = new BleLocalSocketClient();
-                        mLocalSocketClient.start();
+                        mNativeBleAdapter.ReadMessageFromNative(mCallback);
+                        //Test section
+                        //mLocalSocketClient = new BleLocalSocketClient();
+                        //mLocalSocketClient.start();
                         break;
 
-                    case ON_MOBILE_REQUEST_RECEIVED:
-                        Log.i(TAG, "ON_MOBILE_REQUEST_RECEIVED received by centralServiceReceiver");
-                        String mobile_request = mBluetoothHandler.GetMobileRequest();
-                        mLocalSocketServer.SendMobileRequest(mobile_request);
+                    case ON_MOBILE_MESSAGE_RECEIVED:
+                        Log.i(TAG, "ON_MOBILE_MESSAGE_RECEIVED received by centralServiceReceiver");
+                        //Test section
+                        byte[] mobile_message = intent.getByteArrayExtra(MOBILE_DATA_EXTRA);
+                        mNativeBleAdapter.ForwardMessageToNative(mobile_message);
                         break;
                 }
             }
@@ -99,10 +104,16 @@ public class BleCentralService extends Service {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_START_BLE);
         intentFilter.addAction(ACTION_STOP_BLE);
-        intentFilter.addAction(GET_CLIENT_MESSAGE);
         intentFilter.addAction(ON_BLE_READY);
-        intentFilter.addAction(ON_MOBILE_REQUEST_RECEIVED);
+        intentFilter.addAction(ON_MOBILE_MESSAGE_RECEIVED);
         return intentFilter;
     }
+
+    private BleAdapterMessageCallback mCallback = new BleAdapterMessageCallback() {
+        @Override
+        public void OnMessageReceived(byte[] rawMessage) {
+            mBluetoothHandler.writeMessage(rawMessage);
+        }
+    };
 }
 
