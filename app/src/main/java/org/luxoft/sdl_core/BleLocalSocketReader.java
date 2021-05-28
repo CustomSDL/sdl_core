@@ -13,6 +13,8 @@ public class BleLocalSocketReader implements BleReader {
     LocalSocket mReceiver;
     InputStream mInputStream;
     int mBytesRead;
+    BleAdapterMessageCallback mCallback;
+    Thread mLoopTread;
     public static String SOCKET_ADDRESS = "./localBleReader";
 
     @Override
@@ -37,6 +39,8 @@ public class BleLocalSocketReader implements BleReader {
     @Override
     public void Disconnect(){
         Log.i(TAG, "Disconnect BleLocalSocketReader");
+
+        mLoopTread.interrupt();
         if (mReceiver != null){
             try {
                 mReceiver.close();
@@ -56,6 +60,7 @@ public class BleLocalSocketReader implements BleReader {
     @Override
     public void Read(BleAdapterMessageCallback callback){
         Log.i(TAG, "Going to read message");
+        mCallback = callback;
         try {
             mInputStream = mReceiver.getInputStream();
         } catch (IOException e) {
@@ -65,25 +70,34 @@ public class BleLocalSocketReader implements BleReader {
 
         Log.d(TAG, "The client connect to BleLocalSocketReader");
 
-        while (true) {
-            byte[] buffer;
-            int bufferSize = 32;
-            buffer = new byte[bufferSize];
-            try {
-                mBytesRead = mInputStream.read(buffer);
-            } catch (IOException e) {
-                Log.d(TAG, "There is an exception when reading socket");
-                e.printStackTrace();
-                break;
-            }
+        ReadLoop readLoop = new ReadLoop();
+        mLoopTread = new Thread(readLoop);
+        mLoopTread.start();
+    }
 
-            if (mBytesRead >= 0) {
-                Log.d(TAG, "Receive data from socket, bytesRead = "
-                        + mBytesRead);
-                String readed_bytes = new String(buffer);
-                Log.d(TAG, "Receive data from socket = "
-                        + readed_bytes);
-                callback.OnMessageReceived(buffer);
+    class ReadLoop implements Runnable {
+        @Override
+        public void run() {
+            while (true) {
+                byte[] buffer;
+                int bufferSize = 32;
+                buffer = new byte[bufferSize];
+                try {
+                    mBytesRead = mInputStream.read(buffer);
+                } catch (IOException e) {
+                    Log.d(TAG, "There is an exception when reading socket");
+                    e.printStackTrace();
+                    break;
+                }
+
+                if (mBytesRead >= 0) {
+                    Log.d(TAG, "Receive data from socket, bytesRead = "
+                            + mBytesRead);
+                    String stringified_data = new String(buffer);
+                    Log.d(TAG, "Receive data from socket = "
+                            + stringified_data);
+                    mCallback.OnMessageReceived(buffer);
+                }
             }
         }
     }
