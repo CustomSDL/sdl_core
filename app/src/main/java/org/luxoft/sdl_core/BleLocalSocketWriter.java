@@ -26,6 +26,13 @@ public class BleLocalSocketWriter implements BleWriter{
     public void Disconnect(){
         Log.i(TAG, "Disconnect BleLocalSocketWriter");
         try {
+            mSocket.getOutputStream().close();
+        } catch (IOException e) {
+            Log.e(TAG, "Cannot close output stream");
+            e.printStackTrace();
+        }
+
+        try {
             mSocket.close();
         } catch (IOException e) {
             Log.e(TAG, "Cannot close socket");
@@ -36,11 +43,11 @@ public class BleLocalSocketWriter implements BleWriter{
     @Override
     public void Write(byte[] rawMessage){
         Log.i(TAG, "Going to write message");
+
         try {
             String str = new String(rawMessage);
             Log.d(TAG, "Write raw message: " + str);
             mSocket.getOutputStream().write(rawMessage);
-            mSocket.getOutputStream().close();
         } catch (IOException e) {
             Log.e(TAG, "Cannot write to output stream");
             e.printStackTrace();

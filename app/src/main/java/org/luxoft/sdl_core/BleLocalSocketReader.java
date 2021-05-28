@@ -7,6 +7,8 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.luxoft.sdl_core.BluetoothHandler.PREFERRED_MTU;
+
 public class BleLocalSocketReader implements BleReader {
     public static final String TAG = BleLocalSocketReader.class.getSimpleName();
     LocalServerSocket mServer;
@@ -15,6 +17,7 @@ public class BleLocalSocketReader implements BleReader {
     int mBytesRead;
     BleAdapterMessageCallback mCallback;
     Thread mLoopTread;
+    public static final int mBufferSize = PREFERRED_MTU;
     public static String SOCKET_ADDRESS = "./localBleReader";
 
     @Override
@@ -80,8 +83,7 @@ public class BleLocalSocketReader implements BleReader {
         public void run() {
             while (true) {
                 byte[] buffer;
-                int bufferSize = 32;
-                buffer = new byte[bufferSize];
+                buffer = new byte[mBufferSize];
                 try {
                     mBytesRead = mInputStream.read(buffer);
                 } catch (IOException e) {

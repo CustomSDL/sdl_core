@@ -32,7 +32,7 @@ class BluetoothHandler {
     public static final String TAG = BluetoothHandler.class.getSimpleName();
 
     // To request a higher MTU, iOS always asks for 185
-    private static final int PREFERRED_MTU = 185;
+    public static final int PREFERRED_MTU = 185;
 
     // Testing-only service with ability to notify and write
     private static final UUID SDL_TESTER_SERVICE_UUID = UUID
