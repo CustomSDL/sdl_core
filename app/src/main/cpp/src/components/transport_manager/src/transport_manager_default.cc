@@ -40,6 +40,10 @@
 #include "transport_manager/bluetooth/bluetooth_transport_adapter.h"
 #endif
 
+#ifdef BLUETOOTH_LE_SUPPORT
+#include "transport_manager/bluetooth_le/bluetooth_le_transport_adapter.h"
+#endif
+
 #if defined(USB_SUPPORT)
 #include "transport_manager/usb/usb_aoa_adapter.h"
 #endif  // USB_SUPPORT
@@ -64,6 +68,13 @@ TransportAdapterFactory::TransportAdapterFactory() {
   ta_bluetooth_creator_ = [](resumption::LastStateWrapperPtr last_state_wrapper,
                              const TransportManagerSettings& settings) {
     return new transport_adapter::BluetoothTransportAdapter(last_state_wrapper,
+                                                            settings);
+  };
+#endif
+#ifdef BLUETOOTH_LE_SUPPORT
+  ta_bluetooth_le_creator_ = [](resumption::LastStateWrapperPtr last_state_wrapper,
+                             const TransportManagerSettings& settings) {
+    return new transport_adapter::BluetoothLeTransportAdapter(last_state_wrapper,
                                                             settings);
   };
 #endif
