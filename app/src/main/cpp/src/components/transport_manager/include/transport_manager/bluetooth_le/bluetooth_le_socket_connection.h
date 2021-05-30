@@ -44,7 +44,7 @@ namespace transport_adapter {
 class TransportAdapterController;
 
 /**
- * @brief Class responsible for communication over bluetooth sockets.
+ * @brief Class responsible for communication over bluetooth LE sockets.
  */
 class BluetoothLeSocketConnection : public ThreadedSocketConnection {
  public:

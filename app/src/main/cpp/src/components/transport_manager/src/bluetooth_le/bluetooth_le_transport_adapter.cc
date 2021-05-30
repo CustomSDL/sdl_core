@@ -1,6 +1,6 @@
 /*
- * \file bluetooth_transport_adapter.cc
- * \brief BluetoothTransportAdapter class source file.
+ * \file bluetooth_le_transport_adapter.cc
+ * \brief BluetoothLeransportAdapter class source file.
  *
  * Copyright (c) 2021, Ford Motor Company
  * All rights reserved.
@@ -45,12 +45,16 @@
 #include "transport_manager/bluetooth_le/bluetooth_le_device_scanner.h"
 #include "transport_manager/bluetooth_le/bluetooth_le_connection_factory.h"
 
+#include "transport_manager/bluetooth_le/ble_client.h"
+
 #include "utils/logger.h"
 
 namespace transport_manager {
 namespace transport_adapter {
 
 SDL_CREATE_LOG_VARIABLE("TransportManager")
+
+BleClient ble_client;
 
 BluetoothLeTransportAdapter::BluetoothLeTransportAdapter(
     resumption::LastStateWrapperPtr last_state_wrapper,
@@ -60,7 +64,11 @@ BluetoothLeTransportAdapter::BluetoothLeTransportAdapter(
           new BluetoothLeConnectionFactory(this),
           NULL,
           last_state_wrapper,
-          settings) {}
+          settings) 
+          {
+            ble_client.Init();
+            ble_client.Run();
+          }
 
 DeviceType BluetoothLeTransportAdapter::GetDeviceType() const {
   return BLUETOOTH_LE;

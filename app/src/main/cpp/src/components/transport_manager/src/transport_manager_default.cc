@@ -136,6 +136,17 @@ int TransportManagerDefault::Init(
   AddTransportAdapter(ta_bluetooth);
 #endif  // BLUETOOTH_SUPPORT
 
+#if defined(BLUETOOTH_LE_SUPPORT)
+  auto ta_bluetooth_le =
+      ta_factory_.ta_bluetooth_le_creator_(last_state_wrapper, settings);
+#ifdef TELEMETRY_MONITOR
+  if (metric_observer_) {
+    ta_bluetooth_le->SetTelemetryObserver(metric_observer_);
+  }
+#endif  // TELEMETRY_MONITOR
+  AddTransportAdapter(ta_bluetooth_le);
+#endif  // BLUETOOTH_LE_SUPPORT
+
   auto ta_tcp =
       ta_factory_.ta_tcp_creator_(settings.transport_manager_tcp_adapter_port(),
                                   last_state_wrapper,

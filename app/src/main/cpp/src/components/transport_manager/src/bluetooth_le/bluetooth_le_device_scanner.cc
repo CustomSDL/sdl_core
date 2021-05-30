@@ -193,11 +193,13 @@ void BluetoothLeDeviceScanner::TimedWaitForDeviceScanRequest() {
 
 TransportAdapter::Error BluetoothLeDeviceScanner::Init() {
   SDL_LOG_AUTO_TRACE();
+  /*
   if (!thread_->Start()) {
     SDL_LOG_ERROR("Bluetooth LE device scanner thread start failed");
     return TransportAdapter::FAIL;
   }
   SDL_LOG_INFO("Bluetooth LE device scanner thread started");
+  */
   return TransportAdapter::OK;
 }
 
