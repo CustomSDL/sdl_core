@@ -3,6 +3,7 @@ package org.luxoft.sdl_core;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 
@@ -17,6 +18,9 @@ import com.welie.blessed.WriteType;
 import java.util.UUID;
 
 import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE;
+import static org.luxoft.sdl_core.BleCentralService.MOBILE_DATA_EXTRA;
+import static org.luxoft.sdl_core.BleCentralService.ON_BLE_READY;
+import static org.luxoft.sdl_core.BleCentralService.ON_MOBILE_MESSAGE_RECEIVED;
 
 class BluetoothHandler {
     public BluetoothCentralManager central;
@@ -28,7 +32,7 @@ class BluetoothHandler {
     public static final String TAG = BluetoothHandler.class.getSimpleName();
 
     // To request a higher MTU, iOS always asks for 185
-    private static final int PREFERRED_MTU = 185;
+    public static final int PREFERRED_MTU = 185;
 
     // Testing-only service with ability to notify and write
     private static final UUID SDL_TESTER_SERVICE_UUID = UUID
@@ -58,6 +62,9 @@ class BluetoothHandler {
 
             // Try to turn on notification
             peripheral.setNotify(SDL_TESTER_SERVICE_UUID, MOBILE_REQUEST_CHARACTERISTIC, true);
+
+            final Intent intent = new Intent(ON_BLE_READY);
+            context.sendBroadcast(intent);
         }
 
         @Override
@@ -77,19 +84,11 @@ class BluetoothHandler {
             if (characteristicUUID.equals(MOBILE_REQUEST_CHARACTERISTIC)) {
                     String msg = characteristic.getStringValue(0);
                     Log.d(TAG, "message: " + msg);
-                    Handler handler = new Handler();
-                    final BluetoothPeripheral peripheral_copy = peripheral;
-                    final String msg_copy = msg;
-                    //For now there is a simple testing scenario with synthetic delay:
-                    //After receiving a notification from peripheral
-                    //we copy message from this notification, wait for 3 sec and
-                    // send response to peripheral with modified incoming message
-                    // ToDo: replace with valid business logic in the future
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
-                            writeMessage(peripheral_copy, "Response to: " + msg_copy);
-                        }
-                }, 3000);
+                    byte[] msg_value = characteristic.getValue();
+                    final Intent intent = new Intent(ON_MOBILE_MESSAGE_RECEIVED);
+                    intent.putExtra(MOBILE_DATA_EXTRA, msg_value);
+                    context.sendBroadcast(intent);
+
             }
         }
     };
@@ -131,14 +130,19 @@ class BluetoothHandler {
         }
     };
 
-    private void writeMessage(BluetoothPeripheral peripheral, String message){
+    public void writeMessage(byte[] message){
+
+        if (mPeripheral == null) {
+            Log.e(TAG, "mPeripheral is null");
+            return;
+        }
+
         // Hardcoded UUIDs of characteristics, which are suitable for testing
-        BluetoothGattCharacteristic responseCharacteristic = peripheral.getCharacteristic(SDL_TESTER_SERVICE_UUID, MOBILE_RESPONSE_CHARACTERISTIC);
+        BluetoothGattCharacteristic responseCharacteristic = mPeripheral.getCharacteristic(SDL_TESTER_SERVICE_UUID, MOBILE_RESPONSE_CHARACTERISTIC);
         if (responseCharacteristic != null) {
             if ((responseCharacteristic.getProperties() & PROPERTY_WRITE) > 0) {
-                Log.d(TAG, "response: " + message);
-                byte[] byte_response = message.getBytes();
-                peripheral.writeCharacteristic(responseCharacteristic, byte_response, WriteType.WITH_RESPONSE);
+                Log.d(TAG, "response: " + message.toString());
+                mPeripheral.writeCharacteristic(responseCharacteristic, message, WriteType.WITH_RESPONSE);
             }
         }
     }
