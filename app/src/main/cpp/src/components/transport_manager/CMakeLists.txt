@@ -157,13 +157,11 @@ if(BUILD_BLE_SUPPORT)
     ${COMPONENTS_DIR}/transport_manager/src/bluetooth_le/bluetooth_le_socket_connection.cc
     ${COMPONENTS_DIR}/transport_manager/src/bluetooth_le/bluetooth_le_device_scanner.cc
     ${COMPONENTS_DIR}/transport_manager/src/bluetooth_le/ble_client.cc
+    ${COMPONENTS_DIR}/transport_manager/src/bluetooth_le/ble_server.cc
     )
 
     if (CMAKE_SYSTEM_NAME STREQUAL "Android")
       include_directories ("${COMPONENTS_DIR}../platform_specific/android")
-      list(APPEND SOURCES
-        ${COMPONENTS_DIR}/../platform_specific/android/ble_interface.cc
-      )
     endif ()
 
 else()

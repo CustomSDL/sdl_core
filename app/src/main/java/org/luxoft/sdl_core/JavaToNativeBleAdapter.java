@@ -10,8 +10,6 @@ public class JavaToNativeBleAdapter extends Thread {
     private static final int WRITE_ID = 1;
     private static final int READ_ID = 2;
 
-    private native static void OnBLEMessageReseived(String ble_msg);
-
     Handler mHandler;
     BleWriter mWriter;
     BleReader mReader;
@@ -38,15 +36,14 @@ public class JavaToNativeBleAdapter extends Thread {
 
     @Override
     public void run() {
-        mWriter.Connect();
-        mReader.Connect();
+        OnConnectCallback readerCallback = new OnConnectWriteCallback();
+        mReader.Connect(readerCallback);
         Looper.prepare();
         mHandler = new Handler(Looper.myLooper()) {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case WRITE_ID:
                         mWriter.Write((byte[]) msg.obj);
-                        OnBLEMessageReseived(new String((byte[]) msg.obj));
                         break;
                     case READ_ID:
                         mReader.Read((BleAdapterMessageCallback) msg.obj);
@@ -61,6 +58,12 @@ public class JavaToNativeBleAdapter extends Thread {
 
     public void setStopThread(){
         mHandler.getLooper().quit();
+    }
+
+    class OnConnectWriteCallback implements OnConnectCallback{
+        public void Execute(){
+            mWriter.Connect();
+        }
     }
 
 }

@@ -1,7 +1,7 @@
 package org.luxoft.sdl_core;
 
 public interface BleReader {
-        void Connect();
+        void Connect(OnConnectCallback callback);
         void Disconnect();
         void Read(BleAdapterMessageCallback callback);
 }

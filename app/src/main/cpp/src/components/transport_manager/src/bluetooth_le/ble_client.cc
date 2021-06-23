@@ -6,15 +6,15 @@
 SDL_CREATE_LOG_VARIABLE("Ble_Client")
 
 namespace{
-    const char* socket_name =  "./localBleWriter";
+    const char* socket_name =  "./localBleReader";
 
     char buffer[256];
     bool thread_stop = false;
 
-    void reader_func(int socket_id)
+    void writer_func(int socket_id)
     {
-        while(!thread_stop)
-        {
+        //while(!thread_stop)
+        //{
             /*
             int n = read(fd_, buffer, 255);
             if(n > 0)
@@ -26,7 +26,7 @@ namespace{
             sprintf(buffer, "qwerty");
             int n = write(socket_id, buffer, 8);
             SDL_LOG_INFO("@@@BLE_Write " << n);
-        }
+        //}
     }
 }
 
@@ -68,7 +68,7 @@ void BleClient::Run()
 {
     if(connected)
     {
-        std::thread reader_thread (reader_func, socket_id);
+        std::thread reader_thread (writer_func, socket_id);
         reader_thread.join();
     }
 }

@@ -46,6 +46,7 @@
 #include "transport_manager/bluetooth_le/bluetooth_le_connection_factory.h"
 
 #include "transport_manager/bluetooth_le/ble_client.h"
+#include "transport_manager/bluetooth_le/ble_server.h"
 
 #include "utils/logger.h"
 
@@ -55,6 +56,7 @@ namespace transport_adapter {
 SDL_CREATE_LOG_VARIABLE("TransportManager")
 
 BleClient ble_client;
+BleServer ble_server;
 
 BluetoothLeTransportAdapter::BluetoothLeTransportAdapter(
     resumption::LastStateWrapperPtr last_state_wrapper,
@@ -67,7 +69,9 @@ BluetoothLeTransportAdapter::BluetoothLeTransportAdapter(
           settings) 
           {
             ble_client.Init();
+            ble_server.Init();
             ble_client.Run();
+            ble_server.Run();
           }
 
 DeviceType BluetoothLeTransportAdapter::GetDeviceType() const {

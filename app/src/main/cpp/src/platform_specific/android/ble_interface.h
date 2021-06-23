@@ -1,9 +1,0 @@
-#ifndef SRC_PLATFORM_SPECIFIC_ANDROID_BLE_INTERFACE_H_
-#define SRC_PLATFORM_SPECIFIC_ANDROID_BLE_INTERFACE_H_
-
-#include <string.h>
-#include <jni.h>
-
-void InitBleInterface(JNIEnv* env);
-
-#endif  // SRC_PLATFORM_SPECIFIC_ANDROID_BLE_INTERFACE_H_

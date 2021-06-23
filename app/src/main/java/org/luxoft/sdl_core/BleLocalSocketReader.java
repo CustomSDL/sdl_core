@@ -20,8 +20,9 @@ public class BleLocalSocketReader implements BleReader {
     public static final int mBufferSize = PREFERRED_MTU;
     public static String SOCKET_ADDRESS = "./localBleReader";
 
+
     @Override
-    public void Connect(){
+    public void Connect(OnConnectCallback callback){
         Log.i(TAG, "Connect BleLocalSocketReader");
         try {
             mServer = new LocalServerSocket(SOCKET_ADDRESS);
@@ -37,6 +38,8 @@ public class BleLocalSocketReader implements BleReader {
             Log.e(TAG, "BleLocalSocketReader accept() failed");
             e.printStackTrace();
         }
+
+        callback.Execute();
     };
 
     @Override
