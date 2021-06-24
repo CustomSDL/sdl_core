@@ -77,10 +77,12 @@ void BleServer::Init()
 
 void BleServer::Run()
 {
+    SDL_LOG_TRACE("enter");
     if(connected){
-        std::thread reader_thread (reader_func, client_sock);
-        reader_thread.join();
+        std::thread ble_server_thread (reader_func, client_sock);
+        ble_server_thread.join();
     }
+    SDL_LOG_TRACE("exit");
 }
 
 BleServer::~BleServer(){

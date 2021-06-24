@@ -84,6 +84,7 @@ public class BleLocalSocketReader implements BleReader {
     class ReadLoop implements Runnable {
         @Override
         public void run() {
+            int counter = 0;
             while (true) {
                 byte[] buffer;
                 buffer = new byte[mBufferSize];
@@ -101,7 +102,13 @@ public class BleLocalSocketReader implements BleReader {
                     String stringified_data = new String(buffer);
                     Log.d(TAG, "Receive data from socket = "
                             + stringified_data);
-                    mCallback.OnMessageReceived(buffer);
+                    String new_string = new String("message " + counter);
+                    counter += 1;
+
+                    byte[] new_buffer;
+                    new_buffer = new_string.getBytes();
+                    //mCallback.OnMessageReceived(buffer);
+                    mCallback.OnMessageReceived(new_buffer);
                 }
             }
         }

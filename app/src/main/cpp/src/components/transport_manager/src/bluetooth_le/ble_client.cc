@@ -13,20 +13,13 @@ namespace{
 
     void writer_func(int socket_id)
     {
-        //while(!thread_stop)
-        //{
-            /*
-            int n = read(fd_, buffer, 255);
-            if(n > 0)
-            {
-                SDL_LOG_INFO("@@@BLE_ " << buffer);
-            }
-            */
-            sleep(2);
+        while(!thread_stop)
+        {
+            sleep(5);
             sprintf(buffer, "qwerty");
             int n = write(socket_id, buffer, 8);
             SDL_LOG_INFO("@@@BLE_Write " << n);
-        //}
+        }
     }
 }
 
@@ -66,11 +59,13 @@ void BleClient::Init()
 
 void BleClient::Run()
 {
+    SDL_LOG_TRACE("enter");
     if(connected)
     {
-        std::thread reader_thread (writer_func, socket_id);
-        reader_thread.join();
+        std::thread ble_client_thread (writer_func, socket_id);
+        ble_client_thread.join();
     }
+    SDL_LOG_TRACE("exit");
 }
 
 BleClient::~BleClient()
