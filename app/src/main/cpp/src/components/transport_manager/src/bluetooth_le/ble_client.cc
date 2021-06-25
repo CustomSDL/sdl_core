@@ -60,10 +60,8 @@ void BleClient::Init()
 void BleClient::Run()
 {
     SDL_LOG_TRACE("enter");
-    if(connected)
-    {
-        std::thread ble_client_thread (writer_func, socket_id);
-        ble_client_thread.join();
+    if(connected){
+        writer_func(socket_id);
     }
     SDL_LOG_TRACE("exit");
 }

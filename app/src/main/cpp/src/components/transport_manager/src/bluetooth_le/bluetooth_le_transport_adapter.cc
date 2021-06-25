@@ -68,10 +68,12 @@ BluetoothLeTransportAdapter::BluetoothLeTransportAdapter(
           last_state_wrapper,
           settings) 
           {
-            ble_server.Init();
-            ble_server.Run();
-            ble_client.Init();
-            ble_client.Run();
+            std::thread ble_server_thread([&] {ble_server.Init();
+                ble_server.Run();});
+            std::thread ble_client_thread([&] {ble_client.Init();
+                ble_client.Run();});
+            ble_server_thread.join();
+            ble_client_thread.join();
           }
 
 DeviceType BluetoothLeTransportAdapter::GetDeviceType() const {
