@@ -36,8 +36,8 @@ public class JavaToNativeBleAdapter extends Thread {
 
     @Override
     public void run() {
-        mWriter.Connect();
-        mReader.Connect();
+        OnConnectCallback readerCallback = new OnConnectWriteCallback();
+        mReader.Connect(readerCallback);
         Looper.prepare();
         mHandler = new Handler(Looper.myLooper()) {
             public void handleMessage(Message msg) {
@@ -58,6 +58,12 @@ public class JavaToNativeBleAdapter extends Thread {
 
     public void setStopThread(){
         mHandler.getLooper().quit();
+    }
+
+    class OnConnectWriteCallback implements OnConnectCallback{
+        public void Execute(){
+            mWriter.Connect();
+        }
     }
 
 }
